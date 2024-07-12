@@ -16,7 +16,7 @@ html {
     flex-direction: column;
     min-height: 100vh;
     margin: 0; 
-    background: url('/relatorio_mercado/media/homepage_background_cropped.jpg.jpg') no-repeat center center fixed;
+    background: url('/media/image.jpg') no-repeat center center fixed;
     background-size: cover;
     color: #555;
     font-family: 'Poppins', sans-serif;
