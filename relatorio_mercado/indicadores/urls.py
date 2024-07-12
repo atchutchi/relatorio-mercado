@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from .views import EstacoesMoveisView, EmpregoSetorView, TrafegoNacionalView, QuotaMercadoView, TaxaPenetracaoView, VolumeNegocioView
 
 urlpatterns = [
     path('estacoes-moveis/', EstacoesMoveisView.as_view(), name='estacoes_moveis'),
