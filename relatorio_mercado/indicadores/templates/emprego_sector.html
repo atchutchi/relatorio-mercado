@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Emprego no Setor das TIC</h1>
+
+<div class="chart-container">
+    <canvas id="empregoSetorChart"></canvas>
+</div>
+
+<table class="table mt-4">
+    <thead>
+        <tr>
+            <th>Descrição</th>
+            <th>MTN</th>
+            <th>ORANGE</th>
+            <th>TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Total do emprego direto</td>
+            <td id="mtn-direto"></td>
+            <td id="orange-direto"></td>
+            <td id="total-direto"></td>
+        </tr>
+        <tr>
+            <td>Nacionais</td>
+            <td id="mtn-nacionais"></td>
+            <td id="orange-nacionais"></td>
+            <td id="total-nacionais"></td>
+        </tr>
+        <tr>
+            <td>Homem</td>
+            <td id="mtn-homem"></td>
+            <td id="orange-homem"></td>
+            <td id="total-homem"></td>
+        </tr>
+        <tr>
+            <td>Mulher</td>
+            <td id="mtn-mulher"></td>
+            <td id="orange-mulher"></td>
+            <td id="total-mulher"></td>
+        </tr>
+        <tr>
+            <td>Total do emprego indireto (Agentes, distribuidores, etc.)</td>
+            <td id="mtn-indireto"></td>
+            <td id="orange-indireto"></td>
+            <td id="total-indireto"></td>
+        </tr>
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/emprego_setor_chart.js' %}"></script>
+{% endblock %}

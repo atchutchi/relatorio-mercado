@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Taxa de Penetração</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>Evolução da Taxa de Penetração</h2>
+        <div class="chart-container">
+            <canvas id="taxaPenetracaoChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h2>Taxa de Penetração 3G</h2>
+        <div class="chart-container">
+            <canvas id="taxaPenetracao3GChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2>Taxa de Penetração 4G</h2>
+        <div class="chart-container">
+            <canvas id="taxaPenetracao4GChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Detalhes da Taxa de Penetração</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Trimestre</th>
+                    <th>Número de estações móveis</th>
+                    <th>Variação</th>
+                    <th>Taxa de Penetração</th>
+                    <th>3G</th>
+                    <th>4G</th>
+                </tr>
+            </thead>
+            <tbody id="detalhesTaxaPenetracao">
+                <!-- Será preenchido via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/taxa_penetracao_chart.js' %}"></script>
+{% endblock %}

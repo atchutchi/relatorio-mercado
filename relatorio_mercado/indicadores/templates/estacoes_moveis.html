@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Estações Móveis</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Número de estações móveis</h2>
+        <div class="chart-container">
+            <canvas id="estacoesMoveisTotalChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2>Distribuição por operador</h2>
+        <div class="chart-container">
+            <canvas id="estacoesMoveisPorOperadorChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Crescimento Trimestral</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Operador</th>
+                    <th>Trimestre</th>
+                    <th>Número de estações</th>
+                    <th>Evolução absoluta</th>
+                    <th>Crescimento (%)</th>
+                </tr>
+            </thead>
+            <tbody id="crescimentoTrimestralBody">
+                <!-- Será preenchido via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/estacoes_moveis_chart.js' %}"></script>
+{% endblock %}

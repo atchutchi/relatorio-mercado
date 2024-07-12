@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Tráfego Nacional</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Tráfego de Chamadas Originadas</h2>
+        <div class="chart-container">
+            <canvas id="trafegoOriginadoChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <h2>Tráfego de Chamadas Terminadas</h2>
+        <div class="chart-container">
+            <canvas id="trafegoTerminadoChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Minutos em Roaming</h2>
+        <div class="chart-container">
+            <canvas id="trafegoRoamingChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Repartição do Tráfego de Voz</h2>
+        <div class="chart-container">
+            <canvas id="reparticaoTrafegoChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Detalhes do Tráfego</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tipo de Tráfego</th>
+                    <th>2T 2023</th>
+                    <th>3T 2023</th>
+                    <th>4T 2023</th>
+                    <th>1T 2024</th>
+                </tr>
+            </thead>
+            <tbody id="detalhesTrafego">
+                <!-- Será preenchido via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/trafego_nacional_chart.js' %}"></script>
+{% endblock %}
