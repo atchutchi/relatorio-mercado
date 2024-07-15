@@ -17,35 +17,49 @@ class EstacoesMoveisView(TemplateView):
         
         for estacao in estacoes_moveis:
             label = f"{estacao.trimestre} {estacao.ano}"
-            context['estacoes_moveis_data']['labels'].append(label)
-            context['estacoes_moveis_data']['mtn'].append(estacao.mtn_estacoes)
-            context['estacoes_moveis_data']['orange'].append(estacao.orange_estacoes)
-            context['estacoes_moveis_data']['total'].append(estacao.mtn_estacoes + estacao.orange_estacoes)
+            if label not in context['estacoes_moveis_data']['labels']:
+                context['estacoes_moveis_data']['labels'].append(label)
+                context['estacoes_moveis_data']['mtn'].append(0)
+                context['estacoes_moveis_data']['orange'].append(0)
+                context['estacoes_moveis_data']['total'].append(0)
+            
+            index = context['estacoes_moveis_data']['labels'].index(label)
+            
+            if estacao.operadora.nome.lower() == 'mtn':
+                context['estacoes_moveis_data']['mtn'][index] += estacao.numero_estacoes
+            elif estacao.operadora.nome.lower() == 'orange':
+                context['estacoes_moveis_data']['orange'][index] += estacao.numero_estacoes
+            
+            context['estacoes_moveis_data']['total'][index] += estacao.numero_estacoes
         
         return context
 
 
 class EmpregoSetorView(TemplateView):
-    template_name = 'indicadores/emprego_setor.html'
+    template_name = 'indicadores/emprego_sector.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        latest_data = EmpregoSetor.objects.order_by('-ano', '-trimestre').first()
-        if latest_data:
+        latest_data = EmpregoSetor.objects.order_by('-ano', '-trimestre')
+        
+        if latest_data.exists():
+            mtn_data = latest_data.filter(operadora__nome='MTN').first()
+            orange_data = latest_data.filter(operadora__nome='Orange').first()
+            
             context['emprego_data'] = {
                 'mtn': {
-                    'direto': latest_data.mtn_emprego_direto,
-                    'nacionais': latest_data.mtn_nacionais,
-                    'homem': latest_data.mtn_homem,
-                    'mulher': latest_data.mtn_mulher,
-                    'indireto': latest_data.mtn_emprego_indireto,
+                    'direto': mtn_data.emprego_direto if mtn_data else 0,
+                    'nacionais': mtn_data.nacionais if mtn_data else 0,
+                    'homem': mtn_data.homens if mtn_data else 0,
+                    'mulher': mtn_data.mulheres if mtn_data else 0,
+                    'indireto': mtn_data.emprego_indireto if mtn_data else 0,
                 },
                 'orange': {
-                    'direto': latest_data.orange_emprego_direto,
-                    'nacionais': latest_data.orange_nacionais,
-                    'homem': latest_data.orange_homem,
-                    'mulher': latest_data.orange_mulher,
-                    'indireto': latest_data.orange_emprego_indireto,
+                    'direto': orange_data.emprego_direto if orange_data else 0,
+                    'nacionais': orange_data.nacionais if orange_data else 0,
+                    'homem': orange_data.homens if orange_data else 0,
+                    'mulher': orange_data.mulheres if orange_data else 0,
+                    'indireto': orange_data.emprego_indireto if orange_data else 0,
                 },
             }
         return context
