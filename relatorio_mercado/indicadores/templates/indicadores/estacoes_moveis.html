@@ -4,10 +4,6 @@
 {% block content %}
 <h1>Estações Móveis</h1>
 
-<pre style="display: none;">
-    {{ estacoes_moveis_data|pprint }}
-</pre>
-
 <div class="row">
     <div class="col-md-6">
         <h2>Número de estações móveis</h2>
@@ -46,5 +42,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/estacoes_moveis_chart.js' %}"></script>
 {% endblock %}

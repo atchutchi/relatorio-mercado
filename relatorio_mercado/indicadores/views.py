@@ -7,10 +7,6 @@ class EstacoesMoveisView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         estacoes_moveis = EstacoesMoveisEfetivas.objects.order_by('ano', 'trimestre')
-
-        print(f"Número de EstacoesMoveisEfetivas: {estacoes_moveis.count()}")
-        for estacao in estacoes_moveis:
-            print(f"{estacao.operadora} - {estacao.trimestre} {estacao.ano}: {estacao.numero_estacoes}")
         
         context['estacoes_moveis_data'] = {
             'labels': [],
@@ -45,11 +41,7 @@ class EmpregoSetorView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         latest_data = EmpregoSetor.objects.order_by('-ano', '-trimestre')
-
-        print(f"Número de EmpregoSetor: {latest_data.count()}")
-        for emprego in latest_data:
-            print(f"{emprego.operadora} - {emprego.trimestre} {emprego.ano}: Direto {emprego.emprego_direto}, Indireto {emprego.emprego_indireto}")
-        
+       
         if latest_data.exists():
             mtn_data = latest_data.filter(operadora__nome='MTN').first()
             orange_data = latest_data.filter(operadora__nome='Orange').first()
@@ -79,11 +71,7 @@ class TrafegoNacionalView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         trafego = TrafegoNacional.objects.order_by('ano', 'trimestre')
-
-        print(f"Número de EmpregoSetor: {latest_data.count()}")
-        for emprego in latest_data:
-            print(f"{emprego.operadora} - {emprego.trimestre} {emprego.ano}: Direto {emprego.emprego_direto}, Indireto {emprego.emprego_indireto}")
-        
+    
         context['trafego_data'] = {
             'labels': [],
             'on_net': [],
@@ -113,10 +101,6 @@ class QuotaMercadoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         quotas = QuotaMercado.objects.order_by('ano', 'trimestre')
-
-        print(f"Número de QuotaMercado: {quotas.count()}")
-        for quota in quotas:
-            print(f"{quota.operadora} - {quota.trimestre} {quota.ano}: {quota.quota_estacoes_moveis}")
         
         context['quota_data'] = {
             'labels': [],
@@ -175,10 +159,6 @@ class VolumeNegocioView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         volumes = VolumeNegocio.objects.order_by('ano', 'trimestre')
-
-        print(f"Número de VolumeNegocio: {volumes.count()}")
-        for volume in volumes:
-            print(f"{volume.trimestre} {volume.ano}: MTN {volume.volume_mtn}, Orange {volume.volume_orange}")
         
         context['volume_data'] = {
             'labels': [],
