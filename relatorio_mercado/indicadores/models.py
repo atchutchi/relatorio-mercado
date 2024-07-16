@@ -54,11 +54,15 @@ class QuotaMercado(models.Model):
 class TaxaPenetracao(models.Model):
     trimestre = models.CharField(max_length=10)
     ano = models.IntegerField()
-    taxa_penetracao = models.DecimalField(max_digits=5, decimal_places=2)
-    taxa_penetracao_3g = models.DecimalField(max_digits=5, decimal_places=2)
-    taxa_penetracao_4g = models.DecimalField(max_digits=5, decimal_places=2)
     numero_estacoes = models.IntegerField()
     variacao = models.IntegerField()
+    taxa_penetracao = models.DecimalField(max_digits=5, decimal_places=2)
+    numero_estacoes_3g = models.IntegerField(null=True, blank=True)
+    variacao_3g = models.IntegerField(null=True, blank=True)
+    taxa_penetracao_3g = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    numero_estacoes_4g = models.IntegerField(null=True, blank=True)
+    variacao_4g = models.IntegerField(null=True, blank=True)
+    taxa_penetracao_4g = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.trimestre} {self.ano}"

@@ -7,6 +7,10 @@ class EstacoesMoveisView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         estacoes_moveis = EstacoesMoveisEfetivas.objects.order_by('ano', 'trimestre')
+
+        print(f"Número de EstacoesMoveisEfetivas: {estacoes_moveis.count()}")
+        for estacao in estacoes_moveis:
+            print(f"{estacao.operadora} - {estacao.trimestre} {estacao.ano}: {estacao.numero_estacoes}")
         
         context['estacoes_moveis_data'] = {
             'labels': [],
@@ -41,6 +45,10 @@ class EmpregoSetorView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         latest_data = EmpregoSetor.objects.order_by('-ano', '-trimestre')
+
+        print(f"Número de EmpregoSetor: {latest_data.count()}")
+        for emprego in latest_data:
+            print(f"{emprego.operadora} - {emprego.trimestre} {emprego.ano}: Direto {emprego.emprego_direto}, Indireto {emprego.emprego_indireto}")
         
         if latest_data.exists():
             mtn_data = latest_data.filter(operadora__nome='MTN').first()
@@ -71,6 +79,10 @@ class TrafegoNacionalView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         trafego = TrafegoNacional.objects.order_by('ano', 'trimestre')
+
+        print(f"Número de EmpregoSetor: {latest_data.count()}")
+        for emprego in latest_data:
+            print(f"{emprego.operadora} - {emprego.trimestre} {emprego.ano}: Direto {emprego.emprego_direto}, Indireto {emprego.emprego_indireto}")
         
         context['trafego_data'] = {
             'labels': [],
@@ -101,6 +113,10 @@ class QuotaMercadoView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         quotas = QuotaMercado.objects.order_by('ano', 'trimestre')
+
+        print(f"Número de QuotaMercado: {quotas.count()}")
+        for quota in quotas:
+            print(f"{quota.operadora} - {quota.trimestre} {quota.ano}: {quota.quota_estacoes_moveis}")
         
         context['quota_data'] = {
             'labels': [],
@@ -126,21 +142,29 @@ class TaxaPenetracaoView(TemplateView):
         
         context['taxa_data'] = {
             'labels': [],
-            'taxa_geral': [],
-            'taxa_3g': [],
-            'taxa_4g': [],
             'numero_estacoes': [],
             'variacao': [],
+            'taxa_penetracao': [],
+            'numero_estacoes_3g': [],
+            'variacao_3g': [],
+            'taxa_penetracao_3g': [],
+            'numero_estacoes_4g': [],
+            'variacao_4g': [],
+            'taxa_penetracao_4g': [],
         }
         
         for t in taxas:
             label = f"{t.trimestre} {t.ano}"
             context['taxa_data']['labels'].append(label)
-            context['taxa_data']['taxa_geral'].append(t.taxa_penetracao)
-            context['taxa_data']['taxa_3g'].append(t.taxa_penetracao_3g)
-            context['taxa_data']['taxa_4g'].append(t.taxa_penetracao_4g)
             context['taxa_data']['numero_estacoes'].append(t.numero_estacoes)
             context['taxa_data']['variacao'].append(t.variacao)
+            context['taxa_data']['taxa_penetracao'].append(float(t.taxa_penetracao))
+            context['taxa_data']['numero_estacoes_3g'].append(t.numero_estacoes_3g)
+            context['taxa_data']['variacao_3g'].append(t.variacao_3g)
+            context['taxa_data']['taxa_penetracao_3g'].append(float(t.taxa_penetracao_3g))
+            context['taxa_data']['numero_estacoes_4g'].append(t.numero_estacoes_4g)
+            context['taxa_data']['variacao_4g'].append(t.variacao_4g)
+            context['taxa_data']['taxa_penetracao_4g'].append(float(t.taxa_penetracao_4g))
         
         return context
 
@@ -151,6 +175,10 @@ class VolumeNegocioView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         volumes = VolumeNegocio.objects.order_by('ano', 'trimestre')
+
+        print(f"Número de VolumeNegocio: {volumes.count()}")
+        for volume in volumes:
+            print(f"{volume.trimestre} {volume.ano}: MTN {volume.volume_mtn}, Orange {volume.volume_orange}")
         
         context['volume_data'] = {
             'labels': [],
