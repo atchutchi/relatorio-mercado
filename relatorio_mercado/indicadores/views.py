@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView
 from .models import EstacoesMoveisEfetivas, EmpregoSetor, TrafegoNacional, QuotaMercado, TaxaPenetracao, VolumeNegocio
+import json  # Certifique-se de importar o módulo json
+
 
 class EstacoesMoveisView(TemplateView):
     template_name = 'indicadores/estacoes_moveis.html'
@@ -32,7 +34,13 @@ class EstacoesMoveisView(TemplateView):
             
             context['estacoes_moveis_data']['total'][index] += estacao.numero_estacoes
         
+        # Convertendo os dados em JSON para passar para o template
+        json_data = json.dumps(context['estacoes_moveis_data'])
+        context['estacoes_moveis_data'] = json_data
+        print(json_data)  # Adicione este print para verificar os dados no console do servidor
+        
         return context
+
 
 
 class EmpregoSetorView(TemplateView):

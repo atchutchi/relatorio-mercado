@@ -8,13 +8,13 @@
     <div class="col-md-6">
         <h2>Número de estações móveis</h2>
         <div class="chart-container">
-            <canvas id="estacoesMoveisTotalChart"></canvas>
+            <canvas id="estacoesMoveisTotalChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
         </div>
     </div>
     <div class="col-md-6">
         <h2>Distribuição por operador</h2>
         <div class="chart-container">
-            <canvas id="estacoesMoveisPorOperadorChart"></canvas>
+            <canvas id="estacoesMoveisPorOperadorChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
         </div>
     </div>
 </div>
