@@ -11,17 +11,19 @@ html {
     text-transform: uppercase;
   }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0; 
-    background: url('/media/image.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #555;
-    font-family: 'Poppins', sans-serif;
-  }
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0; 
+  color: #555;
+  font-family: 'Poppins', sans-serif;
+}
   
+.home-bg {
+  background: url('/media/image.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
   .content {
     flex: 1;
   }
