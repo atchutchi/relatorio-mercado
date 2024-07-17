@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Dados do emprego (você precisará passar esses dados do backend)
-    const empregoData = {{ emprego_data|safe }};
+    // Recupera os dados do elemento div
+    // const dataElement = document.getElementById('emprego-data');
+    // const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
+    
+    console.log('Dados recebidos:', empregoData);  // Log para depuração
 
     // Preencher a tabela
     document.getElementById('mtn-direto').textContent = empregoData.mtn.direto;

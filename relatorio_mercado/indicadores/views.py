@@ -43,6 +43,9 @@ class EstacoesMoveisView(TemplateView):
 
 
 
+import json
+from django.utils.safestring import mark_safe
+
 class EmpregoSetorView(TemplateView):
     template_name = 'indicadores/emprego_sector.html'
 
@@ -54,7 +57,7 @@ class EmpregoSetorView(TemplateView):
             mtn_data = latest_data.filter(operadora__nome='MTN').first()
             orange_data = latest_data.filter(operadora__nome='Orange').first()
             
-            context['emprego_data'] = {
+            emprego_data = {
                 'mtn': {
                     'direto': mtn_data.emprego_direto if mtn_data else 0,
                     'nacionais': mtn_data.nacionais if mtn_data else 0,
@@ -70,6 +73,8 @@ class EmpregoSetorView(TemplateView):
                     'indireto': orange_data.emprego_indireto if orange_data else 0,
                 },
             }
+        json_data = json.dumps(emprego_data)
+        context['emprego_data'] = mark_safe(json_data)
         return context
 
 
