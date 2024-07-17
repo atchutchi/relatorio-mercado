@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const taxaData = {{ taxa_data|safe }};
+    console.log('Dados recebidos:', taxaData);  // Log para depuração
 
     // Gráfico de linha para evolução da taxa de penetração
     var ctxTaxa = document.getElementById('taxaPenetracaoChart').getContext('2d');

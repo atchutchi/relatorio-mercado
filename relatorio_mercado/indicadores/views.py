@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from .models import EstacoesMoveisEfetivas, EmpregoSetor, TrafegoNacional, QuotaMercado, TaxaPenetracao, VolumeNegocio
-import json  # Certifique-se de importar o módulo json
+import json
+from django.utils.safestring import mark_safe
 
 
 class EstacoesMoveisView(TemplateView):
@@ -41,10 +42,6 @@ class EstacoesMoveisView(TemplateView):
         
         return context
 
-
-
-import json
-from django.utils.safestring import mark_safe
 
 class EmpregoSetorView(TemplateView):
     template_name = 'indicadores/emprego_sector.html'
@@ -137,7 +134,7 @@ class TaxaPenetracaoView(TemplateView):
         context = super().get_context_data(**kwargs)
         taxas = TaxaPenetracao.objects.order_by('ano', 'trimestre')
         
-        context['taxa_data'] = {
+        taxa_data = {
             'labels': [],
             'numero_estacoes': [],
             'variacao': [],
@@ -152,17 +149,18 @@ class TaxaPenetracaoView(TemplateView):
         
         for t in taxas:
             label = f"{t.trimestre} {t.ano}"
-            context['taxa_data']['labels'].append(label)
-            context['taxa_data']['numero_estacoes'].append(t.numero_estacoes)
-            context['taxa_data']['variacao'].append(t.variacao)
-            context['taxa_data']['taxa_penetracao'].append(float(t.taxa_penetracao))
-            context['taxa_data']['numero_estacoes_3g'].append(t.numero_estacoes_3g)
-            context['taxa_data']['variacao_3g'].append(t.variacao_3g)
-            context['taxa_data']['taxa_penetracao_3g'].append(float(t.taxa_penetracao_3g))
-            context['taxa_data']['numero_estacoes_4g'].append(t.numero_estacoes_4g)
-            context['taxa_data']['variacao_4g'].append(t.variacao_4g)
-            context['taxa_data']['taxa_penetracao_4g'].append(float(t.taxa_penetracao_4g))
+            taxa_data['labels'].append(label)
+            taxa_data['numero_estacoes'].append(t.numero_estacoes)
+            taxa_data['variacao'].append(t.variacao)
+            taxa_data['taxa_penetracao'].append(float(t.taxa_penetracao))
+            taxa_data['numero_estacoes_3g'].append(t.numero_estacoes_3g)
+            taxa_data['variacao_3g'].append(t.variacao_3g)
+            taxa_data['taxa_penetracao_3g'].append(float(t.taxa_penetracao_3g))
+            taxa_data['numero_estacoes_4g'].append(t.numero_estacoes_4g)
+            taxa_data['variacao_4g'].append(t.variacao_4g)
+            taxa_data['taxa_penetracao_4g'].append(float(t.taxa_penetracao_4g))
         
+        context['taxa_data'] = mark_safe(json.dumps(taxa_data))
         return context
 
 
