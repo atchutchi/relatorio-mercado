@@ -171,7 +171,7 @@ class VolumeNegocioView(TemplateView):
         context = super().get_context_data(**kwargs)
         volumes = VolumeNegocio.objects.order_by('ano', 'trimestre')
         
-        context['volume_data'] = {
+        volume_data = {
             'labels': [],
             'mtn': [],
             'orange': [],
@@ -180,9 +180,10 @@ class VolumeNegocioView(TemplateView):
         
         for v in volumes:
             label = f"{v.trimestre} {v.ano}"
-            context['volume_data']['labels'].append(label)
-            context['volume_data']['mtn'].append(v.volume_mtn)
-            context['volume_data']['orange'].append(v.volume_orange)
-            context['volume_data']['total'].append(v.volume_mtn + v.volume_orange)
+            volume_data['labels'].append(label)
+            volume_data['mtn'].append(float(v.volume_mtn))
+            volume_data['orange'].append(float(v.volume_orange))
+            volume_data['total'].append(float(v.volume_mtn + v.volume_orange))
         
+        context['volume_data'] = mark_safe(json.dumps(volume_data))
         return context

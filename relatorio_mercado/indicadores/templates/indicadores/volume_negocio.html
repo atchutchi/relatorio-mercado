@@ -4,6 +4,10 @@
 {% block content %}
 <h1>Volume de Negócios</h1>
 
+<script>
+    var volumeData = {{ volume_data|safe }};
+</script>
+
 <div class="row">
     <div class="col-md-12">
         <h2>Evolução do Volume de Negócios</h2>
@@ -50,5 +54,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/volume_negocio_chart.js' %}"></script>
 {% endblock %}

@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Dados do volume de negócios (você precisará passar esses dados do backend)
-    const volumeData = {{ volume_data|safe }};
+    console.log('Dados recebidos:', volumeData);  // Log para depuração
 
     // Função para formatar valores em FCFA
     function formatFCFA(value) {
