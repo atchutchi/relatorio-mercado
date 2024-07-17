@@ -4,6 +4,10 @@
 {% block content %}
 <h1>Quotas de Mercado</h1>
 
+<script>
+    var quotaData = {{ quota_data|safe }};
+</script>
+
 <div class="row">
     <div class="col-md-6">
         <h2>Quota de Mercado por Estações Móveis</h2>
@@ -40,5 +44,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/quota_mercado_chart.js' %}"></script>
 {% endblock %}

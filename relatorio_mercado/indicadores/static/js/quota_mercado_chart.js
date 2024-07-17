@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Dados da quota de mercado (você precisará passar esses dados do backend)
-    const quotaData = {{ quota_data|safe }};
+    console.log('Dados recebidos:', quotaData);  // Log para depuração
 
     // Gráfico de pizza para quota de mercado atual
     var ctxQuota = document.getElementById('quotaEstacoesChart').getContext('2d');

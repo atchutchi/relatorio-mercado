@@ -105,6 +105,9 @@ class TrafegoNacionalView(TemplateView):
         return context
 
 
+import json
+from django.utils.safestring import mark_safe
+
 class QuotaMercadoView(TemplateView):
     template_name = 'indicadores/quota_mercado.html'
 
@@ -112,7 +115,7 @@ class QuotaMercadoView(TemplateView):
         context = super().get_context_data(**kwargs)
         quotas = QuotaMercado.objects.order_by('ano', 'trimestre')
         
-        context['quota_data'] = {
+        quota_data = {
             'labels': [],
             'mtn': [],
             'orange': [],
@@ -120,10 +123,15 @@ class QuotaMercadoView(TemplateView):
         
         for q in quotas:
             label = f"{q.trimestre} {q.ano}"
-            context['quota_data']['labels'].append(label)
-            context['quota_data']['mtn'].append(q.quota_mtn)
-            context['quota_data']['orange'].append(q.quota_orange)
+            quota_data['labels'].append(label)
+            if q.operadora.nome.lower() == 'mtn':
+                quota_data['mtn'].append(float(q.quota_estacoes_moveis))
+                quota_data['orange'].append(0)
+            elif q.operadora.nome.lower() == 'orange':
+                quota_data['mtn'].append(0)
+                quota_data['orange'].append(float(q.quota_estacoes_moveis))
         
+        context['quota_data'] = mark_safe(json.dumps(quota_data))
         return context
 
 
