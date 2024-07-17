@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Dados do tráfego nacional (você precisará passar esses dados do backend)
-    const trafegoData = {{ trafego_data|safe }};
+    console.log('Dados recebidos:', trafegoData);  // Log para depuração
 
     // Gráfico de linha para tráfego de chamadas originadas
     var ctxOriginado = document.getElementById('trafegoOriginadoChart').getContext('2d');

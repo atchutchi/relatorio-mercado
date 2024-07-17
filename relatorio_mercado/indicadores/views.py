@@ -82,7 +82,7 @@ class TrafegoNacionalView(TemplateView):
         context = super().get_context_data(**kwargs)
         trafego = TrafegoNacional.objects.order_by('ano', 'trimestre')
     
-        context['trafego_data'] = {
+        trafego_data = {
             'labels': [],
             'on_net': [],
             'off_net': [],
@@ -94,19 +94,17 @@ class TrafegoNacionalView(TemplateView):
         
         for t in trafego:
             label = f"{t.trimestre} {t.ano}"
-            context['trafego_data']['labels'].append(label)
-            context['trafego_data']['on_net'].append(t.trafego_on_net)
-            context['trafego_data']['off_net'].append(t.trafego_off_net)
-            context['trafego_data']['saida_internacional'].append(t.trafego_internacional_saida)
-            context['trafego_data']['entrada_internacional'].append(t.trafego_internacional_entrada)
-            context['trafego_data']['roaming_in'].append(t.trafego_roaming_in)
-            context['trafego_data']['roaming_out'].append(t.trafego_roaming_out)
+            trafego_data['labels'].append(label)
+            trafego_data['on_net'].append(t.trafego_on_net)
+            trafego_data['off_net'].append(t.trafego_off_net)
+            trafego_data['saida_internacional'].append(t.trafego_internacional_saida)
+            trafego_data['entrada_internacional'].append(t.trafego_internacional_entrada)
+            trafego_data['roaming_in'].append(t.trafego_roaming_in)
+            trafego_data['roaming_out'].append(t.trafego_roaming_out)
         
+        context['trafego_data'] = mark_safe(json.dumps(trafego_data))
         return context
 
-
-import json
-from django.utils.safestring import mark_safe
 
 class QuotaMercadoView(TemplateView):
     template_name = 'indicadores/quota_mercado.html'

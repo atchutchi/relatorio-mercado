@@ -60,5 +60,9 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var trafegoData = {{ trafego_data|safe }};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/trafego_nacional_chart.js' %}"></script>
 {% endblock %}
