@@ -2,48 +2,84 @@
 {% load static %}
 
 {% block content %}
-<h1>Quotas de Mercado</h1>
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Quotas de Mercado</h1>
+        
+        <p class="lead text-center mb-4">
+            Esta pagina apresenta uma análise detalhada das quotas de mercado no setor de telecomunicações 
+            da Guiné-Bissau durante o 4 ultimos trimestre. Inclui a distribuição de mercado entre as 
+            operadoras MTN e Orange Bissau, considerando o número de estações móveis e a evolução ao longo 
+            dos últimos trimestres.
+        </p>
 
-<script>
-    var quotaData = {{ quota_data|safe }};
-</script>
-
-<div class="row">
-    <div class="col-md-6">
-        <h2>Quota de Mercado por Estações Móveis</h2>
-        <div class="chart-container">
-            <canvas id="quotaEstacoesChart"></canvas>
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Quota de Mercado por Estações Móveis</h2>
+                        <div class="chart-container">
+                            <canvas id="quotaEstacoesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução da Quota de Mercado</h2>
+                        <div class="chart-container">
+                            <canvas id="evolucaoQuotaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-md-6">
-        <h2>Evolução da Quota de Mercado</h2>
-        <div class="chart-container">
-            <canvas id="evolucaoQuotaChart"></canvas>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Detalhes da Quota de Mercado</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Trimestre</th>
+                                        <th>MTN</th>
+                                        <th>Orange</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detalhesQuota">
+                                    <!-- Será preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Análise das Quotas de Mercado</h2>
+                        <p>Em relação à quota de mercado, pode constatar-se que ambas as empresas possuem PMS (Poder Significativo de Mercado). A operadora Orange Bissau assume uma vantagem significativa no mercado.</p>
+                        <p>No primeiro trimestre de 2024, a Orange Bissau obteve um crescimento na sua quota de mercado em relação ao trimestre anterior, consolidando sua posição como líder de mercado.</p>
+                        <p>Esta distribuição de quotas reflete a dinâmica competitiva do mercado de telecomunicações na Guiné-Bissau, com implicações importantes para as estratégias das operadoras e para as políticas regulatórias do setor.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h2>Detalhes da Quota de Mercado</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Trimestre</th>
-                    <th>MTN</th>
-                    <th>Orange</th>
-                </tr>
-            </thead>
-            <tbody id="detalhesQuota">
-                <!-- Será preenchido via JavaScript -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var quotaData = {{ quota_data|safe }};
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/quota_mercado_chart.js' %}"></script>
 {% endblock %}
