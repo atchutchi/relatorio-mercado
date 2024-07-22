@@ -31,6 +31,41 @@ body {
   .content {
     flex: 1;
   }
+
+/* TABLE AND PIE */
+
+.container {
+  max-width: 1200px;
+}
+
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
   
   /* from Bulma */
   .icon {
@@ -551,4 +586,9 @@ body {
         flex: 0 0 50%; /* Each column takes up half the container width */
         max-width: 50%; /* Maximum width set to half of the container */
     }
+
+    .chart-container {
+      height: 250px;
+  }
+  
   }

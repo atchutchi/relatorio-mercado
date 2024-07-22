@@ -2,43 +2,70 @@
 {% load static %}
 
 {% block content %}
-<h1>Estações Móveis</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Estações Móveis</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <h2>Número de estações móveis</h2>
-        <div class="chart-container">
-            <canvas id="estacoesMoveisTotalChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Número de estações móveis</h2>
+                    <div class="chart-container">
+                        <canvas id="estacoesMoveisTotalChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Distribuição por operador</h2>
+                    <div class="chart-container">
+                        <canvas id="estacoesMoveisPorOperadorChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <h2>Distribuição por operador</h2>
-        <div class="chart-container">
-            <canvas id="estacoesMoveisPorOperadorChart" data-estacoes='{{ estacoes_moveis_data|safe }}'></canvas>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Crescimento Trimestral</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Operador</th>
+                                    <th>Trimestre</th>
+                                    <th>Número de estações</th>
+                                    <th>Evolução absoluta</th>
+                                    <th>Crescimento (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crescimentoTrimestralBody">
+                                <!-- Será preenchido via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Análise do Mercado</h2>
+                    <p>Conforme demonstra a tabela 1, no I trimestre do ano em curso, o número de estações móveis com utilização efetiva, na Guiné-Bissau, atingiu um valor de 1 967 329, o que corresponde a um acréscimo na ordem de 4%, em relação ao IV trimestre do ano anterior, obtendo assim, em termos absolutos um crescimento de 81 459 assinantes.</p>
+                    <!-- Adicione mais texto conforme necessário -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h2>Crescimento Trimestral</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Operador</th>
-                    <th>Trimestre</th>
-                    <th>Número de estações</th>
-                    <th>Evolução absoluta</th>
-                    <th>Crescimento (%)</th>
-                </tr>
-            </thead>
-            <tbody id="crescimentoTrimestralBody">
-                <!-- Será preenchido via JavaScript -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}

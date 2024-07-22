@@ -1,11 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Obter os dados do atributo data do canvas
     const estacoesMoveisRaw = document.getElementById('estacoesMoveisTotalChart').dataset.estacoes;
-    console.log('Raw data:', estacoesMoveisRaw);  // Adicionando log para verificar os dados brutos
-
+    
     try {
         const estacoesMoveis = JSON.parse(estacoesMoveisRaw);
-        console.log('Parsed data:', estacoesMoveis);  // Adicionando log para verificar os dados parseados
 
         // Gráfico de linha para o total de estações móveis
         var ctxTotal = document.getElementById('estacoesMoveisTotalChart').getContext('2d');
@@ -22,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     title: {
                         display: true,
@@ -40,19 +38,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'MTN',
                     data: estacoesMoveis.mtn,
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                    borderColor: 'rgba(255, 206, 86, 1)',
+                    backgroundColor: 'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
+                    borderColor: 'rgb(255, 204, 0)',
                     borderWidth: 1
                 }, {
                     label: 'Orange',
                     data: estacoesMoveis.orange,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(255, 140, 0, 0.7)', // Laranja para Orange
+                    borderColor: 'rgb(255, 140, 0)',
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     x: {
                         stacked: true,
