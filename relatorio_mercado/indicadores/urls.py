@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import EstacoesMoveisView, EmpregoSetorView, TrafegoNacionalView, QuotaMercadoView, TaxaPenetracaoView, VolumeNegocioView
+from .views import EstacoesMoveisView, EmpregoSetorView, TrafegoNacionalView, QuotaMercadoView, TaxaPenetracaoView, VolumeNegocioView, MercadoTelefoniaMovelView
 
 urlpatterns = [
     path('estacoes-moveis/', EstacoesMoveisView.as_view(), name='estacoes_moveis'),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('quota-mercado/', QuotaMercadoView.as_view(), name='quota_mercado'),
     path('taxa-penetracao/', TaxaPenetracaoView.as_view(), name='taxa_penetracao'),
     path('volume-negocio/', VolumeNegocioView.as_view(), name='volume_negocio'),
+    path('mercado-de-telefonia-movel/', MercadoTelefoniaMovelView.as_view(), name='mercado_de_telefonia_movel'),
 ]

@@ -4,6 +4,10 @@ import json
 from django.utils.safestring import mark_safe
 
 
+class MercadoTelefoniaMovelView(TemplateView):
+    template_name = 'mercado_telefonia_movel.html'
+
+
 class EstacoesMoveisView(TemplateView):
     template_name = 'indicadores/estacoes_moveis.html'
 
