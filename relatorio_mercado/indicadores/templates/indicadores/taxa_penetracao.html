@@ -2,53 +2,97 @@
 {% load static %}
 
 {% block content %}
-<h1>Taxa de Penetração</h1>
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Taxa de Penetração</h1>
+        
+        <p class="lead text-center mb-4">
+            Esta pagina apresenta uma análise detalhada da taxa de penetração dos serviços móveis na Guiné-Bissau 
+            durante o primeiro trimestre de 2024. Inclui dados sobre a evolução geral da taxa de penetração, 
+            bem como informações específicas sobre a penetração das tecnologias 3G e 4G no mercado.
+        </p>
 
-<div class="row">
-    <div class="col-md-12">
-        <h2>Evolução da Taxa de Penetração</h2>
-        <div class="chart-container">
-            <canvas id="taxaPenetracaoChart"></canvas>
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução da Taxa de Penetração</h2>
+                        <div class="chart-container">
+                            <canvas id="taxaPenetracaoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Taxa de Penetração 3G</h2>
+                        <div class="chart-container">
+                            <canvas id="taxaPenetracao3GChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Taxa de Penetração 4G</h2>
+                        <div class="chart-container">
+                            <canvas id="taxaPenetracao4GChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Detalhes da Taxa de Penetração</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Trimestre</th>
+                                        <th>Número de estações móveis</th>
+                                        <th>Variação</th>
+                                        <th>Taxa de Penetração</th>
+                                        <th>3G (Variação) - Taxa</th>
+                                        <th>4G (Variação) - Taxa</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detalhesTaxaPenetracao">
+                                    <!-- Será preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Análise da Taxa de Penetração</h2>
+                        <p>No primeiro trimestre de 2024, o número de estações móveis com utilização efetiva registou um crescimento de 4% em relação ao período anterior, atingindo uma taxa de penetração de 89%. Isto corresponde a um acréscimo de 3% em relação ao trimestre passado.</p>
+                        <p>Quanto ao número de utilizadores de internet:</p>
+                        <ul>
+                            <li>3G: Teve um crescimento de 17% e atingiu uma taxa de penetração de 47.4%, representando um aumento significativo em relação ao trimestre anterior.</li>
+                            <li>4G: Experimentou um crescimento de 14% e alcançou uma taxa de penetração de 34.7%, também demonstrando um crescimento substancial no mercado.</li>
+                        </ul>
+                        <p>Estes dados indicam uma rápida adoção de tecnologias móveis mais avançadas na Guiné-Bissau, refletindo uma crescente demanda por serviços de dados móveis de alta velocidade.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div class="row mt-4">
-    <div class="col-md-6">
-        <h2>Taxa de Penetração 3G</h2>
-        <div class="chart-container">
-            <canvas id="taxaPenetracao3GChart"></canvas>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <h2>Taxa de Penetração 4G</h2>
-        <div class="chart-container">
-            <canvas id="taxaPenetracao4GChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h2>Detalhes da Taxa de Penetração</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Trimestre</th>
-                    <th>Número de estações móveis</th>
-                    <th>Variação</th>
-                    <th>Taxa de Penetração</th>
-                    <th>3G (Variação) - Taxa</th>
-                    <th>4G (Variação) - Taxa</th>
-                </tr>
-            </thead>
-            <tbody id="detalhesTaxaPenetracao">
-                <!-- Será preenchido via JavaScript -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}

@@ -2,58 +2,101 @@
 {% load static %}
 
 {% block content %}
-<h1>Volume de Negócios</h1>
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Volume de Negócios - 1º Trimestre 2024</h1>
+        
+        <p class="lead text-center mb-4">
+            Este relatório apresenta uma análise detalhada do volume de negócios no setor de telecomunicações 
+            da Guiné-Bissau durante o primeiro trimestre de 2024. Inclui a evolução do volume de negócios, 
+            a distribuição entre as operadoras MTN e Orange Bissau, e o volume global do mercado.
+        </p>
 
-<script>
-    var volumeData = {{ volume_data|safe }};
-</script>
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução do Volume de Negócios</h2>
+                        <div class="chart-container">
+                            <canvas id="volumeNegocioChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <h2>Evolução do Volume de Negócios</h2>
-        <div class="chart-container">
-            <canvas id="volumeNegocioChart"></canvas>
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Distribuição do Volume de Negócios por Operadora</h2>
+                        <div class="chart-container">
+                            <canvas id="distribuicaoVolumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Volume de Negócios Global</h2>
+                        <div class="alert alert-info">
+                            <h3 id="volumeGlobal" class="text-center"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Detalhes do Volume de Negócios</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Trimestre</th>
+                                        <th>MTN</th>
+                                        <th>Orange</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detalhesVolumeNegocio">
+                                    <!-- Será preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Análise do Volume de Negócios</h2>
+                        <p>O volume global de negócios para o 1º trimestre de 2024 atingiu 12.424.335.161 FCFA, demonstrando um crescimento significativo no setor de telecomunicações da Guiné-Bissau.</p>
+                        <p>A análise da distribuição do volume de negócios entre as operadoras revela que:</p>
+                        <ul>
+                            <li>A empresa Orange Bissau detém uma maior percentagem (76%) do volume de negócios em relação à empresa MTN.</li>
+                            <li>Esta distribuição reflete a posição dominante da Orange Bissau no mercado de telecomunicações do país.</li>
+                        </ul>
+                        <p>Estes dados indicam uma concentração significativa no mercado, com implicações importantes para a competitividade e regulação do setor.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div class="row mt-4">
-    <div class="col-md-6">
-        <h2>Distribuição do Volume de Negócios por Operadora</h2>
-        <div class="chart-container">
-            <canvas id="distribuicaoVolumeChart"></canvas>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <h2>Volume de Negócios Global</h2>
-        <div class="alert alert-info">
-            <h3 id="volumeGlobal"></h3>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h2>Detalhes do Volume de Negócios</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Trimestre</th>
-                    <th>MTN</th>
-                    <th>Orange</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody id="detalhesVolumeNegocio">
-                <!-- Será preenchido via JavaScript -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var volumeData = {{ volume_data|safe }};
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/volume_negocio_chart.js' %}"></script>
 {% endblock %}
