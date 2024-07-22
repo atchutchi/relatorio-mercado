@@ -1,62 +1,92 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block body_class %}bg-white{% endblock %}
+{% block body_class %}bg-light{% endblock %}
 
 {% block page_background %}{% endblock %}
 
 {% block content %}
-<h1>Emprego no Setor das TIC</h1>
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Emprego no Setor das TIC - 1º Trimestre 2024</h1>
+        <p class="lead text-center mb-4">
+            Este relatório apresenta os dados de emprego no setor das telecomunicações na Guiné-Bissau, 
+            incluindo empregos diretos e indiretos nas operadoras MTN e Orange.
+        </p>
 
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Distribuição do Emprego</h2>
+                <div class="chart-container">
+                    <canvas id="empregoSetorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Detalhes do Emprego no Setor</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>MTN</th>
+                                <th>ORANGE</th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Total do emprego direto</td>
+                                <td id="mtn-direto"></td>
+                                <td id="orange-direto"></td>
+                                <td id="total-direto"></td>
+                            </tr>
+                            <tr>
+                                <td>Nacionais</td>
+                                <td id="mtn-nacionais"></td>
+                                <td id="orange-nacionais"></td>
+                                <td id="total-nacionais"></td>
+                            </tr>
+                            <tr>
+                                <td>Homem</td>
+                                <td id="mtn-homem"></td>
+                                <td id="orange-homem"></td>
+                                <td id="total-homem"></td>
+                            </tr>
+                            <tr>
+                                <td>Mulher</td>
+                                <td id="mtn-mulher"></td>
+                                <td id="orange-mulher"></td>
+                                <td id="total-mulher"></td>
+                            </tr>
+                            <tr>
+                                <td>Total do emprego indireto (Agentes, distribuidores, etc.)</td>
+                                <td id="mtn-indireto"></td>
+                                <td id="orange-indireto"></td>
+                                <td id="total-indireto"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Insights</h2>
+                <ul>
+                    <li>O setor das TIC é um importante gerador de empregos na Guiné-Bissau.</li>
+                    <li>Há uma significativa diferença entre o número de empregos diretos e indiretos.</li>
+                    <li>Existe uma disparidade de gênero no setor, com mais homens empregados que mulheres.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Adicionando um elemento para armazenar os dados JSON -->
 <div id="emprego-data" data-emprego="{{ emprego_data|escapejs }}" style="display: none;"></div>
-
-<div class="chart-container">
-    <canvas id="empregoSetorChart"></canvas>
-</div>
-
-<table class="table mt-4">
-    <thead>
-        <tr>
-            <th>Descrição</th>
-            <th>MTN</th>
-            <th>ORANGE</th>
-            <th>TOTAL</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Total do emprego direto</td>
-            <td id="mtn-direto"></td>
-            <td id="orange-direto"></td>
-            <td id="total-direto"></td>
-        </tr>
-        <tr>
-            <td>Nacionais</td>
-            <td id="mtn-nacionais"></td>
-            <td id="orange-nacionais"></td>
-            <td id="total-nacionais"></td>
-        </tr>
-        <tr>
-            <td>Homem</td>
-            <td id="mtn-homem"></td>
-            <td id="orange-homem"></td>
-            <td id="total-homem"></td>
-        </tr>
-        <tr>
-            <td>Mulher</td>
-            <td id="mtn-mulher"></td>
-            <td id="orange-mulher"></td>
-            <td id="total-mulher"></td>
-        </tr>
-        <tr>
-            <td>Total do emprego indireto (Agentes, distribuidores, etc.)</td>
-            <td id="mtn-indireto"></td>
-            <td id="orange-indireto"></td>
-            <td id="total-indireto"></td>
-        </tr>
-    </tbody>
-</table>
 
 {% endblock %}
 

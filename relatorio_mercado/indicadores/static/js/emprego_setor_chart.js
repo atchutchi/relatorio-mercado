@@ -1,30 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Recupera os dados do elemento div
-    // const dataElement = document.getElementById('emprego-data');
-    // const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
+    const dataElement = document.getElementById('emprego-data');
+    const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
     
     console.log('Dados recebidos:', empregoData);  // Log para depuração
 
-    // Preencher a tabela
-    document.getElementById('mtn-direto').textContent = empregoData.mtn.direto;
-    document.getElementById('orange-direto').textContent = empregoData.orange.direto;
-    document.getElementById('total-direto').textContent = empregoData.mtn.direto + empregoData.orange.direto;
+    // Função para preencher a tabela e o resumo
+    function preencherDados() {
+        const elementos = ['direto', 'nacionais', 'homem', 'mulher', 'indireto'];
+        elementos.forEach(elem => {
+            document.getElementById(`mtn-${elem}`).textContent = empregoData.mtn[elem];
+            document.getElementById(`orange-${elem}`).textContent = empregoData.orange[elem];
+            const total = empregoData.mtn[elem] + empregoData.orange[elem];
+            document.getElementById(`total-${elem}`).textContent = total;
+            if (document.getElementById(`total-${elem}-table`)) {
+                document.getElementById(`total-${elem}-table`).textContent = total;
+            }
+        });
+    }
 
-    document.getElementById('mtn-nacionais').textContent = empregoData.mtn.nacionais;
-    document.getElementById('orange-nacionais').textContent = empregoData.orange.nacionais;
-    document.getElementById('total-nacionais').textContent = empregoData.mtn.nacionais + empregoData.orange.nacionais;
-
-    document.getElementById('mtn-homem').textContent = empregoData.mtn.homem;
-    document.getElementById('orange-homem').textContent = empregoData.orange.homem;
-    document.getElementById('total-homem').textContent = empregoData.mtn.homem + empregoData.orange.homem;
-
-    document.getElementById('mtn-mulher').textContent = empregoData.mtn.mulher;
-    document.getElementById('orange-mulher').textContent = empregoData.orange.mulher;
-    document.getElementById('total-mulher').textContent = empregoData.mtn.mulher + empregoData.orange.mulher;
-
-    document.getElementById('mtn-indireto').textContent = empregoData.mtn.indireto;
-    document.getElementById('orange-indireto').textContent = empregoData.orange.indireto;
-    document.getElementById('total-indireto').textContent = empregoData.mtn.indireto + empregoData.orange.indireto;
+    preencherDados();
 
     // Criar o gráfico
     var ctx = document.getElementById('empregoSetorChart').getContext('2d');
@@ -41,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     empregoData.mtn.mulher,
                     empregoData.mtn.indireto
                 ],
-                backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                borderColor: 'rgba(255, 206, 86, 1)',
+                backgroundColor: 'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
+                borderColor: 'rgb(255, 204, 0)',
                 borderWidth: 1
             }, {
                 label: 'Orange',
@@ -53,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     empregoData.orange.mulher,
                     empregoData.orange.indireto
                 ],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(255, 140, 0, 0.7)', // Laranja para Orange
+                borderColor: 'rgb(255, 140, 0)',
                 borderWidth: 1
             }]
         },
@@ -65,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',
