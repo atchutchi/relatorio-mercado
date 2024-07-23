@@ -30,6 +30,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: {
                     display: true,
                     text: 'Quota de Mercado Atual'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                // Formatar o valor como percentagem
+                                label += new Intl.NumberFormat('pt-BR', { 
+                                    style: 'percent', 
+                                    minimumFractionDigits: 2, 
+                                    maximumFractionDigits: 2 
+                                }).format(context.parsed / 100);
+                            }
+                            return label;
+                        }
+                    }
                 }
             }
         }

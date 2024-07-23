@@ -136,15 +136,31 @@ class QuotaMercadoView(TemplateView):
             'orange': [],
         }
         
+        current_label = ''
+        mtn_quota = 0
+        orange_quota = 0
+        
         for q in quotas:
             label = f"{q.trimestre} {q.ano}"
-            quota_data['labels'].append(label)
+            if label != current_label:
+                if current_label:
+                    quota_data['labels'].append(current_label)
+                    quota_data['mtn'].append(mtn_quota)
+                    quota_data['orange'].append(orange_quota)
+                current_label = label
+                mtn_quota = 0
+                orange_quota = 0
+            
             if q.operadora.nome.lower() == 'mtn':
-                quota_data['mtn'].append(float(q.quota_estacoes_moveis))
-                quota_data['orange'].append(0)
+                mtn_quota = float(q.quota_estacoes_moveis)
             elif q.operadora.nome.lower() == 'orange':
-                quota_data['mtn'].append(0)
-                quota_data['orange'].append(float(q.quota_estacoes_moveis))
+                orange_quota = float(q.quota_estacoes_moveis)
+        
+        # Adicionar o último conjunto de dados
+        if current_label:
+            quota_data['labels'].append(current_label)
+            quota_data['mtn'].append(mtn_quota)
+            quota_data['orange'].append(orange_quota)
         
         context['quota_data'] = mark_safe(json.dumps(quota_data))
         return context

@@ -7,8 +7,8 @@
         <h1 class="text-center mb-4">Quotas de Mercado</h1>
         
         <p class="lead text-center mb-4">
-            Esta pagina apresenta uma análise detalhada das quotas de mercado no setor de telecomunicações 
-            da Guiné-Bissau durante o 4 ultimos trimestre. Inclui a distribuição de mercado entre as 
+            Esta página apresenta uma análise detalhada das quotas de mercado no setor de telecomunicações 
+            da Guiné-Bissau durante os 4 últimos trimestres. Inclui a distribuição de mercado entre as 
             operadoras MTN e Orange Bissau, considerando o número de estações móveis e a evolução ao longo 
             dos últimos trimestres.
         </p>
@@ -78,6 +78,7 @@
 
 {% block extra_js %}
 <script>
+    // Passar os dados de quota do contexto do Django para o JavaScript
     var quotaData = {{ quota_data|safe }};
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
