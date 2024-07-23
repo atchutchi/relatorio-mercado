@@ -32,14 +32,31 @@ class EmpregoSetor(models.Model):
 class TrafegoNacional(models.Model):
     trimestre = models.CharField(max_length=10)
     ano = models.IntegerField()
-    total_trafego = models.BigIntegerField(verbose_name="Total Tráfego", default=0)
+    
+    # Chamadas Originadas
     on_net = models.BigIntegerField(verbose_name="On-net", default=0)
     off_net = models.BigIntegerField(verbose_name="Off-net (saída)", default=0)
     saida_internacional = models.BigIntegerField(verbose_name="Saída Internacional", default=0)
-    entrada_internacional = models.BigIntegerField(verbose_name="Entrada Internacional", default=0)
+    
+    # Chamadas Terminadas
     off_net_entrada = models.BigIntegerField(verbose_name="Off-net (entrada)", default=0)
+    entrada_internacional = models.BigIntegerField(verbose_name="Entrada Internacional", default=0)
+    
+    # Roaming
     roaming_in = models.BigIntegerField(verbose_name="Roaming in", default=0)
     roaming_out = models.BigIntegerField(verbose_name="Roaming out", default=0)
+
+    @property
+    def total_originadas(self):
+        return self.on_net + self.off_net + self.saida_internacional
+
+    @property
+    def total_terminadas(self):
+        return self.off_net_entrada + self.entrada_internacional
+
+    @property
+    def total_roaming(self):
+        return self.roaming_in + self.roaming_out
 
     def __str__(self):
         return f"Tráfego Nacional - {self.trimestre} {self.ano}"

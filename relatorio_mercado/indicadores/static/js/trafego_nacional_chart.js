@@ -6,167 +6,108 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Gráfico de linha para tráfego total e on-net/off-net
-    var ctxTotal = document.getElementById('trafegoTotalChart').getContext('2d');
-    new Chart(ctxTotal, {
-        type: 'line',
-        data: {
-            labels: trafegoData.labels,
-            datasets: [{
-                label: 'Total Tráfego',
-                data: trafegoData.total_trafego,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }, {
-                label: 'On-net',
-                data: trafegoData.on_net,
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1
-            }, {
-                label: 'Off-net (Saída)',
-                data: trafegoData.off_net_saida,
-                borderColor: 'rgb(255, 205, 86)',
-                tension: 0.1
-            }, {
-                label: 'Off-net (Entrada)',
-                data: trafegoData.off_net_entrada,
-                borderColor: 'rgb(54, 162, 235)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Tráfego Total e On-net/Off-net'
-                }
-            }
-        }
-    });
+    // Função para criar tabelas
+    function createTable(tableId, data, columns) {
+        const table = document.getElementById(tableId);
+        let html = '<thead><tr><th>Trimestre</th>';
+        columns.forEach(col => {
+            html += `<th>${col}</th>`;
+        });
+        html += '</tr></thead><tbody>';
 
-    // Gráfico de linha para tráfego internacional
-    var ctxInternacional = document.getElementById('trafegoInternacionalChart').getContext('2d');
-    new Chart(ctxInternacional, {
-        type: 'line',
-        data: {
-            labels: trafegoData.labels,
-            datasets: [{
-                label: 'Saída Internacional',
-                data: trafegoData.saida_internacional,
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1
-            }, {
-                label: 'Entrada Internacional',
-                data: trafegoData.entrada_internacional,
-                borderColor: 'rgb(54, 162, 235)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Tráfego Internacional'
-                }
-            }
-        }
-    });
+        data.labels.forEach((label, index) => {
+            html += `<tr><td>${label}</td>`;
+            columns.forEach(col => {
+                html += `<td>${data[col][index].toLocaleString()}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody>';
+        table.innerHTML = html;
+    }
 
-    // Gráfico de barras para tráfego em roaming
-    var ctxRoaming = document.getElementById('trafegoRoamingChart').getContext('2d');
-    new Chart(ctxRoaming, {
-        type: 'bar',
-        data: {
-            labels: trafegoData.labels,
-            datasets: [{
-                label: 'Roaming In',
-                data: trafegoData.roaming_in,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }, {
-                label: 'Roaming Out',
-                data: trafegoData.roaming_out,
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Minutos em Roaming'
-                }
+    // Criar tabelas
+    createTable('chamadasOriginadasTable', trafegoData.originadas, ['on_net', 'off_net', 'saida_internacional', 'total']);
+    createTable('chamadasTerminadasTable', trafegoData.terminadas, ['off_net_entrada', 'entrada_internacional', 'total']);
+    createTable('roamingTable', trafegoData.roaming, ['in', 'out', 'total']);
+
+    // Função para criar gráficos
+    function createChart(chartId, data, title) {
+        const ctx = document.getElementById(chartId).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trafegoData.labels,
+                datasets: Object.keys(data).map(key => ({
+                    label: key,
+                    data: data[key],
+                    borderColor: getRandomColor(),
+                    fill: false
+                }))
             },
-            scales: {
-                y: {
-                    beginAtZero: true
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: title
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Gráfico de pizza para repartição do tráfego de voz (usando dados do último trimestre)
-    var ctxReparticao = document.getElementById('reparticaoTrafegoChart').getContext('2d');
+    // Criar gráficos
+    createChart('chamadasOriginadasChart', trafegoData.originadas, 'Chamadas Originadas');
+    createChart('chamadasTerminadasChart', trafegoData.terminadas, 'Chamadas Terminadas');
+    createChart('roamingChart', trafegoData.roaming, 'Minutos em Roaming');
+
+    // Repartição do Tráfego de Voz
     const lastIndex = trafegoData.labels.length - 1;
+    const reparticaoData = [
+        trafegoData.originadas.on_net[lastIndex],
+        trafegoData.originadas.off_net[lastIndex],
+        trafegoData.terminadas.off_net_entrada[lastIndex],
+        trafegoData.originadas.saida_internacional[lastIndex],
+        trafegoData.terminadas.entrada_internacional[lastIndex]
+    ];
+    const total = reparticaoData.reduce((a, b) => a + b, 0);
+    const reparticaoLabels = ['On-net', 'Off-net (Saída)', 'Off-net (Entrada)', 'Saída Internacional', 'Entrada Internacional'];
+
+    // Criar tabela de repartição
+    let reparticaoHtml = '<thead><tr><th>Tipo de Tráfego</th><th>Minutos</th><th>Percentagem</th></tr></thead><tbody>';
+    reparticaoData.forEach((value, index) => {
+        const percentage = ((value / total) * 100).toFixed(2);
+        reparticaoHtml += `<tr><td>${reparticaoLabels[index]}</td><td>${value.toLocaleString()}</td><td>${percentage}%</td></tr>`;
+    });
+    reparticaoHtml += `<tr><td>Total</td><td>${total.toLocaleString()}</td><td>100%</td></tr></tbody>`;
+    document.getElementById('reparticaoTrafegoTable').innerHTML = reparticaoHtml;
+
+    // Criar gráfico de pizza para repartição
+    const ctxReparticao = document.getElementById('reparticaoTrafegoChart').getContext('2d');
     new Chart(ctxReparticao, {
         type: 'pie',
         data: {
-            labels: ['On-net', 'Off-net (Saída)', 'Off-net (Entrada)', 'Saída Internacional', 'Entrada Internacional'],
+            labels: reparticaoLabels,
             datasets: [{
-                data: [
-                    trafegoData.on_net && trafegoData.on_net[lastIndex] || 0,
-                    trafegoData.off_net_saida && trafegoData.off_net_saida[lastIndex] || 0,
-                    trafegoData.off_net_entrada && trafegoData.off_net_entrada[lastIndex] || 0,
-                    trafegoData.saida_internacional && trafegoData.saida_internacional[lastIndex] || 0,
-                    trafegoData.entrada_internacional && trafegoData.entrada_internacional[lastIndex] || 0
-                ],
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(153, 102, 255, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(255, 205, 86, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(153, 102, 255, 1)'
-                ],
-                borderWidth: 1
+                data: reparticaoData,
+                backgroundColor: reparticaoLabels.map(() => getRandomColor())
             }]
         },
         options: {
             responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Repartição do Tráfego de Voz (Último Trimestre)'
-                }
+            title: {
+                display: true,
+                text: 'Repartição do Tráfego de Voz'
             }
         }
     });
 
-    // Preencher a tabela de detalhes do tráfego
-    const tableBody = document.getElementById('detalhesTrafego');
-    const tiposTrafego = ['Total Tráfego', 'On-net', 'Off-net (Saída)', 'Off-net (Entrada)', 'Saída Internacional', 'Entrada Internacional', 'Roaming In', 'Roaming Out'];
-    const dadosTrafego = [trafegoData.total_trafego, trafegoData.on_net, trafegoData.off_net_saida, trafegoData.off_net_entrada, trafegoData.saida_internacional, trafegoData.entrada_internacional, trafegoData.roaming_in, trafegoData.roaming_out];
-
-    tiposTrafego.forEach((tipo, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${tipo}</td>
-            <td>${dadosTrafego[index][dadosTrafego[index].length - 4].toLocaleString()}</td>
-            <td>${dadosTrafego[index][dadosTrafego[index].length - 3].toLocaleString()}</td>
-            <td>${dadosTrafego[index][dadosTrafego[index].length - 2].toLocaleString()}</td>
-            <td>${dadosTrafego[index][dadosTrafego[index].length - 1].toLocaleString()}</td>
-        `;
-        tableBody.appendChild(row);
-    });
+    // Função auxiliar para gerar cores aleatórias
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
 });

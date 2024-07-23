@@ -84,31 +84,40 @@ class TrafegoNacionalView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        trafego = TrafegoNacional.objects.all()
+        trafego = TrafegoNacional.objects.all().order_by('ano', 'trimestre')
     
         trafego_data = {
             'labels': [],
-            'total_trafego': [],
-            'on_net': [],
-            'off_net_saida': [],
-            'off_net_entrada': [],
-            'saida_internacional': [],
-            'entrada_internacional': [],
-            'roaming_in': [],
-            'roaming_out': [],
+            'originadas': {
+                'on_net': [], 'off_net': [], 'saida_internacional': [], 'total': []
+            },
+            'terminadas': {
+                'off_net_entrada': [], 'entrada_internacional': [], 'total': []
+            },
+            'roaming': {
+                'in': [], 'out': [], 'total': []
+            }
         }
         
         for t in trafego:
             label = f"{t.trimestre} {t.ano}"
             trafego_data['labels'].append(label)
-            trafego_data['total_trafego'].append(t.total_trafego)
-            trafego_data['on_net'].append(t.on_net)
-            trafego_data['off_net_saida'].append(t.off_net)
-            trafego_data['off_net_entrada'].append(t.off_net_entrada)
-            trafego_data['saida_internacional'].append(t.saida_internacional)
-            trafego_data['entrada_internacional'].append(t.entrada_internacional)
-            trafego_data['roaming_in'].append(t.roaming_in)
-            trafego_data['roaming_out'].append(t.roaming_out)
+            
+            # Chamadas Originadas
+            trafego_data['originadas']['on_net'].append(t.on_net)
+            trafego_data['originadas']['off_net'].append(t.off_net)
+            trafego_data['originadas']['saida_internacional'].append(t.saida_internacional)
+            trafego_data['originadas']['total'].append(t.total_originadas)
+            
+            # Chamadas Terminadas
+            trafego_data['terminadas']['off_net_entrada'].append(t.off_net_entrada)
+            trafego_data['terminadas']['entrada_internacional'].append(t.entrada_internacional)
+            trafego_data['terminadas']['total'].append(t.total_terminadas)
+            
+            # Roaming
+            trafego_data['roaming']['in'].append(t.roaming_in)
+            trafego_data['roaming']['out'].append(t.roaming_out)
+            trafego_data['roaming']['total'].append(t.total_roaming)
         
         context['trafego_data'] = mark_safe(json.dumps(trafego_data))
         return context

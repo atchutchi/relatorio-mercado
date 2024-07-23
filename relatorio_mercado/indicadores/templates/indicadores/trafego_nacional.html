@@ -13,74 +13,71 @@
         </p>
 
         <div class="row">
-            <div class="col-lg-6 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">Tráfego Total e On-net/Off-net</h2>
-                        <div class="chart-container">
-                            <canvas id="trafegoTotalChart"></canvas>
+                        <h2 class="card-title">Chamadas Originadas</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="chamadasOriginadasTable">
+                                <!-- Será preenchido via JavaScript -->
+                            </table>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">Tráfego Internacional</h2>
-                        <div class="chart-container">
-                            <canvas id="trafegoInternacionalChart"></canvas>
+                        <div class="chart-container mt-4">
+                            <canvas id="chamadasOriginadasChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Chamadas Terminadas</h2>
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="chamadasTerminadasTable">
+                                <!-- Será preenchido via JavaScript -->
+                            </table>
+                        </div>
+                        <div class="chart-container mt-4">
+                            <canvas id="chamadasTerminadasChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 mb-4">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Minutos em Roaming</h2>
-                        <div class="chart-container">
-                            <canvas id="trafegoRoamingChart"></canvas>
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="roamingTable">
+                                <!-- Será preenchido via JavaScript -->
+                            </table>
+                        </div>
+                        <div class="chart-container mt-4">
+                            <canvas id="roamingChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
+        <div class="row">
+            <div class="col-12 mb-4">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Repartição do Tráfego de Voz</h2>
-                        <div class="chart-container">
-                            <canvas id="reparticaoTrafegoChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">Detalhes do Tráfego</h2>
                         <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tipo de Tráfego</th>
-                                        <th>2T 2023</th>
-                                        <th>3T 2023</th>
-                                        <th>4T 2023</th>
-                                        <th>1T 2024</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detalhesTrafego">
-                                    <!-- Será preenchido via JavaScript -->
-                                </tbody>
+                            <table class="table table-striped" id="reparticaoTrafegoTable">
+                                <!-- Será preenchido via JavaScript -->
                             </table>
+                        </div>
+                        <div class="chart-container mt-4">
+                            <canvas id="reparticaoTrafegoChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -106,7 +103,6 @@
 {% block extra_js %}
 <script>
     var trafegoData = {{ trafego_data|safe }};
-    console.log('Dados de tráfego recebidos:', trafegoData);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/trafego_nacional_chart.js' %}"></script>
