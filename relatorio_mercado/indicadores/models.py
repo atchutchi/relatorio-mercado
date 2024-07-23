@@ -92,11 +92,45 @@ class TaxaPenetracao(models.Model):
     def __str__(self):
         return f"{self.trimestre} {self.ano}"
 
+from django.db import models
+
 class VolumeNegocio(models.Model):
+    # Campo para armazenar o trimestre (ex: "Q1", "Q2", etc.)
     trimestre = models.CharField(max_length=10)
+
+    # Campo para armazenar o ano
     ano = models.IntegerField()
-    volume_mtn = models.DecimalField(max_digits=15, decimal_places=2)
-    volume_orange = models.DecimalField(max_digits=15, decimal_places=2)
+
+    # Percentagem de volume de negócios da MTN (0-100%)
+    percentagem_mtn = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    # Percentagem de volume de negócios da Orange (0-100%)
+    percentagem_orange = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    # Volume global de negócios (soma dos volumes da MTN e Orange)
+    volume_global = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+    # Volume de negócios da MTN
+    volume_mtn = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+    # Volume de negócios da Orange
+    volume_orange = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
     def __str__(self):
+        # Representação string do objeto (ex: "Q1 2024")
         return f"{self.trimestre} {self.ano}"
+
+    def save(self, *args, **kwargs):
+        # Calcula o volume global se não estiver definido
+        if not self.volume_global:
+            self.volume_global = self.volume_mtn + self.volume_orange
+
+        # Calcula as percentagens se o volume global for maior que zero
+        if self.volume_global > 0:
+            # Calcula a percentagem da MTN
+            self.percentagem_mtn = (self.volume_mtn / self.volume_global) * 100
+            # Calcula a percentagem da Orange
+            self.percentagem_orange = (self.volume_orange / self.volume_global) * 100
+
+        # Chama o método save() da superclasse para salvar o objeto
+        super().save(*args, **kwargs)

@@ -228,14 +228,18 @@ class VolumeNegocioView(TemplateView):
             'mtn': [],
             'orange': [],
             'total': [],
+            'percentagem_mtn': [],
+            'percentagem_orange': [],
         }
         
         for v in volumes:
             label = f"{v.trimestre} {v.ano}"
             volume_data['labels'].append(label)
-            volume_data['mtn'].append(float(v.volume_mtn))
-            volume_data['orange'].append(float(v.volume_orange))
-            volume_data['total'].append(float(v.volume_mtn + v.volume_orange))
+            volume_data['mtn'].append(float(v.volume_mtn or 0))
+            volume_data['orange'].append(float(v.volume_orange or 0))
+            volume_data['total'].append(float(v.volume_global or 0))
+            volume_data['percentagem_mtn'].append(float(v.percentagem_mtn or 0))
+            volume_data['percentagem_orange'].append(float(v.percentagem_orange or 0))
         
         context['volume_data'] = mark_safe(json.dumps(volume_data))
         return context

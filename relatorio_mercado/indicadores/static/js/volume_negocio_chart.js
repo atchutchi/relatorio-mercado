@@ -59,8 +59,8 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['MTN', 'Orange'],
             datasets: [{
                 data: [
-                    volumeData.mtn[lastIndex],
-                    volumeData.orange[lastIndex]
+                    volumeData.percentagem_mtn[lastIndex],
+                    volumeData.percentagem_orange[lastIndex]
                 ],
                 backgroundColor: [
                     'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
@@ -79,6 +79,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: {
                     display: true,
                     text: 'Distribuição do Volume de Negócios (Último Trimestre)'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 }).format(context.parsed / 100);
+                            }
+                            return label;
+                        }
+                    }
                 }
             }
         }
@@ -94,8 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${label}</td>
-            <td>${formatFCFA(volumeData.mtn[index])}</td>
-            <td>${formatFCFA(volumeData.orange[index])}</td>
+            <td>${formatFCFA(volumeData.mtn[index])} (${volumeData.percentagem_mtn[index].toFixed(2)}%)</td>
+            <td>${formatFCFA(volumeData.orange[index])} (${volumeData.percentagem_orange[index].toFixed(2)}%)</td>
             <td>${formatFCFA(volumeData.total[index])}</td>
         `;
         tableBody.appendChild(row);
