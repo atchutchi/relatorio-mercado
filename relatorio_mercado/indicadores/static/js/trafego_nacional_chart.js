@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         html += '</tr></thead><tbody>';
 
-        data.labels.forEach((label, index) => {
+        trafegoData.labels.forEach((label, index) => {
             html += `<tr><td>${label}</td>`;
             columns.forEach(col => {
                 html += `<td>${data[col][index].toLocaleString()}</td>`;
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             type: 'line',
             data: {
                 labels: trafegoData.labels,
-                datasets: Object.keys(data).map(key => ({
+                datasets: Object.keys(data).filter(key => key !== 'total').map(key => ({
                     label: key,
                     data: data[key],
                     borderColor: getRandomColor(),
@@ -47,9 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
-                title: {
-                    display: true,
-                    text: title
+                plugins: {
+                    title: {
+                        display: true,
+                        text: title
+                    }
                 }
             }
         });
@@ -94,20 +96,22 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         options: {
             responsive: true,
-            title: {
-                display: true,
-                text: 'Repartição do Tráfego de Voz'
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Repartição do Tráfego de Voz'
+                }
             }
         }
     });
-
-    // Função auxiliar para gerar cores aleatórias
-    function getRandomColor() {
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
 });
+
+// Função auxiliar para gerar cores aleatórias
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
