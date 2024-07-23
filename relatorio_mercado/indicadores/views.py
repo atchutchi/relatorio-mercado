@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 
 
 class MercadoTelefoniaMovelView(TemplateView):
-    template_name = 'mercado_telefonia_movel.html'
+    template_name = 'indicadores/mercado_de_telefonia_movel.html'
 
 
 class EstacoesMoveisView(TemplateView):
