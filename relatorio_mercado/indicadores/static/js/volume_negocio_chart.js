@@ -15,12 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'MTN',
                 data: volumeData.mtn,
-                borderColor: 'rgb(255, 206, 86)',
+                borderColor: 'rgb(255, 204, 0)',
                 tension: 0.1
             }, {
                 label: 'Orange',
                 data: volumeData.orange,
-                borderColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 140, 0)',
                 tension: 0.1
             }, {
                 label: 'Total',
@@ -63,12 +63,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     volumeData.orange[lastIndex]
                 ],
                 backgroundColor: [
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
+                    'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
+                    'rgba(255, 140, 0, 0.7)', // Laranja para Orange
                 ],
                 borderColor: [
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(255, 99, 132, 1)'
+                    'rgb(255, 204, 0)',
+                    'rgb(255, 140, 0)',
                 ],
                 borderWidth: 1
             }]

@@ -1,24 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const dataElement = document.getElementById('emprego-data');
-    const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
+    // Recupera os dados do elemento div
+    // const dataElement = document.getElementById('emprego-data');
+    // const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
     
     console.log('Dados recebidos:', empregoData);  // Log para depuração
 
-    // Função para preencher a tabela e o resumo
-    function preencherDados() {
-        const elementos = ['direto', 'nacionais', 'homem', 'mulher', 'indireto'];
-        elementos.forEach(elem => {
-            document.getElementById(`mtn-${elem}`).textContent = empregoData.mtn[elem];
-            document.getElementById(`orange-${elem}`).textContent = empregoData.orange[elem];
-            const total = empregoData.mtn[elem] + empregoData.orange[elem];
-            document.getElementById(`total-${elem}`).textContent = total;
-            if (document.getElementById(`total-${elem}-table`)) {
-                document.getElementById(`total-${elem}-table`).textContent = total;
-            }
-        });
-    }
+    // Preencher a tabela
+    document.getElementById('mtn-direto').textContent = empregoData.mtn.direto;
+    document.getElementById('orange-direto').textContent = empregoData.orange.direto;
+    document.getElementById('total-direto').textContent = empregoData.mtn.direto + empregoData.orange.direto;
 
-    preencherDados();
+    document.getElementById('mtn-nacionais').textContent = empregoData.mtn.nacionais;
+    document.getElementById('orange-nacionais').textContent = empregoData.orange.nacionais;
+    document.getElementById('total-nacionais').textContent = empregoData.mtn.nacionais + empregoData.orange.nacionais;
+
+    document.getElementById('mtn-homem').textContent = empregoData.mtn.homem;
+    document.getElementById('orange-homem').textContent = empregoData.orange.homem;
+    document.getElementById('total-homem').textContent = empregoData.mtn.homem + empregoData.orange.homem;
+
+    document.getElementById('mtn-mulher').textContent = empregoData.mtn.mulher;
+    document.getElementById('orange-mulher').textContent = empregoData.orange.mulher;
+    document.getElementById('total-mulher').textContent = empregoData.mtn.mulher + empregoData.orange.mulher;
+
+    document.getElementById('mtn-indireto').textContent = empregoData.mtn.indireto;
+    document.getElementById('orange-indireto').textContent = empregoData.orange.indireto;
+    document.getElementById('total-indireto').textContent = empregoData.mtn.indireto + empregoData.orange.indireto;
 
     // Criar o gráfico
     var ctx = document.getElementById('empregoSetorChart').getContext('2d');
@@ -59,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             responsive: true,
-            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',

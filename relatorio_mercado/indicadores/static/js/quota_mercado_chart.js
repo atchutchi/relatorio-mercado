@@ -14,12 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     quotaData.orange[lastIndex]
                 ],
                 backgroundColor: [
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)'
+                    'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
+                    'rgba(255, 140, 0, 0.7)', // Laranja para Orange
                 ],
                 borderColor: [
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)'
+                    'rgb(255, 204, 0)',
+                    'rgb(255, 140, 0)',
                 ],
                 borderWidth: 1
             }]
@@ -44,12 +44,12 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'MTN',
                 data: quotaData.mtn,
-                borderColor: 'rgba(255, 206, 86, 1)',
+                borderColor: 'rgb(255, 204, 0)',
                 tension: 0.1
             }, {
                 label: 'Orange',
                 data: quotaData.orange,
-                borderColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgb(255, 140, 0)',
                 tension: 0.1
             }]
         },
