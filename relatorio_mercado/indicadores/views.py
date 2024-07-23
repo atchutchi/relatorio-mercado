@@ -84,12 +84,14 @@ class TrafegoNacionalView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        trafego = TrafegoNacional.objects.order_by('ano', 'trimestre')
+        trafego = TrafegoNacional.objects.all()
     
         trafego_data = {
             'labels': [],
+            'total_trafego': [],
             'on_net': [],
-            'off_net': [],
+            'off_net_saida': [],
+            'off_net_entrada': [],
             'saida_internacional': [],
             'entrada_internacional': [],
             'roaming_in': [],
@@ -99,12 +101,14 @@ class TrafegoNacionalView(TemplateView):
         for t in trafego:
             label = f"{t.trimestre} {t.ano}"
             trafego_data['labels'].append(label)
-            trafego_data['on_net'].append(t.trafego_on_net)
-            trafego_data['off_net'].append(t.trafego_off_net)
-            trafego_data['saida_internacional'].append(t.trafego_internacional_saida)
-            trafego_data['entrada_internacional'].append(t.trafego_internacional_entrada)
-            trafego_data['roaming_in'].append(t.trafego_roaming_in)
-            trafego_data['roaming_out'].append(t.trafego_roaming_out)
+            trafego_data['total_trafego'].append(t.total_trafego)
+            trafego_data['on_net'].append(t.on_net)
+            trafego_data['off_net_saida'].append(t.off_net)
+            trafego_data['off_net_entrada'].append(t.off_net_entrada)
+            trafego_data['saida_internacional'].append(t.saida_internacional)
+            trafego_data['entrada_internacional'].append(t.entrada_internacional)
+            trafego_data['roaming_in'].append(t.roaming_in)
+            trafego_data['roaming_out'].append(t.roaming_out)
         
         context['trafego_data'] = mark_safe(json.dumps(trafego_data))
         return context

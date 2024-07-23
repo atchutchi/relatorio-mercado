@@ -7,8 +7,8 @@
         <h1 class="text-center mb-4">Tráfego Nacional</h1>
         
         <p class="lead text-center mb-4">
-            Este pagina apresenta uma análise detalhada do tráfego nacional de telecomunicações na Guiné-Bissau 
-            durante o primeiro trimestre de 2024. Inclui dados sobre chamadas originadas e terminadas, tráfego on-net e off-net, 
+            Esta página apresenta uma análise detalhada do tráfego nacional de telecomunicações na Guiné-Bissau 
+            durante o primeiro trimestre de 2024. Inclui dados sobre o tráfego total, chamadas on-net e off-net, 
             chamadas internacionais e serviços de roaming, refletindo a dinâmica do mercado de telecomunicações no país.
         </p>
 
@@ -16,9 +16,9 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">Tráfego de Chamadas Originadas</h2>
+                        <h2 class="card-title">Tráfego Total e On-net/Off-net</h2>
                         <div class="chart-container">
-                            <canvas id="trafegoOriginadoChart"></canvas>
+                            <canvas id="trafegoTotalChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -26,9 +26,9 @@
             <div class="col-lg-6 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">Tráfego de Chamadas Terminadas</h2>
+                        <h2 class="card-title">Tráfego Internacional</h2>
                         <div class="chart-container">
-                            <canvas id="trafegoTerminadoChart"></canvas>
+                            <canvas id="trafegoInternacionalChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -106,6 +106,7 @@
 {% block extra_js %}
 <script>
     var trafegoData = {{ trafego_data|safe }};
+    console.log('Dados de tráfego recebidos:', trafegoData);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'js/trafego_nacional_chart.js' %}"></script>

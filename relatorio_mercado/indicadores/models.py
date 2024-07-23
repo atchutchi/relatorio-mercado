@@ -28,19 +28,27 @@ class EmpregoSetor(models.Model):
     def __str__(self):
         return f"{self.operadora} - {self.trimestre} {self.ano}"
 
+
 class TrafegoNacional(models.Model):
-    operadora = models.ForeignKey(Operadora, on_delete=models.CASCADE)
     trimestre = models.CharField(max_length=10)
     ano = models.IntegerField()
-    trafego_on_net = models.BigIntegerField()
-    trafego_off_net = models.BigIntegerField()
-    trafego_internacional_saida = models.BigIntegerField()
-    trafego_internacional_entrada = models.BigIntegerField()
-    trafego_roaming_in = models.BigIntegerField()
-    trafego_roaming_out = models.BigIntegerField()
+    total_trafego = models.BigIntegerField(verbose_name="Total Tráfego", default=0)
+    on_net = models.BigIntegerField(verbose_name="On-net", default=0)
+    off_net = models.BigIntegerField(verbose_name="Off-net (saída)", default=0)
+    saida_internacional = models.BigIntegerField(verbose_name="Saída Internacional", default=0)
+    entrada_internacional = models.BigIntegerField(verbose_name="Entrada Internacional", default=0)
+    off_net_entrada = models.BigIntegerField(verbose_name="Off-net (entrada)", default=0)
+    roaming_in = models.BigIntegerField(verbose_name="Roaming in", default=0)
+    roaming_out = models.BigIntegerField(verbose_name="Roaming out", default=0)
 
     def __str__(self):
-        return f"{self.operadora} - {self.trimestre} {self.ano}"
+        return f"Tráfego Nacional - {self.trimestre} {self.ano}"
+
+    class Meta:
+        verbose_name = "Tráfego Nacional"
+        verbose_name_plural = "Tráfegos Nacionais"
+        ordering = ['-ano', '-trimestre']
+
 
 class QuotaMercado(models.Model):
     operadora = models.ForeignKey(Operadora, on_delete=models.CASCADE)
