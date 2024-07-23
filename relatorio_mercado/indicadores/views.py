@@ -1,8 +1,8 @@
 from django.views.generic import TemplateView
-from .models import EstacoesMoveisEfetivas, EmpregoSetor, TrafegoNacional, QuotaMercado, TaxaPenetracao, VolumeNegocio
+from .models import EstacoesMoveisEfetivas, EmpregoSetor, TrafegoNacional, QuotaMercado, TaxaPenetracao, VolumeNegocio, Operadora
 import json
 from django.utils.safestring import mark_safe
-
+import logging
 
 class MercadoTelefoniaMovelView(TemplateView):
     template_name = 'indicadores/mercado_de_telefonia_movel.html'
@@ -47,35 +47,36 @@ class EstacoesMoveisView(TemplateView):
         return context
 
 
+logger = logging.getLogger(__name__)
+
 class EmpregoSetorView(TemplateView):
     template_name = 'indicadores/emprego_sector.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Buscar os dados mais recentes
         latest_data = EmpregoSetor.objects.order_by('-ano', '-trimestre')
-       
-        if latest_data.exists():
-            mtn_data = latest_data.filter(operadora__nome='MTN').first()
-            orange_data = latest_data.filter(operadora__nome='Orange').first()
-            
-            emprego_data = {
-                'mtn': {
-                    'direto': mtn_data.emprego_direto if mtn_data else 0,
-                    'nacionais': mtn_data.nacionais if mtn_data else 0,
-                    'homem': mtn_data.homens if mtn_data else 0,
-                    'mulher': mtn_data.mulheres if mtn_data else 0,
-                    'indireto': mtn_data.emprego_indireto if mtn_data else 0,
-                },
-                'orange': {
-                    'direto': orange_data.emprego_direto if orange_data else 0,
-                    'nacionais': orange_data.nacionais if orange_data else 0,
-                    'homem': orange_data.homens if orange_data else 0,
-                    'mulher': orange_data.mulheres if orange_data else 0,
-                    'indireto': orange_data.emprego_indireto if orange_data else 0,
-                },
-            }
-        json_data = json.dumps(emprego_data)
-        context['emprego_data'] = mark_safe(json_data)
+        
+        emprego_data = {}
+        for operadora in Operadora.objects.all():
+            data = latest_data.filter(operadora=operadora).first()
+            if data:
+                emprego_data[operadora.nome.lower()] = {
+                    'direto': data.emprego_direto,
+                    'nacionais': data.nacionais,
+                    'homem': data.homens,
+                    'mulher': data.mulheres,
+                    'indireto': data.emprego_indireto,
+                }
+                logger.info(f"Dados encontrados para {operadora.nome}: {emprego_data[operadora.nome.lower()]}")
+            else:
+                logger.warning(f"Nenhum dado encontrado para {operadora.nome}")
+                emprego_data[operadora.nome.lower()] = {
+                    'direto': 0, 'nacionais': 0, 'homem': 0, 'mulher': 0, 'indireto': 0
+                }
+
+        context['emprego_data'] = mark_safe(json.dumps(emprego_data))
         return context
 
 
@@ -128,8 +129,11 @@ class QuotaMercadoView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Buscar todos os registros de QuotaMercado ordenados por ano e trimestre
         quotas = QuotaMercado.objects.order_by('ano', 'trimestre')
         
+        # Inicializar o dicionário para armazenar os dados de quota
         quota_data = {
             'labels': [],
             'mtn': [],
@@ -140,29 +144,38 @@ class QuotaMercadoView(TemplateView):
         mtn_quota = 0
         orange_quota = 0
         
+        # Iterar sobre todos os registros de quota
         for q in quotas:
+            # Criar um rótulo para o período atual
             label = f"{q.trimestre} {q.ano}"
+            
+            # Se o rótulo mudou, adicionar os dados do período anterior ao dicionário
             if label != current_label:
                 if current_label:
                     quota_data['labels'].append(current_label)
                     quota_data['mtn'].append(mtn_quota)
                     quota_data['orange'].append(orange_quota)
+                
+                # Resetar para o novo período
                 current_label = label
                 mtn_quota = 0
                 orange_quota = 0
             
+            # Atribuir a quota ao operador correto
             if q.operadora.nome.lower() == 'mtn':
                 mtn_quota = float(q.quota_estacoes_moveis)
             elif q.operadora.nome.lower() == 'orange':
                 orange_quota = float(q.quota_estacoes_moveis)
         
-        # Adicionar o último conjunto de dados
+        # Adicionar o último conjunto de dados após o loop
         if current_label:
             quota_data['labels'].append(current_label)
             quota_data['mtn'].append(mtn_quota)
             quota_data['orange'].append(orange_quota)
         
+        # Adicionar os dados de quota ao contexto, convertendo para JSON
         context['quota_data'] = mark_safe(json.dumps(quota_data))
+        
         return context
 
 

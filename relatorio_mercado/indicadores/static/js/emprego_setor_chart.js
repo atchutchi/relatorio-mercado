@@ -1,62 +1,73 @@
+// Espera que o DOM esteja completamente carregado antes de executar o código
 document.addEventListener('DOMContentLoaded', function() {
-    // Recupera os dados do elemento div
-    // const dataElement = document.getElementById('emprego-data');
-    // const empregoData = JSON.parse(dataElement.getAttribute('data-emprego'));
-    
-    console.log('Dados recebidos:', empregoData);  // Log para depuração
+    // Log dos dados recebidos do backend para depuração
+    console.log('Dados recebidos:', empregoData);
 
-    // Preencher a tabela
-    document.getElementById('mtn-direto').textContent = empregoData.mtn.direto;
-    document.getElementById('orange-direto').textContent = empregoData.orange.direto;
-    document.getElementById('total-direto').textContent = empregoData.mtn.direto + empregoData.orange.direto;
+    // Função para exibir mensagens de erro
+    function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
 
-    document.getElementById('mtn-nacionais').textContent = empregoData.mtn.nacionais;
-    document.getElementById('orange-nacionais').textContent = empregoData.orange.nacionais;
-    document.getElementById('total-nacionais').textContent = empregoData.mtn.nacionais + empregoData.orange.nacionais;
+    // Função para preencher a tabela com os dados de emprego
+    function preencherTabela() {
+        // Define os campos que serão preenchidos
+        const campos = ['direto', 'nacionais', 'homem', 'mulher', 'indireto'];
+        // Obtém as operadoras dos dados recebidos
+        const operadoras = Object.keys(empregoData);
 
-    document.getElementById('mtn-homem').textContent = empregoData.mtn.homem;
-    document.getElementById('orange-homem').textContent = empregoData.orange.homem;
-    document.getElementById('total-homem').textContent = empregoData.mtn.homem + empregoData.orange.homem;
+        console.log('Operadoras encontradas:', operadoras);
 
-    document.getElementById('mtn-mulher').textContent = empregoData.mtn.mulher;
-    document.getElementById('orange-mulher').textContent = empregoData.orange.mulher;
-    document.getElementById('total-mulher').textContent = empregoData.mtn.mulher + empregoData.orange.mulher;
+        // Itera sobre cada operadora
+        operadoras.forEach(operadora => {
+            console.log(`Dados para ${operadora}:`, empregoData[operadora]);
+            
+            // Preenche os dados para cada campo da operadora
+            campos.forEach(campo => {
+                let valor = empregoData[operadora][campo] || 0;
+                console.log(`${operadora} - ${campo}: ${valor}`);
+                // Preenche a célula da tabela com o valor
+                document.getElementById(`${operadora}-${campo}`).textContent = valor;
+            });
+        });
 
-    document.getElementById('mtn-indireto').textContent = empregoData.mtn.indireto;
-    document.getElementById('orange-indireto').textContent = empregoData.orange.indireto;
-    document.getElementById('total-indireto').textContent = empregoData.mtn.indireto + empregoData.orange.indireto;
+        // Calcula e preenche os totais
+        campos.forEach(campo => {
+            let total = operadoras.reduce((sum, operadora) => sum + (empregoData[operadora][campo] || 0), 0);
+            console.log(`Total - ${campo}: ${total}`);
+            document.getElementById(`total-${campo}`).textContent = total;
+        });
+    }
 
-    // Criar o gráfico
+    // Verifica se há dados de emprego disponíveis
+    if (!empregoData || (Object.keys(empregoData).length === 0)) {
+        showError('Nenhum dado de emprego disponível.');
+        return;
+    }
+
+    // Preenche a tabela com os dados
+    preencherTabela();
+
+    // Cria o gráfico de barras
     var ctx = document.getElementById('empregoSetorChart').getContext('2d');
     var chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['Emprego Direto', 'Nacionais', 'Homem', 'Mulher', 'Emprego Indireto'],
-            datasets: [{
-                label: 'MTN',
+            datasets: Object.keys(empregoData).map(operadora => ({
+                label: operadora.toUpperCase(),
                 data: [
-                    empregoData.mtn.direto,
-                    empregoData.mtn.nacionais,
-                    empregoData.mtn.homem,
-                    empregoData.mtn.mulher,
-                    empregoData.mtn.indireto
+                    empregoData[operadora].direto,
+                    empregoData[operadora].nacionais,
+                    empregoData[operadora].homem,
+                    empregoData[operadora].mulher,
+                    empregoData[operadora].indireto
                 ],
-                backgroundColor: 'rgba(255, 204, 0, 0.7)', // Amarelo para MTN
-                borderColor: 'rgb(255, 204, 0)',
+                backgroundColor: operadora.toLowerCase() === 'mtn' ? 'rgba(255, 204, 0, 0.7)' : 'rgba(255, 140, 0, 0.7)',
+                borderColor: operadora.toLowerCase() === 'mtn' ? 'rgb(255, 204, 0)' : 'rgb(255, 140, 0)',
                 borderWidth: 1
-            }, {
-                label: 'Orange',
-                data: [
-                    empregoData.orange.direto,
-                    empregoData.orange.nacionais,
-                    empregoData.orange.homem,
-                    empregoData.orange.mulher,
-                    empregoData.orange.indireto
-                ],
-                backgroundColor: 'rgba(255, 140, 0, 0.7)', // Laranja para Orange
-                borderColor: 'rgb(255, 140, 0)',
-                borderWidth: 1
-            }]
+            }))
         },
         options: {
             scales: {
