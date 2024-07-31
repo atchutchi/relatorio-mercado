@@ -1,6 +1,9 @@
 # Relatório do Mercado
 
-![ARN Logo](caminho/para/seu/logo.png)
+### Link to the final page
+- [Observatório do Mercado das Telecomunicação na Guiné-Bissau](https://observatorio-mercado-gw-ccc5b800c903.herokuapp.com/).
+
+![ARN Logo]('/relatorio_mercado/media/arn-logo.png')
 
 Relatório do Mercado é um site desenvolvido para a Autoridade Reguladora Nacional (ARN) da Guiné-Bissau. O site apresenta análises detalhadas e indicadores do mercado de telecomunicações do país, incluindo dados sobre estações móveis, emprego no setor, tráfego nacional, quotas de mercado, taxa de penetração e volume de negócios.
 
