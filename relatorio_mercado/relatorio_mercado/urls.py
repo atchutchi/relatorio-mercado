@@ -23,6 +23,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('', include('home.urls')),
-    path('indicadores/', include('indicadores.urls')),
+    path('', include('relatorio_mercado.home.urls')),
+    path('indicadores/', include('relatorio_mercado.indicadores.urls')),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

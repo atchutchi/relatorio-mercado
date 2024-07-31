@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'relatorio_mercado.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'relatorio_mercado.relatorio_mercado.settings')
 
 application = get_wsgi_application()

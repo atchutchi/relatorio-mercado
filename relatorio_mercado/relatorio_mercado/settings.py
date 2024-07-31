@@ -25,11 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEVELOPMENT' in os.environ
+# DEBUG = 'DEVELOPMENT' in os.environ
+
+DEBUG = True
+
 
 ALLOWED_HOSTS = [
     '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
-    'https://observatorio-mercado-gw-7e203c4b172d.herokuapp.com/',
+    'https://observatorio-mercado-gw-ccc5b800c903.herokuapp.com/',
     'localhost',
     ]
 
@@ -37,7 +40,7 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
     'https://observatorio-mercado-gw-7e203c4b172d.herokuapp.com/',
-    'localhost',
+    'http://localhost',  # ou 'https://localhost' se você estiver usando HTTPS localmente
 ]
 
 # Application definition
@@ -53,8 +56,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'home',
-    'indicadores',
+    'relatorio_mercado.home',
+    'relatorio_mercado.indicadores',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +71,7 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-ROOT_URLCONF = 'relatorio_mercado.urls'
+ROOT_URLCONF = 'relatorio_mercado.relatorio_mercado.urls'
 
 TEMPLATES = [
     {
@@ -109,7 +112,7 @@ ACCOUNT_USERNAME_MIN_LENGTH = 4
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
-WSGI_APPLICATION = 'relatorio_mercado.wsgi.application'
+WSGI_APPLICATION = 'relatorio_mercado.relatorio_mercado.wsgi.application'
 
 
 # Database
@@ -171,7 +174,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'relatorio_mercado', 'static'),
 ]
 
 MEDIA_URL = '/media/'
