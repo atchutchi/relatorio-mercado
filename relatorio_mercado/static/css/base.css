@@ -21,9 +21,11 @@ body {
 }
   
 .home-bg {
-  background: url('/media/image.jpg') no-repeat center center fixed;
+  background: url('/media/3439372_61769.jpg') no-repeat center center fixed;
   background-size: cover;
 }
+
+
   .content {
     flex: 1;
   }
@@ -84,39 +86,20 @@ body {
     width: fit-content;
   }
   
-  .shop-now-button {
-    background: black;
-    color: white;
-    min-width: 260px;
-  }
-  
-  .btn-black {
-    background: black;
-    color: white;
-  }
-  
-  .btn-outline-black {
-    background: white;
-    color: black !important; /* use important to override link colors for <a> elements */
-    border: 1px solid black;
-  }
-  
-  .btn-outline-black:hover,
-  .btn-outline-black:active,
-  .btn-outline-black:focus {
-    background: black;
-    color: white !important;
-  }
-  
-  .shop-now-button:hover,
-  .shop-now-button:active,
-  .shop-now-button:focus,
-  .btn-black:hover,
-  .btn-black:active,
-  .btn-black:focus {
-    background: #222;
-    color: white;
-  }
+.shop-now-button {
+  background-color: #000 !important;
+  color: white !important;
+  min-width: 260px;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.shop-now-button:hover,
+.shop-now-button:active,
+.shop-now-button:focus {
+  background-color: #333 !important;
+  color: white !important;
+}
   
   .text-black {
     color: #000 !important;
