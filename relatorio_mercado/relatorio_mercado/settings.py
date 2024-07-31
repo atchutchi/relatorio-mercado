@@ -22,16 +22,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$+v8%0xj0qy1*3#vh7%3lr3e!wxf@_17*!8==!@wvu7_x+cq^v'
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = 'DEVELOPMENT' in os.environ
 
-ALLOWED_HOSTS = ['8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io']
+ALLOWED_HOSTS = [
+    '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
+    'https://observatorio-mercado-gw-7e203c4b172d.herokuapp.com/',
+    'localhost',
+    ]
 
 
 CSRF_TRUSTED_ORIGINS = [
     'https://8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
+    'https://observatorio-mercado-gw-7e203c4b172d.herokuapp.com/',
+    'localhost',
 ]
 
 # Application definition
