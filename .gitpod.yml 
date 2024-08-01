@@ -1,0 +1,2 @@
+tasks:
+  - command: export HEROKU_API_KEY=cf289528-46b3-4ab9-b7cd-d5acdcf22c08
