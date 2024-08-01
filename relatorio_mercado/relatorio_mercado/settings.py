@@ -25,12 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEVELOPMENT' in os.environ
+# DEBUG = 'DEVELOPMENT' in os.environ
 
-# DEBUG = True
+DEBUG = False
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
 
 ALLOWED_HOSTS = [
     '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
