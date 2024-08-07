@@ -32,9 +32,8 @@ DEBUG = 'DEVELOPMENT' in os.environ
 
 ALLOWED_HOSTS = [
     '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
-    'observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
+    'observatorio-mercado-gw-ccc5b800c903.herokuapp.com/',
     'localhost',
-    '.herokuapp.com',
     ]
 
 
