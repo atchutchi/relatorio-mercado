@@ -27,14 +27,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', '')
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = 'DEVELOPMENT' in os.environ
 
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = [
     '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
     'observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
     'localhost',
-    ]
+    '.herokuapp.com',
+]
 
 
 CSRF_TRUSTED_ORIGINS = [
@@ -222,12 +223,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'WARNING',
-    },
-    'django': {
-        'handlers': ['console'],
-        'level': 'WARNING',
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+        'storages': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
