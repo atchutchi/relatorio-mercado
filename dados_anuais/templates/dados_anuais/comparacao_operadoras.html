@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Comparação de Operadoras - {{ ano }}</h1>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Assinantes Rede Móvel</h2>
+                        <canvas id="assinantesComparacaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Volume de Negócio</h2>
+                        <canvas id="volumeNegocioComparacaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Comparação Detalhada</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Indicador</th>
+                                <th>MTN</th>
+                                <th>Orange</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Assinantes Rede Móvel</td>
+                                <td>{{ dados_mtn.assinantes_rede_movel|intcomma }}</td>
+                                <td>{{ dados_orange.assinantes_rede_movel|intcomma }}</td>
+                                <td>{{ dados_total.assinantes_rede_movel|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Volume de Negócio</td>
+                                <td>{{ dados_mtn.volume_negocio|intcomma }} FCFA</td>
+                                <td>{{ dados_orange.volume_negocio|intcomma }} FCFA</td>
+                                <td>{{ dados_total.volume_negocio|intcomma }} FCFA</td>
+                            </tr>
+                            <!-- Adicione mais linhas conforme necessário -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/comparacao_operadoras.js' %}"></script>
+{% endblock %}

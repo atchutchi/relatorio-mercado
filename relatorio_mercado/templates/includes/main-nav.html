@@ -26,5 +26,25 @@
             </div>
         </li>
 
+        <li class="nav-item dropdown">
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="dados-anuais-link" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dados Anuais
+            </a>
+            <div class="dropdown-menu border-0" aria-labelledby="dados-anuais-link">
+                <a href="{% url 'dados_anuais_list' %}" class="dropdown-item">Lista de Dados Anuais</a>
+                <a href="{% url 'evolucao_indicadores' %}" class="dropdown-item">Evolução de Indicadores</a>
+                <div class="dropdown-item">
+                    <form action="{% url 'comparacao_operadoras' ano=2024 %}" method="get">
+                        <select name="ano" onchange="this.form.submit()">
+                            <option value="">Selecione o Ano</option>
+                            {% for year in available_years %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </li>
+
     </ul>
 </div>

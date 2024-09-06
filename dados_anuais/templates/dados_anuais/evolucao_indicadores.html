@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Evolução de Indicadores</h1>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução de Assinantes</h2>
+                        <canvas id="assinantesEvolucaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução do Volume de Negócio</h2>
+                        <canvas id="volumeNegocioEvolucaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Evolução do Tráfego de Dados</h2>
+                <canvas id="trafegoDadosEvolucaoChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Dados da Evolução</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Assinantes Rede Móvel</th>
+                                <th>Volume de Negócio</th>
+                                <th>Tráfego de Dados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ano, dados in dados_evolucao.items %}
+                            <tr>
+                                <td>{{ ano }}</td>
+                                <td>{{ dados.assinantes_rede_movel|intcomma }}</td>
+                                <td>{{ dados.volume_negocio|intcomma }} FCFA</td>
+                                <td>{{ dados.trafego_dados|intcomma }} MB</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/evolucao_indicadores.js' %}"></script>
+{% endblock %}

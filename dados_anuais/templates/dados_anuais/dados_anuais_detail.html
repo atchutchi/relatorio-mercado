@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Detalhes de {{ dados.ano }} - {{ dados.get_operadora_display }}</h1>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Assinantes por Tecnologia</h2>
+                        <canvas id="assinantesTecnologiaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Tráfego de Voz</h2>
+                        <canvas id="trafegoVozChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Informações Detalhadas</h2>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Assinantes Rede Móvel</th>
+                        <td>{{ dados.assinantes_rede_movel|intcomma }}</td>
+                    </tr>
+                    <tr>
+                        <th>Volume de Negócio</th>
+                        <td>{{ dados.volume_negocio|intcomma }} FCFA</td>
+                    </tr>
+                    <tr>
+                        <th>Investimentos</th>
+                        <td>{{ dados.investimentos|intcomma }} FCFA</td>
+                    </tr>
+                    <!-- Adicione mais linhas conforme necessário -->
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dados_anuais_detail.js' %}"></script>
+{% endblock %}

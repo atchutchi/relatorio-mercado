@@ -31,7 +31,7 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = [
-    '8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
+    '8000-atchutchi-relatoriomerc-rujuzfe5s9q.ws-eu116.gitpod.io',
     'observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
     'localhost',
     '.herokuapp.com',
@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-atchutchi-relatoriomerc-erohn8wleru.ws-eu115.gitpod.io',
+    'https://8000-atchutchi-relatoriomerc-rujuzfe5s9q.ws-eu116.gitpod.io',
     'https://observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
     'http://localhost',
     'https://*.herokuapp.com',
@@ -60,8 +60,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'relatorio_mercado.home',
     'relatorio_mercado.indicadores',
+    'django.contrib.humanize',
 
     'storages',
+    'dados_anuais',
 ]
 
 MIDDLEWARE = [

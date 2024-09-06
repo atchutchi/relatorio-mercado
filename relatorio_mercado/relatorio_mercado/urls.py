@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', include('relatorio_mercado.home.urls')),
     path('indicadores/', include('relatorio_mercado.indicadores.urls')),
+    path('dados-anuais/', include('dados_anuais.urls')),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

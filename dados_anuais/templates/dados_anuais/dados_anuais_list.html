@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper" style="margin-top: 200px;">
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Dados Anuais do Mercado de Telecomunicações</h1>
+        
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução de Assinantes</h2>
+                        <canvas id="assinantesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Volume de Negócio</h2>
+                        <canvas id="volumeNegocioChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Detalhes dos Dados Anuais</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ano</th>
+                                <th>Operadora</th>
+                                <th>Assinantes Rede Móvel</th>
+                                <th>Volume de Negócio</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dado in dados_anuais %}
+                            <tr>
+                                <td>{{ dado.ano }}</td>
+                                <td>{{ dado.get_operadora_display }}</td>
+                                <td>{{ dado.assinantes_rede_movel|intcomma }}</td>
+                                <td>{{ dado.volume_negocio|floatformat:2|intcomma }} FCFA</td>
+                                <td>
+                                    <a href="{% url 'dados_anuais_detail' dado.ano dado.operadora %}" class="btn btn-sm btn-primary">Detalhes</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dados_anuais_list.js' %}"></script>
+{% endblock %}
