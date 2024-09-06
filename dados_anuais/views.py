@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from openpyxl import Workbook
 import json
+import logging
 from .models import DadosAnuais
 from .resource import DadosAnuaisResource
 from .tasks import process_excel_upload
