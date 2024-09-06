@@ -41,18 +41,18 @@
                         <thead>
                             <tr>
                                 <th>Ano</th>
-                                <th>Assinantes Rede Móvel</th>
-                                <th>Volume de Negócio</th>
-                                <th>Tráfego de Dados</th>
+                                {% for indicador in indicadores %}
+                                    <th>{{ indicador|title }}</th>
+                                {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
-                            {% for ano, dados in dados_evolucao.items %}
+                            {% for ano in anos %}
                             <tr>
                                 <td>{{ ano }}</td>
-                                <td>{{ dados.assinantes_rede_movel|intcomma }}</td>
-                                <td>{{ dados.volume_negocio|intcomma }} FCFA</td>
-                                <td>{{ dados.trafego_dados|intcomma }} MB</td>
+                                {% for indicador in indicadores %}
+                                    <td>{{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|intcomma }}</td>
+                                {% endfor %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -65,5 +65,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var dadosEvolucao = {{ dados_evolucao|safe }};
+</script>
 <script src="{% static 'js/evolucao_indicadores.js' %}"></script>
 {% endblock %}

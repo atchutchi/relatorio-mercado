@@ -64,6 +64,7 @@ INSTALLED_APPS = [
 
     'storages',
     'dados_anuais',
+    'import_export',
 ]
 
 MIDDLEWARE = [

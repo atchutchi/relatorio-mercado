@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="content-wrapper" style="margin-top: 200px;">
@@ -33,20 +34,26 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Ano</th>
-                                <th>Operadora</th>
-                                <th>Assinantes Rede Móvel</th>
-                                <th>Volume de Negócio</th>
+                                {% for campo in campos %}
+                                    <th>{{ campo|title }}</th>
+                                {% endfor %}
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for dado in dados_anuais %}
                             <tr>
-                                <td>{{ dado.ano }}</td>
-                                <td>{{ dado.get_operadora_display }}</td>
-                                <td>{{ dado.assinantes_rede_movel|intcomma }}</td>
-                                <td>{{ dado.volume_negocio|floatformat:2|intcomma }} FCFA</td>
+                                {% for campo in campos %}
+                                    <td>
+                                        {% if campo == 'operadora' %}
+                                            {{ dado.get_operadora_display }}
+                                        {% elif 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
+                                            {{ dado|getattr:campo|floatformat:2|intcomma }} FCFA
+                                        {% else %}
+                                            {{ dado|getattr:campo|intcomma }}
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
                                 <td>
                                     <a href="{% url 'dados_anuais_detail' dado.ano dado.operadora %}" class="btn btn-sm btn-primary">Detalhes</a>
                                 </td>
@@ -62,5 +69,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var dadosGraficos = {{ dados_graficos|safe }};
+</script>
 <script src="{% static 'js/dados_anuais_list.js' %}"></script>
 {% endblock %}

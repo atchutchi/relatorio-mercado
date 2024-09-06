@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="content-wrapper" style="margin-top: 200px;">
@@ -30,19 +31,18 @@
             <div class="card-body">
                 <h2 class="card-title">Informações Detalhadas</h2>
                 <table class="table table-striped">
+                    {% for campo in campos %}
                     <tr>
-                        <th>Assinantes Rede Móvel</th>
-                        <td>{{ dados.assinantes_rede_movel|intcomma }}</td>
+                        <th>{{ campo|title|replace_underscore }}</th>
+                        <td>
+                            {% if 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
+                                {{ dados|getattr:campo|floatformat:2|intcomma }} FCFA
+                            {% else %}
+                                {{ dados|getattr:campo|intcomma }}
+                            {% endif %}
+                        </td>
                     </tr>
-                    <tr>
-                        <th>Volume de Negócio</th>
-                        <td>{{ dados.volume_negocio|intcomma }} FCFA</td>
-                    </tr>
-                    <tr>
-                        <th>Investimentos</th>
-                        <td>{{ dados.investimentos|intcomma }} FCFA</td>
-                    </tr>
-                    <!-- Adicione mais linhas conforme necessário -->
+                    {% endfor %}
                 </table>
             </div>
         </div>
@@ -51,5 +51,14 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var dados = {
+        assinantes_3g: {{ dados.assinantes_3g }},
+        assinantes_4g: {{ dados.assinantes_4g }},
+        trafego_voz_on_net: {{ dados.trafego_voz_on_net }},
+        trafego_voz_off_net: {{ dados.trafego_voz_off_net }},
+        trafego_voz_internacional: {{ dados.trafego_voz_internacional }}
+    };
+</script>
 <script src="{% static 'js/dados_anuais_detail.js' %}"></script>
 {% endblock %}

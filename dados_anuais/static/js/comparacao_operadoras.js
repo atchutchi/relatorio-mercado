@@ -52,4 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Adicione mais gráficos conforme necessário para outros indicadores
 });

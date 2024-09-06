@@ -41,4 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Você pode adicionar mais gráficos aqui para outros campos, se necessário
 });

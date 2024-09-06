@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="content-wrapper" style="margin-top: 200px;">
@@ -40,19 +41,14 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for indicador in indicadores %}
                             <tr>
-                                <td>Assinantes Rede Móvel</td>
-                                <td>{{ dados_mtn.assinantes_rede_movel|intcomma }}</td>
-                                <td>{{ dados_orange.assinantes_rede_movel|intcomma }}</td>
-                                <td>{{ dados_total.assinantes_rede_movel|intcomma }}</td>
+                                <td>{{ indicador|title }}</td>
+                                <td>{{ dados_mtn|getattr:indicador|intcomma }}</td>
+                                <td>{{ dados_orange|getattr:indicador|intcomma }}</td>
+                                <td>{{ dados_total|getattr:indicador|intcomma }}</td>
                             </tr>
-                            <tr>
-                                <td>Volume de Negócio</td>
-                                <td>{{ dados_mtn.volume_negocio|intcomma }} FCFA</td>
-                                <td>{{ dados_orange.volume_negocio|intcomma }} FCFA</td>
-                                <td>{{ dados_total.volume_negocio|intcomma }} FCFA</td>
-                            </tr>
-                            <!-- Adicione mais linhas conforme necessário -->
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -63,5 +59,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+    var dadosComparacao = {{ dadosComparacao|safe }};
+</script>
 <script src="{% static 'js/comparacao_operadoras.js' %}"></script>
 {% endblock %}
