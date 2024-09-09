@@ -6,6 +6,3 @@ from .resource import DadosAnuaisResource
 @admin.register(DadosAnuais)
 class DadosAnuaisAdmin(ImportExportModelAdmin):
     resource_class = DadosAnuaisResource
-    list_display = ('ano', 'operadora', 'assinantes_rede_movel', 'volume_negocio')
-    list_filter = ('ano', 'operadora')
-    search_fields = ('ano', 'operadora')

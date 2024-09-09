@@ -1,3 +1,5 @@
+from tablib import Dataset
+from .resource import DadosAnuaisResource
 from django.views.generic import ListView, DetailView
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -10,7 +12,6 @@ from openpyxl import Workbook
 import json
 import logging
 from .models import DadosAnuais
-from .resource import DadosAnuaisResource
 from .tasks import process_excel_upload
 
 logger = logging.getLogger(__name__)
@@ -173,17 +174,32 @@ def is_admin(user):
 @user_passes_test(is_admin)
 def upload_excel(request):
     if request.method == 'POST':
-        new_dados = request.FILES['myfile']
-        file_path = default_storage.save('tmp/excel_upload.xlsx', ContentFile(new_dados.read()))
-        task = process_excel_upload.delay(file_path)
-        messages.info(request, f'Upload iniciado. ID da tarefa: {task.id}')
+        excel_file = request.FILES['myfile']
+        dataset = Dataset().load(excel_file.read())
+        
+        resource = DadosAnuaisResource()
+        result = resource.import_data(dataset, dry_run=True)
+        
+        if not result.has_errors():
+            resource.import_data(dataset, dry_run=False)
+            messages.success(request, 'Upload concluído com sucesso')
+        else:
+            messages.error(request, f'Erros durante o upload: {result.errors}')
+        
     return render(request, 'dados_anuais/upload_excel.html')
 
 def download_template(request):
     wb = Workbook()
     ws = wb.active
     ws.title = "Template DadosAnuais"
-    headers = [
+    
+    # Cabeçalhos
+    headers = ['Indicadores', '2021', '2022', '2023']  # Ajuste os anos conforme necessário
+    ws.append(headers)
+    
+    # Adicionar linhas de exemplo para cada operadora
+    operadoras = ['ORANGE', 'MTN', 'TOTAL']
+    indicadores = [
         'Ano', 'Operadora',
         'Assinantes rede movel', 'Pos-pago', 'Pre-pago', 'Utilização efetiva',
         'Assinantes Banda Larga Movel', '3G', 'dos quais com ligação através de Placas (Box) 3G',
@@ -212,7 +228,10 @@ def download_template(request):
         'Receita Transferencia Mobile Money', 'Banda Larga Internacional(BLI)',
         'Emprego', 'Homens', 'Mulheres'
     ]
-    ws.append(headers)
+
+    for operadora in operadoras:
+        for indicador in indicadores:
+            ws.append([f"{operadora} {indicador}", '', '', ''])  # Células vazias para os anos
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=dados_anuais_template.xlsx'
