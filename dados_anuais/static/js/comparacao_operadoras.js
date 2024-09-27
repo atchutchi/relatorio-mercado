@@ -1,57 +1,85 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const assinantesCtx = document.getElementById('assinantesComparacaoChart').getContext('2d');
-    new Chart(assinantesCtx, {
-        type: 'bar',
-        data: {
-            labels: ['MTN', 'Orange'],
-            datasets: [{
-                label: 'Assinantes Rede Móvel',
-                data: [
-                    dadosComparacao.mtn.assinantes_rede_movel,
-                    dadosComparacao.orange.assinantes_rede_movel
-                ],
-                backgroundColor: [
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(255, 159, 64, 0.8)'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+    function createComparisonChart(elementId, label, dataKey, chartType = 'bar') {
+        const ctx = document.getElementById(elementId).getContext('2d');
+        new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: ['MTN', 'Orange', 'Total'],
+                datasets: [{
+                    label: label,
+                    data: [
+                        dadosComparacao.mtn[dataKey],
+                        dadosComparacao.orange[dataKey],
+                        dadosComparacao.total[dataKey]
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: label
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
-    const volumeNegocioCtx = document.getElementById('volumeNegocioComparacaoChart').getContext('2d');
-    new Chart(volumeNegocioCtx, {
-        type: 'pie',
-        data: {
-            labels: ['MTN', 'Orange'],
-            datasets: [{
-                data: [
-                    dadosComparacao.mtn.volume_negocio,
-                    dadosComparacao.orange.volume_negocio
-                ],
-                backgroundColor: [
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(255, 159, 64, 0.8)'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Distribuição do Volume de Negócio'
+    function createStackedBarChart(elementId, label, dataKeys) {
+        const ctx = document.getElementById(elementId).getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['MTN', 'Orange', 'Total'],
+                datasets: dataKeys.map((key, index) => ({
+                    label: key,
+                    data: [
+                        dadosComparacao.mtn[key],
+                        dadosComparacao.orange[key],
+                        dadosComparacao.total[key]
+                    ],
+                    backgroundColor: `rgba(${index * 100}, ${255 - index * 50}, ${index * 75}, 0.8)`
+                }))
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: label
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Adicione mais gráficos conforme necessário para outros indicadores
+    createComparisonChart('assinantesComparacaoChart', 'Assinantes Rede Móvel', 'assinantes_rede_movel');
+    createComparisonChart('volumeNegocioComparacaoChart', 'Volume de Negócio (FCFA)', 'volume_negocio');
+    createComparisonChart('trafegoVozComparacaoChart', 'Tráfego de Voz (minutos)', 'trafego_voz_originado');
+
+    createStackedBarChart('assinantesTecnologiaComparacaoChart', 'Assinantes por Tecnologia', ['assinantes_3g', 'assinantes_4g']);
+    createStackedBarChart('trafegoDadosComparacaoChart', 'Tráfego de Dados', ['trafego_dados_2g', 'trafego_dados_3g', 'trafego_dados_4g']);
 });

@@ -1,6 +1,7 @@
 from tablib import Dataset
 from .resource import DadosAnuaisResource
 from django.views.generic import ListView, DetailView
+from django.db.models import Sum, IntegerField, DecimalField, BigIntegerField
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -16,6 +17,7 @@ from .tasks import process_excel_upload
 
 logger = logging.getLogger(__name__)
 
+
 class DadosAnuaisListView(ListView):
     model = DadosAnuais
     template_name = 'dados_anuais/dados_anuais_list.html'
@@ -24,37 +26,51 @@ class DadosAnuaisListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Obter dados totais por ano
-        dados_totais = DadosAnuais.objects.filter(operadora='TOTAL').order_by('ano')
-        
         # Definir todos os campos do modelo
-        campos = [f.name for f in DadosAnuais._meta.get_fields() if f.name != 'id']
+        todos_campos = [f.name for f in DadosAnuais._meta.get_fields() if f.name not in ['id', 'ano', 'operadora']]
+        
+        # Identificar campos numéricos
+        campos_numericos = [f.name for f in DadosAnuais._meta.get_fields() 
+                            if isinstance(f, (IntegerField, BigIntegerField, DecimalField))]
+        
+        # Obter anos distintos
+        anos = DadosAnuais.objects.values_list('ano', flat=True).distinct().order_by('ano')
+        
+        # Calcular dados totais por ano
+        dados_totais = []
+        for ano in anos:
+            total_ano = DadosAnuais.objects.filter(ano=ano).aggregate(
+                **{campo: Sum(campo) for campo in campos_numericos}
+            )
+            total_ano['ano'] = ano
+            dados_totais.append(total_ano)
         
         # Preparar dados para gráficos
         context['dados_graficos'] = {
-            'anos': [d.ano for d in dados_totais],
-            **{campo: [getattr(d, campo) for d in dados_totais] for campo in campos if campo != 'ano' and campo != 'operadora'}
+            'anos': [d['ano'] for d in dados_totais],
+            **{campo: [d.get(campo, 0) for d in dados_totais] for campo in campos_numericos}
         }
         
-        # Calcular algumas estatísticas gerais
-        context['estatisticas'] = {
-            'total_assinantes': dados_totais.last().assinantes_rede_movel if dados_totais else 0,
-            'crescimento_assinantes': self.calcular_crescimento(dados_totais, 'assinantes_rede_movel'),
-            'volume_negocio_atual': dados_totais.last().volume_negocio if dados_totais else 0,
-            'crescimento_volume_negocio': self.calcular_crescimento(dados_totais, 'volume_negocio'),
-        }
+        # Calcular estatísticas para todos os campos numéricos
+        context['estatisticas'] = {}
+        if dados_totais:
+            for campo in campos_numericos:
+                valor_atual = dados_totais[-1].get(campo, 0)
+                crescimento = self.calcular_crescimento(dados_totais, campo)
+                context['estatisticas'][f'{campo}_atual'] = valor_atual
+                context['estatisticas'][f'{campo}_crescimento'] = crescimento
         
-        context['campos'] = campos
+        context['campos'] = todos_campos
         
         return context
 
     def calcular_crescimento(self, dados, campo):
         if len(dados) < 2:
             return 0
-        valor_anterior = getattr(dados[len(dados)-2], campo)
-        valor_atual = getattr(dados.last(), campo)
-        if isinstance(valor_anterior, (int, float)) and isinstance(valor_atual, (int, float)):
-            return ((valor_atual - valor_anterior) / valor_anterior) * 100 if valor_anterior else 0
+        valor_anterior = dados[-2].get(campo, 0)
+        valor_atual = dados[-1].get(campo, 0)
+        if valor_anterior and valor_atual:
+            return ((valor_atual - valor_anterior) / valor_anterior) * 100
         return 0
 
 
@@ -170,70 +186,3 @@ def evolucao_indicadores(request):
 
 def is_admin(user):
     return user.is_authenticated and user.is_staff
-
-@user_passes_test(is_admin)
-def upload_excel(request):
-    if request.method == 'POST':
-        excel_file = request.FILES['myfile']
-        dataset = Dataset().load(excel_file.read())
-        
-        resource = DadosAnuaisResource()
-        result = resource.import_data(dataset, dry_run=True)
-        
-        if not result.has_errors():
-            resource.import_data(dataset, dry_run=False)
-            messages.success(request, 'Upload concluído com sucesso')
-        else:
-            messages.error(request, f'Erros durante o upload: {result.errors}')
-        
-    return render(request, 'dados_anuais/upload_excel.html')
-
-def download_template(request):
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Template DadosAnuais"
-    
-    # Cabeçalhos
-    headers = ['Indicadores', '2021', '2022', '2023']  # Ajuste os anos conforme necessário
-    ws.append(headers)
-    
-    # Adicionar linhas de exemplo para cada operadora
-    operadoras = ['ORANGE', 'MTN', 'TOTAL']
-    indicadores = [
-        'Ano', 'Operadora',
-        'Assinantes rede movel', 'Pos-pago', 'Pre-pago', 'Utilização efetiva',
-        'Assinantes Banda Larga Movel', '3G', 'dos quais com ligação através de Placas (Box) 3G',
-        'dos quais com ligação através de Placas (USB) 3G', '4G',
-        'dos quais com ligação através de Placas (Box) 4G', 'dos quais com ligação através de Placas (USB) 4G',
-        'Assinantes Internet Banda Larga Fixa via Radio', 'Banda Larga ≥ 256 Kbps',
-        '256 Kbit/s - 2 Mbit/s', '2 - 4 Mbit/s', '5-10 Mbit/s', '10 Mbit/s', 'Outros (10+ Mbit/s)',
-        'Velume de Negocio', 'Investimentos no setor',
-        'Voz', 'On-Net', 'Off-Net', 'Numeros curtos e numeros não geograficos', 'Operadores das redes Internacionais',
-        'SMS', 'On-Net SMS', 'Off-Net SMS', 'Operadores das redes Internacionais SMS',
-        'Dados tráfego', '2G', '3G', 'Atraves de placa modem(BOX) 3G', 'Atraves de placa modem(USB) 3G',
-        '4G', 'Atraves de placa modem(BOX) 4G', 'Atraves de placa modem(USB) 4G',
-        'Nº Chamadas originada(saida)', 'On-Net Chamadas', 'Off-Net Chamadas',
-        'Numeros curtos e numeros não geograficos Chamadas', 'Operadores das redes Internacionais Chamadas',
-        'Voz Terminada', 'Off-Net Terminada', 'Operadores das redes Internacionais Terminada',
-        'SMS Terminado', 'Off-Net SMS Terminado', 'Operadores das redes Internacionais SMS Terminado',
-        'Nº Chamadas terminada(entrada)', 'Off-Net Chamadas Terminadas', 'Operadores das redes Internacionais Chamadas Terminadas',
-        'IN', 'OUT', 'IN Chamadas', 'OUT Chamadas',
-        'Volume de acesso a Internet dentro do pais(Mbit)', 'Volume de acesso a Internet fora do pais(Mbit)',
-        'IN SMS', 'OUT SMS',
-        'Receita', 'Receitas de serviços de voz', 'Receitas de serviços de voz em Roaming-out',
-        'Receitas de serviços de mensagens', 'Receitas de serviços de dados móveis',
-        'Receita de chamadas Originadas de voz', 'Receitas de chamadas On-net', 'Receitas de chamadas Off-net',
-        'Receitas de chamadas Internacional', 'Receita de chamadasTerminadas de voz',
-        'Receitas de chamadas Off-net Terminadas', 'Receitas de chamadas Internacional Terminadas',
-        'Receita Transferencia Mobile Money', 'Banda Larga Internacional(BLI)',
-        'Emprego', 'Homens', 'Mulheres'
-    ]
-
-    for operadora in operadoras:
-        for indicador in indicadores:
-            ws.append([f"{operadora} {indicador}", '', '', ''])  # Células vazias para os anos
-
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=dados_anuais_template.xlsx'
-    wb.save(response)
-    return response

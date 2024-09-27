@@ -27,6 +27,37 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Estatísticas Atuais</h2>
+                <div class="row">
+                    {% for campo, valor in estatisticas.items %}
+                        {% if '_atual' in campo %}
+                            <div class="col-md-3 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ campo|cut:'_atual'|replace_underscore|title }}</h5>
+                                        <p class="card-text">
+                                            {{ valor|intcomma }}
+                                            {% if 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
+                                                FCFA
+                                            {% endif %}
+                                        </p>
+                                        <p class="card-text">
+                                            Crescimento: 
+                                            <span class="{% if estatisticas|get_item:campo|add:'_crescimento' > 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {{ estatisticas|get_item:campo|add:'_crescimento'|floatformat:2 }}%
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">Detalhes dos Dados Anuais</h2>
@@ -34,6 +65,8 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
+                                <th>Ano</th>
+                                <th>Operadora</th>
                                 {% for campo in campos %}
                                     <th>{{ campo|title }}</th>
                                 {% endfor %}
@@ -43,11 +76,11 @@
                         <tbody>
                             {% for dado in dados_anuais %}
                             <tr>
+                                <td>{{ dado.ano }}</td>
+                                <td>{{ dado.get_operadora_display }}</td>
                                 {% for campo in campos %}
                                     <td>
-                                        {% if campo == 'operadora' %}
-                                            {{ dado.get_operadora_display }}
-                                        {% elif 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
+                                        {% if 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
                                             {{ dado|getattr:campo|floatformat:2|intcomma }} FCFA
                                         {% else %}
                                             {{ dado|getattr:campo|intcomma }}

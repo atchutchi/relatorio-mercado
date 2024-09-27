@@ -8,8 +8,8 @@
     <div class="container mt-4">
         <h1 class="text-center mb-4">Evolução de Indicadores</h1>
         
-        <div class="row">
-            <div class="col-md-6 mb-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Evolução de Assinantes</h2>
@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
                         <h2 class="card-title">Evolução do Volume de Negócio</h2>
@@ -27,10 +27,29 @@
             </div>
         </div>
 
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução do Tráfego de Dados</h2>
+                        <canvas id="trafegoDadosEvolucaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Evolução do Tráfego de Voz</h2>
+                        <canvas id="trafegoVozEvolucaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-body">
-                <h2 class="card-title">Evolução do Tráfego de Dados</h2>
-                <canvas id="trafegoDadosEvolucaoChart"></canvas>
+                <h2 class="card-title">Evolução de Indicadores Chave</h2>
+                <canvas id="indicadoresChaveEvolucaoChart"></canvas>
             </div>
         </div>
 
@@ -43,7 +62,7 @@
                             <tr>
                                 <th>Ano</th>
                                 {% for indicador in indicadores %}
-                                    <th>{{ indicador|title }}</th>
+                                    <th>{{ indicador|title|replace_underscore }}</th>
                                 {% endfor %}
                             </tr>
                         </thead>
@@ -52,7 +71,13 @@
                             <tr>
                                 <td>{{ ano }}</td>
                                 {% for indicador in indicadores %}
-                                    <td>{{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|intcomma }}</td>
+                                    <td>
+                                        {% if 'volume_negocio' in indicador or 'receita' in indicador or 'investimentos' in indicador %}
+                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|floatformat:2|intcomma }} FCFA
+                                        {% else %}
+                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|intcomma }}
+                                        {% endif %}
+                                    </td>
                                 {% endfor %}
                             </tr>
                             {% endfor %}

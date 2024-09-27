@@ -1,6 +1,9 @@
+import logging
 from import_export import resources, fields
 from import_export.widgets import IntegerWidget, DecimalWidget
 from .models import DadosAnuais
+
+logger = logging.getLogger(__name__)
 
 class DadosAnuaisResource(resources.ModelResource):
     ano = fields.Field(attribute='ano', column_name='Ano')
@@ -8,7 +11,7 @@ class DadosAnuaisResource(resources.ModelResource):
 
     class Meta:
         model = DadosAnuais
-        import_id_fields = ('ano', 'operadora')
+        import_id_fields = ()
         fields = ('ano', 'operadora', 'assinantes_rede_movel', 'assinantes_pos_pago', 'assinantes_pre_pago', 'utilizacao_efetiva',
                   'assinantes_banda_larga_movel', 'assinantes_3g', 'assinantes_3g_box', 'assinantes_3g_usb', 'assinantes_4g',
                   'assinantes_4g_box', 'assinantes_4g_usb', 'assinantes_banda_larga_fixa', 'banda_larga_256kbps', 'banda_larga_256k_2m',
@@ -31,49 +34,88 @@ class DadosAnuaisResource(resources.ModelResource):
         skip_unchanged = True
         report_skipped = False
 
-    def before_import_row(self, row, **kwargs):
-        # Identificar o ano a partir das colunas
-        year_columns = [col for col in row.keys() if col and col.isdigit()]
-        if not year_columns:
-            return False  # Pula linhas que não têm ano
+    def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
+        logger.info("Iniciando o processo de importação")
+        logger.debug(f"Tipo do dataset: {type(dataset)}")
+        logger.debug(f"Atributos do dataset: {dir(dataset)}")
+        
+        if hasattr(dataset, 'headers'):
+            logger.debug(f"Cabeçalhos originais: {dataset.headers}")
+        else:
+            logger.warning("Dataset não tem atributo 'headers'")
+        
+        logger.debug(f"Usando transações: {using_transactions}")
+        logger.debug(f"Dry run: {dry_run}")
+        
+        # Identificar as colunas de ano de forma segura
+        self.year_columns = []
+        if hasattr(dataset, 'headers') and dataset.headers:
+            self.year_columns = [col for col in dataset.headers if col and str(col).isdigit()]
+        
+        logger.info(f"Colunas de ano identificadas: {self.year_columns}")
 
-        # Processamento para cada ano
-        for year in year_columns:
-            new_row = row.copy()
-            new_row['Ano'] = year
-            
-            # Identificar a operadora
-            if 'Indicadores' in new_row:
-                if 'ORANGE' in new_row['Indicadores'].upper():
-                    new_row['Operadora'] = 'ORANGE'
-                elif 'MTN' in new_row['Indicadores'].upper():
-                    new_row['Operadora'] = 'MTN'
-                elif 'TOTAL' in new_row['Indicadores'].upper():
-                    new_row['Operadora'] = 'TOTAL'
-                else:
-                    return False  # Pula linhas sem operadora identificável
+        # Verificar se temos dados para processar
+        if not dataset or not hasattr(dataset, 'dict') or not dataset.dict:
+            logger.warning("Dataset vazio ou inválido")
+            return
 
-            # Mapeamento de colunas
-            for field in self.fields:
-                if field not in ['ano', 'operadora']:
-                    column_name = self.fields[field].column_name
-                    if column_name in new_row:
-                        # Permitir campos vazios ao definir o valor como None se estiver vazio
-                        new_row[field] = new_row[column_name] if new_row[column_name] != '' else None
+        # Criar novas linhas para cada ano e operadora
+        new_dataset = []
+        for row in dataset.dict:
+            logger.debug(f"Processando linha: {row}")
+            indicador = row.get(dataset.headers[0], '') if dataset.headers else ''
+            logger.debug(f"Processando indicador: {indicador}")
+            for year in self.year_columns:
+                for operadora in ['ORANGE', 'MTN', 'TOTAL']:
+                    col_index = dataset.headers.index(year) + ['ORANGE', 'MTN', 'TOTAL'].index(operadora)
+                    valor = row.get(dataset.headers[col_index], '')
+                    if valor:
+                        new_row = {
+                            'Ano': year,
+                            'Operadora': operadora,
+                            indicador: valor
+                        }
+                        new_dataset.append(new_row)
+                        logger.debug(f"Nova linha criada: {new_row}")
+        
+        # Substituir o dataset original pelo novo
+        dataset.dict = new_dataset
+        logger.info(f"Novo dataset criado com {len(new_dataset)} linhas")
+        logger.debug("Primeiras 5 linhas do novo dataset:")
+        for i, row in enumerate(dataset.dict[:5]):
+            logger.debug(f"Linha {i}: {row}")
 
-            # Adiciona a nova linha processada
-            if 'dataset' in kwargs:
-                kwargs['dataset'].append(new_row)
-
-        # Retorna False para pular a linha original
-        return False
+    def import_row(self, row, instance_loader, **kwargs):
+        logger.debug(f"Importando linha: {row}")
+        return super().import_row(row, instance_loader, **kwargs)
 
     def get_instance(self, instance_loader, row):
+        logger.debug(f"Buscando instância para: ano={row.get('Ano')}, operadora={row.get('Operadora')}")
         try:
-            params = {}
-            for key in self.get_import_id_fields():
-                field = self.fields[key]
-                params[field.attribute] = field.clean(row)
-            return self.get_queryset().get(**params)
-        except Exception:
+            return self.Meta.model.objects.get(
+                ano=row['Ano'],
+                operadora=row['Operadora']
+            )
+        except self.Meta.model.DoesNotExist:
+            logger.debug("Instância não encontrada, será criada uma nova")
             return None
+        except KeyError as e:
+            logger.error(f"Erro ao buscar instância: {e}")
+            logger.error(f"Conteúdo da linha: {row}")
+            return None
+
+    def import_field(self, field, obj, data, **kwargs):
+        logger.debug(f"Importando campo: {field.column_name}, valor: {data.get(field.column_name)}")
+        if field.column_name in data:
+            setattr(obj, field.attribute, field.clean(data))
+
+    def save_instance(self, instance, using_transactions=True, dry_run=False):
+        logger.debug(f"Salvando instância: {instance}")
+        if not dry_run:
+            try:
+                instance.save()
+                logger.info(f"Instância salva com sucesso: ano={instance.ano}, operadora={instance.operadora}")
+            except Exception as e:
+                logger.error(f"Erro ao salvar instância: {e}")
+        else:
+            logger.info(f"Dry run: não salvando instância: ano={instance.ano}, operadora={instance.operadora}")

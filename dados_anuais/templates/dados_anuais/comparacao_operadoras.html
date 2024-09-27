@@ -8,26 +8,53 @@
     <div class="container mt-4">
         <h1 class="text-center mb-4">Comparação de Operadoras - {{ ano }}</h1>
         
-        <div class="row">
-            <div class="col-md-6 mb-4">
+        <div class="row mb-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">Assinantes Rede Móvel</h2>
+                        <h5 class="card-title">Assinantes Rede Móvel</h5>
                         <canvas id="assinantesComparacaoChart"></canvas>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="card-title">Volume de Negócio</h2>
+                        <h5 class="card-title">Volume de Negócio</h5>
                         <canvas id="volumeNegocioComparacaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tráfego de Voz</h5>
+                        <canvas id="trafegoVozComparacaoChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Assinantes por Tecnologia</h5>
+                        <canvas id="assinantesTecnologiaComparacaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tráfego de Dados</h5>
+                        <canvas id="trafegoDadosComparacaoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
             <div class="card-body">
                 <h2 class="card-title">Comparação Detalhada</h2>
                 <div class="table-responsive">
@@ -43,10 +70,28 @@
                         <tbody>
                             {% for indicador in indicadores %}
                             <tr>
-                                <td>{{ indicador|title }}</td>
-                                <td>{{ dados_mtn|getattr:indicador|intcomma }}</td>
-                                <td>{{ dados_orange|getattr:indicador|intcomma }}</td>
-                                <td>{{ dados_total|getattr:indicador|intcomma }}</td>
+                                <td>{{ indicador|title|replace_underscore }}</td>
+                                <td>
+                                    {% if 'volume_negocio' in indicador or 'receita' in indicador or 'investimentos' in indicador %}
+                                        {{ dados_mtn|getattr:indicador|floatformat:2|intcomma }} FCFA
+                                    {% else %}
+                                        {{ dados_mtn|getattr:indicador|intcomma }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if 'volume_negocio' in indicador or 'receita' in indicador or 'investimentos' in indicador %}
+                                        {{ dados_orange|getattr:indicador|floatformat:2|intcomma }} FCFA
+                                    {% else %}
+                                        {{ dados_orange|getattr:indicador|intcomma }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if 'volume_negocio' in indicador or 'receita' in indicador or 'investimentos' in indicador %}
+                                        {{ dados_total|getattr:indicador|floatformat:2|intcomma }} FCFA
+                                    {% else %}
+                                        {{ dados_total|getattr:indicador|intcomma }}
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -60,7 +105,11 @@
 
 {% block extra_js %}
 <script>
-    var dadosComparacao = {{ dadosComparacao|safe }};
+    var dadosComparacao = {
+        mtn: {{ dados_mtn|json_script:"dados_mtn"|safe }},
+        orange: {{ dados_orange|json_script:"dados_orange"|safe }},
+        total: {{ dados_total|json_script:"dados_total"|safe }}
+    };
 </script>
 <script src="{% static 'js/comparacao_operadoras.js' %}"></script>
 {% endblock %}
