@@ -81,9 +81,9 @@
                                 {% for campo in campos %}
                                     <td>
                                         {% if 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
-                                            {{ dado|getattr:campo|floatformat:2|intcomma }} FCFA
+                                            {{ dado|getattr_filter:campo|floatformat:2|intcomma }} FCFA
                                         {% else %}
-                                            {{ dado|getattr:campo|intcomma }}
+                                            {{ dado|getattr_filter:campo|intcomma }}
                                         {% endif %}
                                     </td>
                                 {% endfor %}

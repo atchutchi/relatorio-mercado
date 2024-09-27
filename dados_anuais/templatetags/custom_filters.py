@@ -6,11 +6,9 @@ register = template.Library()
 def get_item(dictionary, key):
     return dictionary.get(key)
 
-
 @register.filter
-def getattr(obj, attr):
+def getattr_filter(obj, attr):
     return getattr(obj, attr)
-
 
 @register.filter
 def replace_underscore(value):
