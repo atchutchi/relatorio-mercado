@@ -91,9 +91,9 @@
                             <th>{{ campo|title|replace_underscore }}</th>
                             <td>
                                 {% if 'volume_negocio' in campo or 'receita' in campo or 'investimentos' in campo %}
-                                    {{ dados|getattr:campo|floatformat:2|intcomma }} FCFA
+                                    {{ dados|getattr_filter:campo|floatformat:2|intcomma }} FCFA
                                 {% else %}
-                                    {{ dados|getattr:campo|intcomma }}
+                                    {{ dados|getattr_filter:campo|intcomma }}
                                 {% endif %}
                             </td>
                         </tr>
