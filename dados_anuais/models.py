@@ -132,3 +132,57 @@ class DadosAnuais(models.Model):
         verbose_name_plural = "Dados Anuais"
         unique_together = ('ano', 'operadora')
         ordering = ['-ano', 'operadora']
+
+    def __str__(self):
+        return f"{self.operadora} - {self.ano}"
+
+    @property
+    def market_share_assinantes(self):
+        total = DadosAnuais.objects.filter(ano=self.ano, operadora='TOTAL').first()
+        if total and total.assinantes_rede_movel:
+            return (self.assinantes_rede_movel / total.assinantes_rede_movel) * 100
+        return 0
+
+    @property
+    def market_share_receita(self):
+        total = DadosAnuais.objects.filter(ano=self.ano, operadora='TOTAL').first()
+        if total and total.receita_total:
+            return (self.receita_total / total.receita_total) * 100
+        return 0
+
+    def calcular_crescimento(self, campo):
+        ano_anterior = self.ano - 1
+        dados_anterior = DadosAnuais.objects.filter(ano=ano_anterior, operadora=self.operadora).first()
+        if dados_anterior:
+            valor_anterior = getattr(dados_anterior, campo)
+            valor_atual = getattr(self, campo)
+            if valor_anterior and valor_atual:
+                return ((valor_atual - valor_anterior) / valor_anterior) * 100
+        return 0
+
+    @classmethod
+    def get_total_mercado(cls, ano):
+        return cls.objects.filter(ano=ano, operadora='TOTAL').first()
+
+    @classmethod
+    def get_operadoras(cls, ano):
+        return cls.objects.filter(ano=ano).exclude(operadora='TOTAL')
+
+    @classmethod
+    def get_anos_disponiveis(cls):
+        return cls.objects.values_list('ano', flat=True).distinct().order_by('ano')
+
+    @property
+    def arpu(self):
+        if self.assinantes_rede_movel:
+            return self.receita_total / self.assinantes_rede_movel
+        return 0
+
+    @property
+    def market_concentration(self):
+        total = DadosAnuais.objects.filter(ano=self.ano, operadora='TOTAL').first()
+        if total and total.assinantes_rede_movel:
+            hhi = sum((op.assinantes_rede_movel / total.assinantes_rede_movel * 100) ** 2 
+                      for op in DadosAnuais.objects.filter(ano=self.ano).exclude(operadora='TOTAL'))
+            return hhi
+        return 0
