@@ -73,9 +73,9 @@
                                 {% for indicador in indicadores %}
                                     <td>
                                         {% if 'volume_negocio' in indicador or 'receita' in indicador or 'investimentos' in indicador %}
-                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|floatformat:2|intcomma }} FCFA
+                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|default:0|floatformat:2|intcomma }} FCFA
                                         {% else %}
-                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|intcomma }}
+                                            {{ dados_evolucao|get_item:indicador|get_item:forloop.parentloop.counter0|default:0|intcomma }}
                                         {% endif %}
                                     </td>
                                 {% endfor %}
