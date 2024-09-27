@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Visão Geral do Mercado de Telecomunicações{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/market_overview.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Visão Geral do Mercado de Telecomunicações</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Evolução dos Principais Indicadores</h2>
+            <canvas id="mainIndicatorsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Resumo do Mercado</h2>
+            <div id="marketSummary"></div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Dados Anuais</h2>
+            <div class="table-responsive">
+                <table id="annualDataTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ano</th>
+                            <th>Assinantes</th>
+                            <th>Receita (FCFA)</th>
+                            <th>Tráfego de Dados (MB)</th>
+                            <th>Investimentos (FCFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var marketData = {{ overview_data|safe }};
+    var anos = {{ anos|safe }};
+    var assinantesTotal = {{ assinantes_total|safe }};
+    var receitaTotal = {{ receita_total|safe }};
+    var trafegoDadosTotal = {{ trafego_dados_total|safe }};
+    var investimentosTotal = {{ investimentos_total|safe }};
+</script>
+<script src="{% static 'js/market_overview.js' %}"></script>
+{% endblock %}

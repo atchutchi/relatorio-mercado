@@ -1,0 +1,26 @@
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+}
+
+#mainIndicatorsChart {
+    height: 300px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+#annualDataTable th {
+    background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+}
