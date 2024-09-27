@@ -170,16 +170,51 @@ def evolucao_indicadores(request):
     dados_evolucao['anos'] = list(anos)
 
     for ano in anos:
+        # Tente obter os dados 'TOTAL' primeiro
         dados_ano = DadosAnuais.objects.filter(ano=ano, operadora='TOTAL').first()
+        
+        # Se não houver dados 'TOTAL', some os dados de todas as operadoras
+        if not dados_ano:
+            dados_ano = DadosAnuais.objects.filter(ano=ano).aggregate(**{
+                indicador: Sum(indicador) for indicador in indicadores
+            })
+        
         if dados_ano:
             for indicador in indicadores:
-                dados_evolucao[indicador].append(getattr(dados_ano, indicador))
+                valor = getattr(dados_ano, indicador, None) if isinstance(dados_ano, DadosAnuais) else dados_ano.get(indicador)
+                dados_evolucao[indicador].append(valor if valor is not None else 0)
+        else:
+            # Se não houver dados para o ano, preencha com zeros
+            for indicador in indicadores:
+                dados_evolucao[indicador].append(0)
+        
+        # Log para debug
+        logger.debug(f"Dados para o ano {ano}: {dados_ano}")
+
+    # Selecione alguns indicadores chave para os gráficos
+    indicadores_chave = [
+        'assinantes_rede_movel',
+        'volume_negocio',
+        'trafego_voz_originado',
+        'trafego_dados',
+        'receita_total'
+    ]
+
+    dados_graficos = {
+        indicador: dados_evolucao[indicador]
+        for indicador in indicadores_chave
+    }
+    dados_graficos['anos'] = dados_evolucao['anos']
 
     context = {
         'anos': list(anos),
         'dados_evolucao': dados_evolucao,
-        'indicadores': indicadores
+        'indicadores': indicadores,
+        'dados_graficos': dados_graficos
     }
+
+    # Log para debug
+    logger.debug(f"Contexto enviado para o template: {context}")
 
     return render(request, 'dados_anuais/evolucao_indicadores.html', context)
 
