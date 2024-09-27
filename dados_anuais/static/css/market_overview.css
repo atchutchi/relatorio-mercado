@@ -1,14 +1,17 @@
 .card {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
 }
 
 .card-title {
     color: #333;
     font-weight: bold;
+    margin-bottom: 20px;
 }
 
 #mainIndicatorsChart {
-    height: 300px;
+    height: 400px;
+    width: 100%;
 }
 
 .table-responsive {
@@ -21,6 +24,20 @@
 
 @media (max-width: 768px) {
     .container {
-        padding: 0 10px;
+        padding: 0 15px;
     }
+    
+    h1, h2 {
+        font-size: 1.5rem;
+    }
+    
+    #mainIndicatorsChart {
+        height: 300px;
+    }
+}
+
+#debug-info {
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }

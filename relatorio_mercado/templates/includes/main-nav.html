@@ -31,18 +31,8 @@
                 Dados Anuais
             </a>
             <div class="dropdown-menu border-0" aria-labelledby="dados-anuais-link">
-                <a href="{% url 'dados_anuais_list' %}" class="dropdown-item">Lista de Dados Anuais</a>
-                <a href="{% url 'evolucao_indicadores' %}" class="dropdown-item">Evolução de Indicadores</a>
-                <div class="dropdown-item">
-                    <form action="{% url 'comparacao_operadoras' ano=2024 %}" method="get">
-                        <select name="ano" onchange="this.form.submit()">
-                            <option value="">Selecione o Ano</option>
-                            {% for year in available_years %}
-                                <option value="{{ year }}">{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </form>
-                </div>
+                <a href="{% url 'market_overview' %}" class="dropdown-item">Visão Geral do Mercado</a>
+                <a href="{% url 'annual_comparison' %}" class="dropdown-item">Comparação Anual</a>
             </div>
         </li>
 

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comparação Anual de Operadoras{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/annual_comparison.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Comparação Anual de Operadoras</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Selecione o Ano e o Indicador</h2>
+            <div class="form-row">
+                <div class="col-md-6">
+                    <select id="yearSelect" class="form-control"></select>
+                </div>
+                <div class="col-md-6">
+                    <select id="indicatorSelect" class="form-control">
+                        <option value="assinantes">Assinantes</option>
+                        <option value="receita">Receita</option>
+                        <option value="trafego_dados">Tráfego de Dados</option>
+                        <option value="investimentos">Investimentos</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Comparação de Operadoras</h2>
+            <canvas id="comparisonChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Dados Detalhados</h2>
+            <div class="table-responsive">
+                <table id="comparisonTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Operadora</th>
+                            <th>Valor</th>
+                            <th>Porcentagem do Mercado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var comparisonData = JSON.parse('{{ comparison_data|safe }}');
+    var anos = JSON.parse('{{ anos|safe }}');
+    var operadoras = JSON.parse('{{ operadoras|safe }}');
+</script>
+<script src="{% static 'js/annual_comparison.js' %}"></script>
+{% endblock %}

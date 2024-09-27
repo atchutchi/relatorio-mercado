@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,6 +67,9 @@ INSTALLED_APPS = [
     'storages',
     'dados_anuais',
     'import_export',
+
+    'django_extensions',
+
 ]
 
 MIDDLEWARE = [
@@ -86,6 +91,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR, 'templates'),
             os.path.join(BASE_DIR, 'templates', 'allauth'),
+            os.path.join(BASE_DIR, 'dados_anuais', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

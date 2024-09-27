@@ -1,9 +1,8 @@
 from django.urls import path
-from . import views
+from .views.market_overview import MarketOverviewView
+from .views.annual_comparison import AnnualComparisonView
 
 urlpatterns = [
-    path('', views.DadosAnuaisListView.as_view(), name='dados_anuais_list'),
-    path('<int:ano>/<str:operadora>/', views.DadosAnuaisDetailView.as_view(), name='dados_anuais_detail'),
-    path('comparacao/<int:ano>/', views.comparacao_operadoras, name='comparacao_operadoras'),
-    path('evolucao/', views.evolucao_indicadores, name='evolucao_indicadores'),
+    path('market-overview/', MarketOverviewView.as_view(), name='market_overview'),
+    path('annual-comparison/', AnnualComparisonView.as_view(), name='annual_comparison'),
 ]

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum
 
 class DadosAnuais(models.Model):
     OPERADORAS = [
@@ -162,7 +163,16 @@ class DadosAnuais(models.Model):
 
     @classmethod
     def get_total_mercado(cls, ano):
-        return cls.objects.filter(ano=ano, operadora='TOTAL').first()
+        total = cls.objects.filter(ano=ano, operadora='TOTAL').first()
+        if not total:
+            # Se não houver um registro 'TOTAL', vamos somar os dados de todas as operadoras
+            total = cls.objects.filter(ano=ano).aggregate(
+                assinantes_rede_movel=Sum('assinantes_rede_movel'),
+                receita_total=Sum('receita_total'),
+                trafego_dados=Sum('trafego_dados'),
+                investimentos=Sum('investimentos')
+            )
+        return total
 
     @classmethod
     def get_operadoras(cls, ano):

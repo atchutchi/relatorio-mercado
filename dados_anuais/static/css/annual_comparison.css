@@ -1,0 +1,37 @@
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+#comparisonChart {
+    height: 400px;
+    width: 100%;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+#comparisonTable th {
+    background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    h1, h2 {
+        font-size: 1.5rem;
+    }
+    
+    #comparisonChart {
+        height: 300px;
+    }
+}
