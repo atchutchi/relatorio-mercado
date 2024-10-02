@@ -19,12 +19,7 @@
                     <select id="yearSelect" class="form-control"></select>
                 </div>
                 <div class="col-md-6">
-                    <select id="indicatorSelect" class="form-control">
-                        <option value="assinantes">Assinantes</option>
-                        <option value="receita">Receita</option>
-                        <option value="trafego_dados">Tráfego de Dados</option>
-                        <option value="investimentos">Investimentos</option>
-                    </select>
+                    <select id="indicatorSelect" class="form-control"></select>
                 </div>
             </div>
         </div>
@@ -55,15 +50,22 @@
             </div>
         </div>
     </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Análise Comparativa</h2>
+            <div id="analysisText"></div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var comparisonData = JSON.parse('{{ comparison_data|safe }}');
-    var anos = JSON.parse('{{ anos|safe }}');
-    var operadoras = JSON.parse('{{ operadoras|safe }}');
+    var comparisonData = {{ comparison_data|safe }};
+    var anos = {{ anos|safe }};
+    var operadoras = {{ operadoras|safe }};
 </script>
 <script src="{% static 'js/annual_comparison.js' %}"></script>
 {% endblock %}
