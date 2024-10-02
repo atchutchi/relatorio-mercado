@@ -1,0 +1,50 @@
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-height: 400px;
+    width: 100% !important;
+}
+
+#yearSelect {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+    
+    canvas {
+        max-height: 300px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+#competitiveAnalysis {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+#competitiveAnalysis p {
+    margin-bottom: 10px;
+}
