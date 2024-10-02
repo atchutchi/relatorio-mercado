@@ -1,0 +1,43 @@
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-height: 400px;
+    width: 100% !important;
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
+
+#growthHighlights {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.positive-growth {
+    color: green;
+}
+
+.negative-growth {
+    color: red;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    canvas {
+        max-height: 300px;
+    }
+}

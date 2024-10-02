@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Relatório de Crescimento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/growth_report.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Relatório de Crescimento</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Selecione a Operadora e o Indicador</h2>
+            <div class="form-row">
+                <div class="col-md-6">
+                    <select id="operadoraSelect" class="form-control"></select>
+                </div>
+                <div class="col-md-6">
+                    <select id="indicatorSelect" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Gráfico de Crescimento Anual</h2>
+            <canvas id="growthChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Tabela de Crescimento</h2>
+            <div class="table-responsive">
+                <table id="growthTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ano</th>
+                            <th>Taxa de Crescimento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Destaques de Crescimento</h2>
+            <div id="growthHighlights"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var growthData = {{ growth_data|safe }};
+    var anos = {{ anos|safe }};
+    var operadoras = {{ operadoras|safe }};
+</script>
+<script src="{% static 'js/growth_report.js' %}"></script>
+{% endblock %}
