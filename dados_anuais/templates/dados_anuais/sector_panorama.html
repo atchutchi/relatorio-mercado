@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Panorama do Setor de Telecomunicações{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sector_panorama.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Panorama do Setor de Telecomunicações</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Visão Geral do Mercado</h2>
+            <div id="marketOverview"></div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Evolução do Mercado</h2>
+            <div class="form-group">
+                <label for="indicatorSelect">Selecione o Indicador:</label>
+                <select id="indicatorSelect" class="form-control"></select>
+            </div>
+            <canvas id="marketEvolutionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Contribuição das Operadoras</h2>
+            <div class="form-group">
+                <label for="yearSelect">Selecione o Ano:</label>
+                <select id="yearSelect" class="form-control"></select>
+            </div>
+            <canvas id="operatorContributionChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var panoramaData = {{ panorama_data|safe }};
+    var anos = {{ anos|safe }};
+    var operadoras = {{ operadoras|safe }};
+    var indicators = {{ indicators|safe }};
+</script>
+<script src="{% static 'js/sector_panorama.js' %}"></script>
+{% endblock %}

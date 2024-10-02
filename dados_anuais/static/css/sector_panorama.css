@@ -1,0 +1,52 @@
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.card-title {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+canvas {
+    max-height: 400px;
+    width: 100% !important;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+#marketOverview {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.indicator-highlight {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.indicator-title {
+    font-weight: bold;
+    color: #495057;
+}
+
+.indicator-value {
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    canvas {
+        max-height: 300px;
+    }
+}
