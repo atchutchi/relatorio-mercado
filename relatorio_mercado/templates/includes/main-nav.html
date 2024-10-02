@@ -33,6 +33,8 @@
             <div class="dropdown-menu border-0" aria-labelledby="dados-anuais-link">
                 <a href="{% url 'market_overview' %}" class="dropdown-item">Visão Geral do Mercado</a>
                 <a href="{% url 'annual_comparison' %}" class="dropdown-item">Comparação Anual</a>
+                <a href="{% url 'operator_evolution' operadora='MTN' %}" class="dropdown-item">Evolução MTN</a>
+                <a href="{% url 'operator_evolution' operadora='ORANGE' %}" class="dropdown-item">Evolução Orange</a>
             </div>
         </li>
 

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Evolução da {{ operadora }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/operator_evolution.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Evolução da {{ operadora }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Assinantes</h2>
+                    <canvas id="assinantesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Receita e Investimentos</h2>
+                    <canvas id="receitaInvestimentosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Tráfego</h2>
+                    <canvas id="trafegoChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Chamadas</h2>
+                    <canvas id="chamadasChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Análise de Crescimento Anual</h2>
+            <div class="table-responsive">
+                <table id="growthTable" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Indicador</th>
+                            {% for ano in anos %}
+                                {% if not forloop.first %}
+                                    <th>{{ ano }}</th>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var anos = {{ anos|safe }};
+    var evolutionData = {{ evolution_data|safe }};
+    var growthData = {{ growth_data|safe }};
+</script>
+<script src="{% static 'js/operator_evolution.js' %}"></script>
+{% endblock %}
