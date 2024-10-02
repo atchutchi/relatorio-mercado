@@ -147,19 +147,27 @@ function renderChamadasChart() {
 }
 
 function renderGrowthTable() {
+    const tableHead = document.querySelector('#growthTable thead tr');
     const tableBody = document.querySelector('#growthTable tbody');
-    let tableHtml = '';
-    
+    let headerHtml = '<th>Indicador</th>';
+    let bodyHtml = '';
+
+    // Adicionar anos ao cabeçalho
+    for (let i = 1; i < anos.length; i++) {
+        headerHtml += `<th>${anos[i]}</th>`;
+    }
+    tableHead.innerHTML = headerHtml;
+
+    // Preencher o corpo da tabela
     for (const [indicador, dados] of Object.entries(growthData)) {
-        tableHtml += `
+        bodyHtml += `
             <tr>
                 <td>${formatIndicatorName(indicador)}</td>
                 ${dados.map(valor => `<td>${formatNumber(valor, 2)}%</td>`).join('')}
             </tr>
         `;
     }
-    
-    tableBody.innerHTML = tableHtml;
+    tableBody.innerHTML = bodyHtml;
 }
 
 function formatIndicatorName(name) {
@@ -167,7 +175,7 @@ function formatIndicatorName(name) {
 }
 
 function formatNumber(number, decimals = 0) {
-    return new Intl.NumberFormat('fr-FR', { 
+    return new Intl.NumberFormat('pt-BR', { 
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals 
     }).format(number);
