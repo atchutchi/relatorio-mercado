@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from ..models import DadosAnuais
 import json
-from django.db.models import F
+from decimal import Decimal
 
 class OperatorEvolutionView(TemplateView):
     template_name = 'dados_anuais/operator_evolution.html'
@@ -24,7 +24,12 @@ class OperatorEvolutionView(TemplateView):
             'receita_total', 'banda_larga_internacional', 'emprego_total'
         ]
 
-        evolution_data = {indicador: list(dados.values_list(indicador, flat=True)) for indicador in indicadores}
+        def decimal_to_float(value):
+            if isinstance(value, Decimal):
+                return float(value)
+            return value
+
+        evolution_data = {indicador: [decimal_to_float(getattr(d, indicador)) for d in dados] for indicador in indicadores}
         
         # Calcular crescimento ano a ano
         growth_data = {}
