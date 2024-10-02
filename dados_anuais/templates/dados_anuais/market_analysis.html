@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% block title %}Análise de Mercado{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/market_analysis.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Análise de Mercado</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Participação de Mercado</h2>
+                    <select id="yearSelect" class="form-control mb-3"></select>
+                    <canvas id="marketShareChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Concentração de Mercado (HHI)</h2>
+                    <canvas id="hhiChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Análise de Competitividade</h2>
+            <div id="competitiveAnalysis"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var anos = {{ anos|safe }};
+    var operadoras = {{ operadoras|safe }};
+    var marketShareData = {{ market_share_data|safe }};
+    var hhiData = {{ hhi_data|safe }};
+</script>
+<script src="{% static 'js/market_analysis.js' %}"></script>
+{% endblock %}
