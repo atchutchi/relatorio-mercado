@@ -33,24 +33,16 @@
                 <a href="{% url 'indicator_list' %}" class="dropdown-item">Gestão de Indicadores</a>
             {% endif %}
             <a href="{% url 'user_profile' %}" class="dropdown-item">Meu Perfil</a>
-            <a href="{% url 'notification_list' %}" class="dropdown-item">Notificações {% if request.unread_notifications_count %}<span class="badge bg-danger">{{ request.unread_notifications_count }}</span>{% endif %}</a>
+            <a href="{% url 'notification_list' %}" class="dropdown-item">
+                Notificações 
+                {% if request.unread_notifications_count %}
+                    <span class="badge bg-danger">{{ request.unread_notifications_count }}</span>
+                {% endif %}
+            </a>
             <a href="{% url 'account_logout' %}" class="dropdown-item">Sair</a>
         {% else %}
             <a href="{% url 'account_signup' %}" class="dropdown-item">Registrar</a>
             <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
         {% endif %}
-    </div>
-</li>
-<li class="list-inline-item">
-    <a class="text-black nav-link d-block d-lg-none" href="#" id="mobile-management" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <div class="text-center">
-            <div><i class="fas fa-cog fa-lg"></i></div>
-            <p class="my-0">Gerenciamento</p>
-        </div>
-    </a>
-    <div class="dropdown-menu border-0" aria-labelledby="mobile-management">
-        <a href="{% url 'indicator_list' %}" class="dropdown-item">Gerenciar Indicadores</a>
-        <a href="{% url 'user_profile' %}" class="dropdown-item">Meu Perfil</a>
-        <a href="{% url 'notification_list' %}" class="dropdown-item">Notificações {% if request.unread_notifications_count %}<span class="badge bg-danger">{{ request.unread_notifications_count }}</span>{% endif %}</a>
     </div>
 </li>

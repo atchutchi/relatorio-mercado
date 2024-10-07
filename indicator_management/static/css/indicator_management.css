@@ -1,0 +1,75 @@
+/* indicator_management/static/css/indicator_management.css */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.btn-success, .btn-info, .btn-secondary {
+    margin-right: 10px;
+}
+
+.table {
+    background-color: #fff;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+.pagination {
+    margin-top: 20px;
+}
+
+.btn-sm {
+    margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+    .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* Estilos para melhorar a aparência dos formulários */
+.form-select, .form-control {
+    margin-bottom: 15px;
+}
+
+/* Estilos para os botões de ação rápida */
+.card-body .btn {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Estilos para melhorar a responsividade da tabela */
+@media (max-width: 992px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+/* Estilos para melhorar a aparência dos botões de paginação em dispositivos móveis */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        padding: .5rem .75rem;
+    }
+}
