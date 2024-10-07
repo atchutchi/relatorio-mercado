@@ -26,13 +26,19 @@ body {
 }
 
 
-  .content {
-    flex: 1;
-  }
+/* Ajustar padding para evitar sobreposição com a navbar */
+.content {
+  flex: 1;
+  padding-top: 100px; /* Adiciona espaço suficiente abaixo da barra de navegação fixa */
+}
 
-  .content {
-    flex: 1;
-  }
+/* Centralizando o formulário */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto; /* Centraliza o formulário horizontalmente */
+  padding: 20px; /* Adiciona algum padding para dar espaço */
+}
+
 
 /* TABLE AND PIE */
 

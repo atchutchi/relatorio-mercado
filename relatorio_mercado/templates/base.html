@@ -91,10 +91,12 @@
         </div>
     </header>
 
-     <!-- Main content area -->
-     <div class="content">
+    <!-- Main content area -->
+    <div class="content">
         {% block page_header %}{% endblock %}
-        {% block content %}{% endblock %}
+        <div class="form-container">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
     <!-- JavaScript-->
