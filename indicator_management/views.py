@@ -2,6 +2,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import IndicatorUpdate, UserProfile, Notification
 from dados_anuais.models import DadosAnuais
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.urls import reverse_lazy
 
 class IndicatorListView(LoginRequiredMixin, ListView):
     model = DadosAnuais
@@ -36,6 +39,10 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
     template_name = 'indicator_management/user_profile.html'
     fields = ['bio', 'organization']
 
+    def get_object(self, queryset=None):
+        # Obtém o perfil do usuário atual
+        return get_object_or_404(UserProfile, user=self.request.user)
+
 class NotificationListView(LoginRequiredMixin, ListView):
     model = Notification
     template_name = 'indicator_management/notification_list.html'
@@ -43,3 +50,32 @@ class NotificationListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
+
+
+class IndicatorCreateView(LoginRequiredMixin, CreateView):
+    model = DadosAnuais
+    template_name = 'indicator_management/indicator_create.html'
+    fields = '__all__'
+
+
+# indicator_management/views.py
+
+from django.http import HttpResponse
+
+class IndicatorImportView(LoginRequiredMixin, ListView):
+    template_name = 'indicator_management/indicator_import.html'
+
+    def get(self, request, *args, **kwargs):
+        # Adicione aqui o seu código de importação, por enquanto retornamos uma resposta simples
+        return HttpResponse("Página de importação de indicadores.")
+
+class IndicatorExportView(LoginRequiredMixin, ListView):
+    def get(self, request, *args, **kwargs):
+        # Adicione aqui o seu código de exportação, por enquanto retornamos uma resposta simples
+        return HttpResponse("Página de exportação de indicadores.")
+
+
+class IndicatorDeleteView(LoginRequiredMixin, DeleteView):
+    model = DadosAnuais
+    template_name = 'indicator_management/indicator_confirm_delete.html'
+    success_url = reverse_lazy('indicator_list')  # Redireciona de volta para a lista de indicadores após a exclusão
