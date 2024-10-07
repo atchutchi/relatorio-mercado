@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'import_export',
 
     'django_extensions',
+    'indicator_management',
 
 ]
 
@@ -81,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'indicator_management.middleware.NotificationMiddleware',
 ]
 
 ROOT_URLCONF = 'relatorio_mercado.relatorio_mercado.urls'
