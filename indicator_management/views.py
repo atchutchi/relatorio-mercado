@@ -40,8 +40,10 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
     fields = ['bio', 'organization']
 
     def get_object(self, queryset=None):
-        # Obtém o perfil do usuário atual
-        return get_object_or_404(UserProfile, user=self.request.user)
+        # Get or create a UserProfile for the logged-in user
+        user_profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+        return user_profile
+
 
 class NotificationListView(LoginRequiredMixin, ListView):
     model = Notification

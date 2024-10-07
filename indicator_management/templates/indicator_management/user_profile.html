@@ -19,19 +19,23 @@
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">E-mail</label>
-                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" readonly>
                 </div>
                 <div class="mb-3">
                     <label for="first_name" class="form-label">Primeiro Nome</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}">
+                    <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" readonly>
                 </div>
                 <div class="mb-3">
                     <label for="last_name" class="form-label">Sobrenome</label>
-                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}">
+                    <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" readonly>
                 </div>
                 <div class="mb-3">
                     <label for="bio" class="form-label">Biografia</label>
-                    <textarea class="form-control" id="bio" name="bio" rows="3">{{ user.userprofile.bio }}</textarea>
+                    <textarea class="form-control" id="bio" name="bio" rows="3">{{ userprofile.bio }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="organization" class="form-label">Organização</label>
+                    <input type="text" class="form-control" id="organization" name="organization" value="{{ userprofile.organization }}">
                 </div>
                 <button type="submit" class="btn btn-primary">Atualizar Perfil</button>
             </form>
