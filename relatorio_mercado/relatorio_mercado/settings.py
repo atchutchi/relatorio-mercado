@@ -70,6 +70,7 @@ INSTALLED_APPS = [
 
     'django_extensions',
     'indicator_management',
+    'telecom',
 
 ]
 

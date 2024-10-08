@@ -27,6 +27,7 @@ urlpatterns = [
     path('indicadores/', include('relatorio_mercado.indicadores.urls')),
     path('dados-anuais/', include('dados_anuais.urls')),
     path('management/', include('indicator_management.urls')),
+    path('telecom/', include('telecom.urls')),
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

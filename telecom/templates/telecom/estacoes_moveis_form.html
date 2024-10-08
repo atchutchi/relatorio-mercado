@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Detalhes do Indicador - {{ indicador.ano }}/{{ indicador.mes }}</h1>
+
+<h2>Estações Móveis</h2>
+<!-- Adicione aqui os detalhes das estações móveis -->
+
+<h2>Serviços de Mobile Money</h2>
+<h3>Número de Utilizadores</h3>
+<p>Total: {{ total_utilizadores }}</p>
+<p>Mulher: {{ indicador.numero_utilizadores_mulher }}</p>
+<p>Homem: {{ indicador.numero_utilizadores_homem }}</p>
+
+<h3>Total de Carregamentos Efectuados</h3>
+<p>Total: {{ total_carregamentos }}</p>
+<p>Mulher: {{ indicador.total_carregamentos_mulher }}</p>
+<p>Homem: {{ indicador.total_carregamentos_homem }}</p>
+
+<h3>Total de Levantamentos Efectuados</h3>
+<p>Total: {{ total_levantamentos }}</p>
+<p>Mulher: {{ indicador.total_levantamentos_mulher }}</p>
+<p>Homem: {{ indicador.total_levantamentos_homem }}</p>
+
+<h3>Total de Transferências</h3>
+<p>Total: {{ total_transferencias }}</p>
+<p>Mulher: {{ indicador.total_transferencias_mulher }}</p>
+<p>Homem: {{ indicador.total_transferencias_homem }}</p>
+
+<a href="{% url 'estacoes_moveis_edit' indicador.pk %}" class="btn btn-primary">Editar</a>
+<a href="{% url 'estacoes_moveis_list' %}" class="btn btn-secondary">Voltar à Lista</a>
+{% endblock %}
