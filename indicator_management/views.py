@@ -1,10 +1,11 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from .models import IndicatorUpdate, UserProfile, Notification
 from dados_anuais.models import DadosAnuais
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
-from django.urls import reverse_lazy
 
 class IndicatorListView(LoginRequiredMixin, ListView):
     model = DadosAnuais
@@ -38,11 +39,15 @@ class UserProfileView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     template_name = 'indicator_management/user_profile.html'
     fields = ['bio', 'organization']
+    success_url = reverse_lazy('user_profile')
 
     def get_object(self, queryset=None):
-        # Get or create a UserProfile for the logged-in user
-        user_profile, created = UserProfile.objects.get_or_create(user=self.request.user)
-        return user_profile
+        return UserProfile.objects.get_or_create(user=self.request.user)[0]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
 
 
 class NotificationListView(LoginRequiredMixin, ListView):

@@ -40,29 +40,26 @@ body {
 }
 
 
-/* TABLE AND PIE */
-
+/* Ajustes gerais */
 .container {
-  max-width: 1200px;
+  max-width: 100%;
+  padding: 0 15px;
 }
 
+/* Melhorar a distribuição das imagens */
 .card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.chart-container {
+  height: auto;
+  min-height: 300px;
 }
 
 .card-title {
   color: #333;
   font-weight: 600;
   margin-bottom: 20px;
-}
-
-.chart-container {
-  position: relative;
-  height: 300px;
-  width: 100%;
 }
 
 .table-responsive {
