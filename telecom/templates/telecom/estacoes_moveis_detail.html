@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Detalhes do Indicador - {{ indicador.ano }}/{{ indicador.mes }}</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Número total de estações móveis activos</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Afectos a planos Pós-pagos:</strong> {{ indicador.afectos_planos_pos_pagos|intcomma }}</p>
+            <p><strong>Afectos a planos Pós-pagos (utilização efectiva):</strong> {{ indicador.afectos_planos_pos_pagos_utilizacao|intcomma }}</p>
+            <p><strong>Afectos a planos pré-pagos:</strong> {{ indicador.afectos_planos_pre_pagos|intcomma }}</p>
+            <p><strong>Afectos a planos pré-pagos (utilização efectiva):</strong> {{ indicador.afectos_planos_pre_pagos_utilizacao|intcomma }}</p>
+            <p><strong>Associados a situações específicas:</strong> {{ indicador.associados_situacoes_especificas|intcomma|default:"N/A" }}</p>
+            <p><strong>Outros (residuais):</strong> {{ indicador.outros_residuais|intcomma|default:"N/A" }}</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Serviços</h2>
+        </div>
+        <div class="card-body">
+            <!-- Adicione aqui os detalhes dos serviços -->
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 class="mb-0">Serviços de Mobile Money</h2>
+        </div>
+        <div class="card-body">
+            <h3>Número de Utilizadores</h3>
+            <p><strong>Total:</strong> {{ total_utilizadores|intcomma }}</p>
+            <p><strong>Mulher:</strong> {{ indicador.numero_utilizadores_mulher|intcomma }}</p>
+            <p><strong>Homem:</strong> {{ indicador.numero_utilizadores_homem|intcomma }}</p>
+
+            <h3>Total de Carregamentos Efectuados</h3>
+            <p><strong>Total:</strong> {{ total_carregamentos|intcomma }} F CFA</p>
+            <p><strong>Mulher:</strong> {{ indicador.total_carregamentos_mulher|intcomma }} F CFA</p>
+            <p><strong>Homem:</strong> {{ indicador.total_carregamentos_homem|intcomma }} F CFA</p>
+
+            <h3>Total de Levantamentos Efectuados</h3>
+            <p><strong>Total:</strong> {{ total_levantamentos|intcomma }} F CFA</p>
+            <p><strong>Mulher:</strong> {{ indicador.total_levantamentos_mulher|intcomma }} F CFA</p>
+            <p><strong>Homem:</strong> {{ indicador.total_levantamentos_homem|intcomma }} F CFA</p>
+
+            <h3>Total de Transferências</h3>
+            <p><strong>Total:</strong> {{ total_transferencias|intcomma }} F CFA</p>
+            <p><strong>Mulher:</strong> {{ indicador.total_transferencias_mulher|intcomma }} F CFA</p>
+            <p><strong>Homem:</strong> {{ indicador.total_transferencias_homem|intcomma }} F CFA</p>
+        </div>
+    </div>
+
+    <a href="{% url 'estacoes_moveis_edit' indicador.pk %}" class="btn btn-primary">Editar</a>
+    <a href="{% url 'estacoes_moveis_list' %}" class="btn btn-secondary">Voltar à Lista</a>
+</div>
+{% endblock %}

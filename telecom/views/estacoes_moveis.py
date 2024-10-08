@@ -1,15 +1,13 @@
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from ..models.estacoes_moveis import EstacoesMoveisIndicador
+from ..forms import EstacoesMoveisForm
 
 class EstacoesMoveisCreateView(CreateView):
     model = EstacoesMoveisIndicador
+    form_class = EstacoesMoveisForm  # Use esta linha em vez de get_form_class
     template_name = 'telecom/estacoes_moveis_form.html'
     success_url = reverse_lazy('estacoes_moveis_list')
-
-    def get_form_class(self):
-        from ..forms.estacoes_moveis import EstacoesMoveisForm
-        return EstacoesMoveisForm
 
 class EstacoesMoveisListView(ListView):
     model = EstacoesMoveisIndicador
@@ -18,12 +16,9 @@ class EstacoesMoveisListView(ListView):
 
 class EstacoesMoveisUpdateView(UpdateView):
     model = EstacoesMoveisIndicador
+    form_class = EstacoesMoveisForm  # Use esta linha em vez de get_form_class
     template_name = 'telecom/estacoes_moveis_form.html'
     success_url = reverse_lazy('estacoes_moveis_list')
-
-    def get_form_class(self):
-        from ..forms.estacoes_moveis import EstacoesMoveisForm
-        return EstacoesMoveisForm
 
 class EstacoesMoveisDeleteView(DeleteView):
     model = EstacoesMoveisIndicador

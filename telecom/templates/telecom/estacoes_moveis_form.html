@@ -1,32 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Detalhes do Indicador - {{ indicador.ano }}/{{ indicador.mes }}</h1>
-
-<h2>Estações Móveis</h2>
-<!-- Adicione aqui os detalhes das estações móveis -->
-
-<h2>Serviços de Mobile Money</h2>
-<h3>Número de Utilizadores</h3>
-<p>Total: {{ total_utilizadores }}</p>
-<p>Mulher: {{ indicador.numero_utilizadores_mulher }}</p>
-<p>Homem: {{ indicador.numero_utilizadores_homem }}</p>
-
-<h3>Total de Carregamentos Efectuados</h3>
-<p>Total: {{ total_carregamentos }}</p>
-<p>Mulher: {{ indicador.total_carregamentos_mulher }}</p>
-<p>Homem: {{ indicador.total_carregamentos_homem }}</p>
-
-<h3>Total de Levantamentos Efectuados</h3>
-<p>Total: {{ total_levantamentos }}</p>
-<p>Mulher: {{ indicador.total_levantamentos_mulher }}</p>
-<p>Homem: {{ indicador.total_levantamentos_homem }}</p>
-
-<h3>Total de Transferências</h3>
-<p>Total: {{ total_transferencias }}</p>
-<p>Mulher: {{ indicador.total_transferencias_mulher }}</p>
-<p>Homem: {{ indicador.total_transferencias_homem }}</p>
-
-<a href="{% url 'estacoes_moveis_edit' indicador.pk %}" class="btn btn-primary">Editar</a>
-<a href="{% url 'estacoes_moveis_list' %}" class="btn btn-secondary">Voltar à Lista</a>
+<div class="container">
+    <h1 class="mb-4">{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Indicador de Estações Móveis</h1>
+    <form method="post">
+        {% csrf_token %}
+        
+        <h2>Número total de estações móveis activos</h2>
+        <!-- Campos relacionados a estações móveis -->
+        
+        <h2>Serviços</h2>
+        <!-- Campos relacionados a serviços -->
+        
+        <h2>Serviços de Mobile Money</h2>
+        <!-- Campos relacionados a Mobile Money -->
+        
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a href="{% url 'estacoes_moveis_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
 {% endblock %}

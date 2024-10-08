@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Lista de Indicadores de Estações Móveis</h1>
+    <a href="{% url 'estacoes_moveis_add' %}" class="btn btn-primary mb-3">Adicionar Novo Indicador</a>
+    
+    <h2>Serviços de Mobile Money</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ano</th>
+                <th>Mês</th>
+                <th>Total de Utilizadores</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for indicador in estacoes_moveis_list %}
+            <tr>
+                <td>{{ indicador.ano }}</td>
+                <td>{{ indicador.mes }}</td>
+                <td>{{ indicador.total_utilizadores|intcomma }}</td>
+                <td>
+                    <a href="{% url 'estacoes_moveis_detail' indicador.pk %}" class="btn btn-sm btn-info">Detalhes</a>
+                    <a href="{% url 'estacoes_moveis_edit' indicador.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="{% url 'estacoes_moveis_delete' indicador.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">Nenhum indicador cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
