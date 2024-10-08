@@ -63,6 +63,7 @@ class IndicatorCreateView(LoginRequiredMixin, CreateView):
     model = DadosAnuais
     template_name = 'indicator_management/indicator_create.html'
     fields = '__all__'
+    success_url = reverse_lazy('indicator_list')
 
 
 # indicator_management/views.py
