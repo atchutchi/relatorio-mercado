@@ -13,10 +13,13 @@ class OperatorEvolutionView(TemplateView):
         dados = DadosAnuais.objects.filter(operadora=operadora).order_by('ano')
         anos = list(dados.values_list('ano', flat=True))
 
+        # Adicionar todos os indicadores relevantes
         indicadores = [
             'assinantes_rede_movel', 'assinantes_pos_pago', 'assinantes_pre_pago', 'utilizacao_efetiva',
             'assinantes_banda_larga_movel', 'assinantes_3g', 'assinantes_4g',
-            'assinantes_banda_larga_fixa', 'volume_negocio', 'investimentos',
+            'banda_larga_256kbps', 'banda_larga_256k_2m', 'banda_larga_2m_4m', 
+            'banda_larga_5m_10m', 'banda_larga_10m', 'banda_larga_outros',
+            'volume_negocio', 'investimentos',
             'trafego_voz_originado', 'trafego_sms', 'trafego_dados',
             'chamadas_originadas', 'trafego_voz_terminado', 'trafego_sms_terminado',
             'chamadas_terminadas', 'roaming_in_minutos', 'roaming_out_minutos',
@@ -29,22 +32,27 @@ class OperatorEvolutionView(TemplateView):
                 return float(value)
             return value
 
-        evolution_data = {indicador: [decimal_to_float(getattr(d, indicador)) for d in dados] for indicador in indicadores}
+        evolution_data = {}
         
-        # Calcular crescimento ano a ano
-        growth_data = {}
+        # Processar dados básicos
         for indicador in indicadores:
+            evolution_data[indicador] = [decimal_to_float(getattr(d, indicador)) for d in dados]
+        
+        # Adicionar total de banda larga fixa (que é igual ao banda_larga_256kbps)
+        evolution_data['banda_larga_fixa_total'] = evolution_data['banda_larga_256kbps']
+
+        # Calcular crescimento
+        growth_data = {}
+        for indicador in indicadores + ['banda_larga_fixa_total']:
             growth = []
+            values = evolution_data[indicador]
             for i in range(1, len(anos)):
-                valor_anterior = evolution_data[indicador][i-1] or 0
-                valor_atual = evolution_data[indicador][i] or 0
-                if valor_anterior != 0:
-                    growth.append(((valor_atual - valor_anterior) / valor_anterior) * 100)
-                else:
-                    growth.append(0)
+                valor_anterior = values[i-1] or 0
+                valor_atual = values[i] or 0
+                growth.append(((valor_atual - valor_anterior) / valor_anterior * 100) if valor_anterior else 0)
             growth_data[indicador] = growth
 
-        # Gerar resumo textual
+        # Gerar resumo incluindo banda larga fixa
         resumo = self.gerar_resumo(evolution_data, growth_data, anos)
 
         context['operadora'] = operadora
@@ -58,7 +66,11 @@ class OperatorEvolutionView(TemplateView):
         resumo = f"Resumo da evolução da {self.kwargs.get('operadora')} de {anos[0]} a {anos[-1]}:\n\n"
 
         indicadores_principais = [
-            'assinantes_rede_movel', 'receita_total', 'investimentos', 'trafego_dados'
+            'assinantes_rede_movel',
+            'assinantes_banda_larga_movel',
+            'banda_larga_fixa_total',
+            'receita_total',
+            'trafego_dados'
         ]
 
         for indicador in indicadores_principais:
@@ -71,9 +83,9 @@ class OperatorEvolutionView(TemplateView):
             resumo += f"- Valor em {anos[-1]}: {valor_final:,.0f}\n"
             resumo += f"- Crescimento total: {crescimento_total:.2f}%\n"
 
-            # Adicionar informação sobre o maior crescimento anual
-            maior_crescimento = max(growth_data[indicador])
-            ano_maior_crescimento = anos[growth_data[indicador].index(maior_crescimento) + 1]
-            resumo += f"- Maior crescimento anual: {maior_crescimento:.2f}% em {ano_maior_crescimento}\n\n"
+            if indicador in growth_data:
+                maior_crescimento = max(growth_data[indicador])
+                ano_maior_crescimento = anos[growth_data[indicador].index(maior_crescimento) + 1]
+                resumo += f"- Maior crescimento anual: {maior_crescimento:.2f}% em {ano_maior_crescimento}\n\n"
 
         return resumo
