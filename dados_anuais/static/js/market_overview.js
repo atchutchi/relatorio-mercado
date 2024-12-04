@@ -6,38 +6,62 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         document.querySelector('.container').innerHTML += '<p class="alert alert-warning">Nenhum dado disponível para exibição.</p>';
     }
-});
-
-function renderChart() {
+ });
+ 
+ const operadoraColors = {
+    MTN: {
+        main: 'rgb(255, 206, 86)',
+        background: 'rgba(255, 206, 86, 0.2)'
+    },
+    ORANGE: {
+        main: 'rgb(255, 159, 64)',
+        background: 'rgba(255, 159, 64, 0.2)'
+    }
+ };
+ 
+ function renderChart() {
     if (!anos || !assinantesTotal || !receitaTotal || !trafegoDadosTotal || !investimentosTotal) {
         return;
     }
-    var ctx = document.getElementById('mainIndicatorsChart').getContext('2d');
+    const ctx = document.getElementById('mainIndicatorsChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: anos,
-            datasets: [{
-                label: 'Assinantes',
-                data: assinantesTotal,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }, {
-                label: 'Receita (Bilhões FCFA)',
-                data: receitaTotal.map(value => Number(value) / 1000000000),
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1
-            }, {
-                label: 'Tráfego de Dados (TB)',
-                data: trafegoDadosTotal.map(value => value / 1000000),
-                borderColor: 'rgb(54, 162, 235)',
-                tension: 0.1
-            }, {
-                label: 'Investimentos (Bilhões FCFA)',
-                data: investimentosTotal.map(value => Number(value) / 1000000000),
-                borderColor: 'rgb(255, 206, 86)',
-                tension: 0.1
-            }]
+            datasets: [
+                {
+                    label: 'Assinantes',
+                    data: assinantesTotal,
+                    borderColor: operadoraColors.MTN.main,
+                    backgroundColor: operadoraColors.MTN.background,
+                    tension: 0.1,
+                    fill: true
+                },
+                {
+                    label: 'Receita (Bilhões FCFA)',
+                    data: receitaTotal.map(value => Number(value) / 1000000000),
+                    borderColor: operadoraColors.ORANGE.main,
+                    backgroundColor: operadoraColors.ORANGE.background,
+                    tension: 0.1,
+                    fill: true
+                },
+                {
+                    label: 'Tráfego de Dados (TB)',
+                    data: trafegoDadosTotal.map(value => value / 1000000),
+                    borderColor: 'rgb(54, 162, 235)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    tension: 0.1,
+                    fill: true
+                },
+                {
+                    label: 'Investimentos (Bilhões FCFA)',
+                    data: investimentosTotal.map(value => Number(value) / 1000000000),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1,
+                    fill: true
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -45,69 +69,102 @@ function renderChart() {
                 y: {
                     beginAtZero: true
                 }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Poppins'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        family: 'Poppins',
+                        size: 14
+                    },
+                    bodyFont: {
+                        family: 'Poppins',
+                        size: 13
+                    }
+                }
             }
         }
     });
-}
-
-function renderMarketSummary() {
-    if (!marketData || marketData.length === 0) {
-        return;
-    }
+ }
+ 
+ function renderMarketSummary() {
+    if (!marketData || marketData.length === 0) return;
+    
     const lastYear = marketData[marketData.length - 1];
     const penultimateYear = marketData.length > 1 ? marketData[marketData.length - 2] : null;
     
     let summaryHtml = `
-        <p>
-            Em ${lastYear.ano}, o mercado de telecomunicações atingiu ${formatNumber(lastYear.assinantes_total)} assinantes,
-            com uma receita total de ${formatNumber(lastYear.receita_total)} FCFA.
-            O tráfego de dados totalizou ${formatNumber(lastYear.trafego_dados_total)} MB,
-            enquanto os investimentos no setor chegaram a ${formatNumber(lastYear.investimentos_total)} FCFA.
-        </p>
+        <p>Em ${lastYear.ano}, o mercado de telecomunicações atingiu ${formatNumber(lastYear.assinantes_total)} assinantes,
+        com uma receita total de ${formatNumber(lastYear.receita_total)} FCFA.
+        O tráfego de dados totalizou ${formatNumber(lastYear.trafego_dados_total)} MB,
+        enquanto os investimentos no setor chegaram a ${formatNumber(lastYear.investimentos_total)} FCFA.</p>
     `;
-
+ 
     if (penultimateYear) {
-        const assinantesCrescimento = ((lastYear.assinantes_total - penultimateYear.assinantes_total) / penultimateYear.assinantes_total) * 100;
-        const receitaCrescimento = ((lastYear.receita_total - penultimateYear.receita_total) / penultimateYear.receita_total) * 100;
-        const trafegoCrescimento = ((lastYear.trafego_dados_total - penultimateYear.trafego_dados_total) / penultimateYear.trafego_dados_total) * 100;
-        const investimentosCrescimento = ((lastYear.investimentos_total - penultimateYear.investimentos_total) / penultimateYear.investimentos_total) * 100;
-
-        summaryHtml += `
-            <p>
-                Comparado ao ano anterior, observamos um crescimento de 
-                ${formatNumber(assinantesCrescimento, 2)}% em assinantes,
-                ${formatNumber(receitaCrescimento, 2)}% em receita,
-                ${formatNumber(trafegoCrescimento, 2)}% em tráfego de dados e
-                ${formatNumber(investimentosCrescimento, 2)}% em investimentos.
-            </p>
-        `;
+        const indicators = {
+            assinantes: {
+                atual: lastYear.assinantes_total,
+                anterior: penultimateYear.assinantes_total,
+                label: 'assinantes'
+            },
+            receita: {
+                atual: lastYear.receita_total,
+                anterior: penultimateYear.receita_total,
+                label: 'receita'
+            },
+            trafego: {
+                atual: lastYear.trafego_dados_total,
+                anterior: penultimateYear.trafego_dados_total,
+                label: 'tráfego de dados'
+            },
+            investimentos: {
+                atual: lastYear.investimentos_total,
+                anterior: penultimateYear.investimentos_total,
+                label: 'investimentos'
+            }
+        };
+ 
+        let crescimentoHtml = '<p>Comparado ao ano anterior:';
+        
+        Object.values(indicators).forEach(({ atual, anterior, label }) => {
+            const crescimento = ((atual - anterior) / anterior) * 100;
+            const color = crescimento >= 0 ? operadoraColors.MTN.main : '#dc3545';
+            crescimentoHtml += `
+                <br>• ${label}: <span style="color: ${color}; font-weight: 500;">${formatNumber(crescimento, 2)}%</span>`;
+        });
+ 
+        summaryHtml += crescimentoHtml + '</p>';
     }
     
     document.getElementById('marketSummary').innerHTML = summaryHtml;
-}
-
-function renderDataTable() {
+ }
+ 
+ function renderDataTable() {
     const tableBody = document.querySelector('#annualDataTable tbody');
-    let tableHtml = '';
     
-    marketData.slice().reverse().forEach(data => {
-        tableHtml += `
-            <tr>
-                <td>${data.ano}</td>
-                <td>${formatNumber(data.assinantes_total)}</td>
-                <td>${formatNumber(data.receita_total)}</td>
-                <td>${formatNumber(data.trafego_dados_total)}</td>
-                <td>${formatNumber(data.investimentos_total)}</td>
-            </tr>
-        `;
-    });
+    const tableHtml = marketData.slice().reverse().map(data => `
+        <tr>
+            <td>${data.ano}</td>
+            <td>${formatNumber(data.assinantes_total)}</td>
+            <td>${formatNumber(data.receita_total)}</td>
+            <td>${formatNumber(data.trafego_dados_total)}</td>
+            <td>${formatNumber(data.investimentos_total)}</td>
+        </tr>
+    `).join('');
     
     tableBody.innerHTML = tableHtml;
-}
-
-function formatNumber(number, decimals = 0) {
-    return new Intl.NumberFormat('fr-FR', { 
+ }
+ 
+ function formatNumber(number, decimals = 0) {
+    return new Intl.NumberFormat('pt-BR', { 
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals 
     }).format(number);
-}
+ }

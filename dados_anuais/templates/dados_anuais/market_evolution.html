@@ -1,0 +1,90 @@
+<!-- templates/dados_anuais/market_evolution.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Evolução do Mercado{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Evolução do Mercado de Telecomunicações</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Assinantes</h2>
+                    <canvas id="assinantesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Banda Larga Móvel</h2>
+                    <canvas id="bandaLargaMovelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Banda Larga Fixa</h2>
+                    <canvas id="bandaLargaFixaChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Receita Total</h2>
+                    <canvas id="receitaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Tráfego de Dados</h2>
+                    <canvas id="trafegoDadosChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Investimentos</h2>
+                    <canvas id="investimentosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Análise do Mercado</h2>
+            <div id="analiseTexto"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var evolution_data = {{ evolution_data|safe }};
+    var anos = {{ anos|safe }};
+    var assinantesTotal = {{ assinantes_total|safe }};
+    var receitaTotal = {{ receita_total|safe }};
+    var trafegoDadosTotal = {{ trafego_dados_total|safe }};
+    var investimentosTotal = {{ investimentos_total|safe }};
+    var bandaLargaMovel = {{ banda_larga_movel|safe }};
+    var bandaLargaFixa = {{ banda_larga_fixa|safe }};
+</script>
+<script src="{% static 'js/market_evolution.js' %}"></script>
+{% endblock %}
