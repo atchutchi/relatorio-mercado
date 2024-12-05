@@ -1,0 +1,231 @@
+/* static/css/annual_report.css */
+
+/* Estilos gerais do relatório */
+.report-header {
+    padding: 2rem 0;
+    border-bottom: 2px solid #eee;
+ }
+ 
+ .report-header img {
+    max-width: 200px;
+    margin-bottom: 1.5rem;
+ }
+ 
+ .report-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+ }
+ 
+ .report-header h2 {
+    font-size: 1.8rem;
+    color: #666;
+    margin-bottom: 2rem;
+ }
+ 
+ /* Estilos dos cards */
+ .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+ }
+ 
+ .card-body {
+    padding: 2rem;
+ }
+ 
+ .card-title {
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+ }
+ 
+ /* Estilos das tabelas */
+ .table {
+    margin-bottom: 0;
+ }
+ 
+ .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+ }
+ 
+ .table td {
+    vertical-align: middle;
+ }
+ 
+ /* Badges de crescimento */
+ .badge {
+    font-size: 0.85rem;
+    padding: 0.4em 0.8em;
+ }
+ 
+ /* Seletor de ano e botões de download */
+ .year-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+ }
+ 
+ #anoSelect {
+    width: auto;
+    min-width: 150px;
+ }
+ 
+ .btn-group .btn {
+    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+ }
+ 
+ /* Gráficos */
+ canvas {
+    margin: 1rem 0;
+ }
+ 
+ .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+ }
+ 
+ /* Estilos para indicadores */
+ .indicator-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+ }
+ 
+ .indicator-title {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+ }
+ 
+ .indicator-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+ }
+ 
+ .growth-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 0.5rem;
+ }
+ 
+ .growth-value {
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+ }
+ 
+ .growth-positive {
+    color: #28a745;
+ }
+ 
+ .growth-negative {
+    color: #dc3545;
+ }
+ 
+ /* Estilos de impressão */
+ @media print {
+    .container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+ 
+    .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+ 
+    .btn-group {
+        display: none;
+    }
+ 
+    .year-selector {
+        display: none;
+    }
+ 
+    .report-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+ 
+    .table {
+        font-size: 12px;
+    }
+ 
+    .chart-container {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+ }
+ 
+ /* Responsividade */
+ @media (max-width: 768px) {
+    .report-header h1 {
+        font-size: 2rem;
+    }
+ 
+    .report-header h2 {
+        font-size: 1.5rem;
+    }
+ 
+    .card-body {
+        padding: 1rem;
+    }
+ 
+    .table {
+        font-size: 0.9rem;
+    }
+ 
+    .chart-container {
+        height: 250px;
+    }
+ 
+    .btn-group {
+        margin-top: 1rem;
+    }
+ }
+ 
+ /* Animações */
+ @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+ }
+ 
+ .card {
+    animation: fadeIn 0.5s ease-out;
+ }
+ 
+ /* Cores específicas das operadoras */
+ .mtn-color {
+    color: rgb(255, 206, 86);
+ }
+ 
+ .orange-color {
+    color: rgb(255, 159, 64);
+ }
+ 
+ .mtn-bg {
+    background-color: rgba(255, 206, 86, 0.2);
+ }
+ 
+ .orange-bg {
+    background-color: rgba(255, 159, 64, 0.2);
+ }

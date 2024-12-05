@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Observatório do Mercado de Telecomunicações {{ ano_atual }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/annual_report.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho do Relatório -->
+    <div class="report-header text-center mb-5">
+        <img src="{% static 'images/logo_arn.png' %}" alt="Logo ARN" class="mb-3">
+        <h1>Observatório do Mercado de Telecomunicações</h1>
+        <h2>Relatório Anual {{ ano_atual }}</h2>
+        
+        <!-- Seletor de Ano e Botões de Download -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <select class="form-select w-auto" id="anoSelect">
+                {% for ano in anos_disponiveis %}
+                    <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                {% endfor %}
+            </select>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button class="btn btn-primary" onclick="downloadWord()">
+                    <i class="fas fa-file-word"></i> Download Word
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Introdução -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Introdução</h2>
+            <p>Este relatório apresenta uma análise abrangente das principais evoluções no mercado das telecomunicações 
+            da Guiné-Bissau, com foco na telefonia móvel e Internet, durante o ano de {{ ano_atual }}. As informações 
+            aqui contidas foram recolhidas junto das duas operadoras de telefonia móvel a atuar no território nacional.</p>
+            
+            <p>Os dados analisados incluem:</p>
+            <ul>
+                <li>Número de estações móveis</li>
+                <li>Emprego no setor</li>
+                <li>Tráfego nacional</li>
+                <li>Quotas de mercado</li>
+                <li>Taxa de penetração</li>
+                <li>Volume de negócios</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Mercado de Telefonia Móvel -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Mercado de Telefonia Móvel</h2>
+            
+            <!-- Assinantes -->
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Assinantes</h3>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Total de Assinantes</td>
+                                <td>{{ mercado_movel.assinantes.total|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Pré-Pago</td>
+                                <td>{{ mercado_movel.assinantes.pre_pago|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Pós-Pago</td>
+                                <td>{{ mercado_movel.assinantes.pos_pago|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="assinantesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Banda Larga Móvel -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h3>Banda Larga Móvel</h3>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Total</td>
+                                <td>{{ mercado_movel.banda_larga_movel.total|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>3G</td>
+                                <td>{{ mercado_movel.banda_larga_movel.3g|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>4G</td>
+                                <td>{{ mercado_movel.banda_larga_movel.4g|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="bandaLargaMovelChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Banda Larga Fixa -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Internet Banda Larga Fixa via Rádio</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Velocidade</th>
+                                <th>Assinantes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>≥ 256 Kbps (Total)</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.total|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>256 Kbit/s - 2 Mbit/s</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.256k_2m|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>2 - 4 Mbit/s</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.2m_4m|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>5 - 10 Mbit/s</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.5m_10m|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>10 Mbit/s</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.10m|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Outros (10+ Mbit/s)</td>
+                                <td>{{ mercado_movel.banda_larga_fixa.outros|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="bandaLargaFixaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicadores Financeiros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Indicadores Financeiros</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Valores Globais</h3>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Volume de Negócio</td>
+                                <td>{{ indicadores_financeiros.volume_negocio|intcomma }} FCFA</td>
+                                <td>
+                                    {% with crescimento.volume_negocio as cresc %}
+                                    <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ cresc|floatformat:2 }}%
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Investimentos</td>
+                                <td>{{ indicadores_financeiros.investimentos|intcomma }} FCFA</td>
+                                <td>
+                                    {% with crescimento.investimentos as cresc %}
+                                    <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ cresc|floatformat:2 }}%
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Receita Total</td>
+                                <td>{{ indicadores_financeiros.receita_total|intcomma }} FCFA</td>
+                                <td>
+                                    {% with crescimento.receita_total as cresc %}
+                                    <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ cresc|floatformat:2 }}%
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="indicadoresFinanceirosChart"></canvas>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h3>Indicadores por Operadora</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Operadora</th>
+                                    <th>Volume de Negócio</th>
+                                    <th>Receita Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MTN</td>
+                                    <td>{{ indicadores_financeiros.por_operadora.MTN.volume_negocio|intcomma }} FCFA</td>
+                                    <td>{{ indicadores_financeiros.por_operadora.MTN.receita_total|intcomma }} FCFA</td>
+                                </tr>
+                                <tr>
+                                    <td>Orange</td>
+                                    <td>{{ indicadores_financeiros.por_operadora.ORANGE.volume_negocio|intcomma }} FCFA</td>
+                                    <td>{{ indicadores_financeiros.por_operadora.ORANGE.receita_total|intcomma }} FCFA</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tráfego -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Tráfego</h2>
+            
+            <!-- Tráfego de Voz -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h3>Tráfego de Voz</h3>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Total</td>
+                                <td>{{ trafego.voz.total|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>On-net</td>
+                                <td>{{ trafego.voz.on_net|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Off-net</td>
+                                <td>{{ trafego.voz.off_net|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Internacional</td>
+                                <td>{{ trafego.voz.internacional|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="trafegoVozChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tráfego de Dados -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h3>Tráfego de Dados</h3>
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Total</td>
+                                <td>{{ trafego.dados.total|intcomma }}</td>
+                                <td>
+                                    {% with crescimento.trafego_dados as cresc %}
+                                    <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ cresc|floatformat:2 }}%
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3G</td>
+                                <td>{{ trafego.dados.3g|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>4G</td>
+                                <td>{{ trafego.dados.4g|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="trafegoDadosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emprego -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Emprego no Setor</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-striped">
+                        <tbody>
+                            <tr>
+                                <td>Total</td>
+                                <td>{{ emprego.total|intcomma }}</td>
+                                <td>
+                                    {% with crescimento.emprego_total as cresc %}
+                                    <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ cresc|floatformat:2 }}%
+                                    </span>
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Homens</td>
+                                <td>{{ emprego.homens|intcomma }}</td>
+                            </tr>
+                            <tr>
+                                <td>Mulheres</td>
+                                <td>{{ emprego.mulheres|intcomma }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="empregoChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/annual_report.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    const mercado_movel = {{ mercado_movel|safe }};
+    const indicadores_financeiros = {{ indicadores_financeiros|safe }};
+    const trafego = {{ trafego|safe }};
+    const emprego = {{ emprego|safe }};
+    const ano_atual = {{ ano_atual }};
+</script>
+{% endblock %}

@@ -5,7 +5,8 @@ from .views.operator_evolution import OperatorEvolutionView
 from .views.market_analysis import MarketAnalysisView
 from .views.growth_report import GrowthReportView
 from .views.sector_panorama import SectorPanoramaView
-from .views.market_evolution import MarketEvolutionView 
+from .views.market_evolution import MarketEvolutionView
+from .views.annual_report import AnnualReportView
 
 urlpatterns = [
     path('market-overview/', MarketOverviewView.as_view(), name='market_overview'),
@@ -15,4 +16,5 @@ urlpatterns = [
     path('growth-report/', GrowthReportView.as_view(), name='growth_report'),
     path('sector-panorama/', SectorPanoramaView.as_view(), name='sector_panorama'),
     path('market-evolution/', MarketEvolutionView.as_view(), name='market_evolution'),
+    path('annual-report/', AnnualReportView.as_view(), name='annual_report'),
 ]
