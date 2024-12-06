@@ -1,231 +1,247 @@
-/* static/css/annual_report.css */
+/* Variáveis de cores corporativas */
+:root {
+   --mtn-yellow: #fecb00;
+   --mtn-blue: #004f9f;
+   --orange-primary: #ff6f00;
+   --orange-black: #000000;
+   --neutral-light: #f8f9fa;
+   --neutral-medium: #e9ecef;
+   --text-primary: #212529;
+   --text-secondary: #6c757d;
+   --success: #28a745;
+   --danger: #dc3545;
+}
 
 /* Estilos gerais do relatório */
 .report-header {
-    padding: 2rem 0;
-    border-bottom: 2px solid #eee;
- }
- 
- .report-header img {
-    max-width: 200px;
-    margin-bottom: 1.5rem;
- }
- 
- .report-header h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 0.5rem;
- }
- 
- .report-header h2 {
-    font-size: 1.8rem;
-    color: #666;
-    margin-bottom: 2rem;
- }
- 
- /* Estilos dos cards */
- .card {
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
- }
- 
- .card-body {
-    padding: 2rem;
- }
- 
- .card-title {
-    color: #333;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
- }
- 
- /* Estilos das tabelas */
- .table {
-    margin-bottom: 0;
- }
- 
- .table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    border-top: none;
- }
- 
- .table td {
-    vertical-align: middle;
- }
- 
- /* Badges de crescimento */
- .badge {
-    font-size: 0.85rem;
-    padding: 0.4em 0.8em;
- }
- 
- /* Seletor de ano e botões de download */
- .year-selector {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
- }
- 
- #anoSelect {
-    width: auto;
-    min-width: 150px;
- }
- 
- .btn-group .btn {
-    padding: 0.5rem 1rem;
-    margin: 0 0.25rem;
- }
- 
- /* Gráficos */
- canvas {
-    margin: 1rem 0;
- }
- 
- .chart-container {
-    position: relative;
-    height: 300px;
-    width: 100%;
- }
- 
- /* Estilos para indicadores */
- .indicator-card {
-    background: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
- }
- 
- .indicator-title {
-    font-size: 1rem;
-    color: #666;
-    margin-bottom: 0.5rem;
- }
- 
- .indicator-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333;
- }
- 
- .growth-indicator {
-    display: flex;
-    align-items: center;
-    margin-top: 0.5rem;
- }
- 
- .growth-value {
-    font-size: 0.9rem;
-    margin-left: 0.5rem;
- }
- 
- .growth-positive {
-    color: #28a745;
- }
- 
- .growth-negative {
-    color: #dc3545;
- }
- 
- /* Estilos de impressão */
- @media print {
-    .container {
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-    }
- 
-    .card {
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
- 
-    .btn-group {
-        display: none;
-    }
- 
-    .year-selector {
-        display: none;
-    }
- 
-    .report-header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
- 
-    .table {
-        font-size: 12px;
-    }
- 
-    .chart-container {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
- }
- 
- /* Responsividade */
- @media (max-width: 768px) {
-    .report-header h1 {
-        font-size: 2rem;
-    }
- 
-    .report-header h2 {
-        font-size: 1.5rem;
-    }
- 
-    .card-body {
-        padding: 1rem;
-    }
- 
-    .table {
-        font-size: 0.9rem;
-    }
- 
-    .chart-container {
-        height: 250px;
-    }
- 
-    .btn-group {
-        margin-top: 1rem;
-    }
- }
- 
- /* Animações */
- @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
- }
- 
- .card {
-    animation: fadeIn 0.5s ease-out;
- }
- 
- /* Cores específicas das operadoras */
- .mtn-color {
-    color: rgb(255, 206, 86);
- }
- 
- .orange-color {
-    color: rgb(255, 159, 64);
- }
- 
- .mtn-bg {
-    background-color: rgba(255, 206, 86, 0.2);
- }
- 
- .orange-bg {
-    background-color: rgba(255, 159, 64, 0.2);
- }
+   padding: 2rem 0;
+   background: var(--neutral-light);
+   border-radius: 0.5rem;
+   margin-bottom: 2rem;
+}
+
+.report-header img {
+   max-height: 80px;
+   margin-bottom: 1.5rem;
+}
+
+.report-header h1 {
+   color: var(--text-primary);
+   font-weight: 600;
+   margin-bottom: 0.5rem;
+}
+
+.report-header h2 {
+   color: var(--text-secondary);
+   font-weight: 500;
+}
+
+/* Cards e Seções */
+.card {
+   border: none;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+   margin-bottom: 2rem;
+}
+
+.card-body {
+   padding: 2rem;
+}
+
+.card h2 {
+   color: var(--text-primary);
+   font-weight: 600;
+   margin-bottom: 1.5rem;
+   padding-bottom: 1rem;
+   border-bottom: 2px solid var(--neutral-medium);
+}
+
+/* Estatísticas e Indicadores */
+.key-stat-card {
+   background: white;
+   padding: 1.5rem;
+   border-radius: 0.5rem;
+   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+   margin-bottom: 1rem;
+}
+
+.stat-icon {
+   font-size: 2rem;
+   margin-bottom: 1rem;
+}
+
+.stat-value {
+   font-size: 1.5rem;
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 0.5rem;
+}
+
+.stat-change {
+   font-size: 0.9rem;
+   font-weight: 500;
+}
+
+.stat-change.positive {
+   color: var(--success);
+}
+
+.stat-change.negative {
+   color: var(--danger);
+}
+
+/* Operadoras */
+.operator-card.mtn {
+   border-left: 4px solid var(--mtn-yellow);
+}
+
+.operator-card.orange {
+   border-left: 4px solid var(--orange-primary);
+}
+
+/* Gráficos */
+.chart-container {
+   position: relative;
+   height: 300px;
+   margin-bottom: 2rem;
+}
+
+/* Tabelas */
+.table {
+   width: 100%;
+   margin-bottom: 1rem;
+}
+
+.table th {
+   background: var(--neutral-light);
+   font-weight: 600;
+   border-bottom: 2px solid var(--neutral-medium);
+}
+
+.table td {
+   padding: 1rem;
+   vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+   background-color: var(--neutral-light);
+}
+
+/* Market Share */
+.market-share-cards {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+   gap: 1rem;
+   margin-bottom: 2rem;
+}
+
+.market-share-card {
+   padding: 1.5rem;
+   border-radius: 0.5rem;
+   text-align: center;
+}
+
+.market-share-card.mtn {
+   background: linear-gradient(135deg, var(--mtn-yellow) 0%, var(--neutral-light) 100%);
+   color: var(--mtn-blue);
+}
+
+.market-share-card.orange {
+   background: linear-gradient(135deg, var(--orange-primary) 0%, var(--neutral-light) 100%);
+   color: var(--orange-black);
+}
+
+.share-value {
+   font-size: 2rem;
+   font-weight: 700;
+   margin: 1rem 0;
+}
+
+/* Indicadores */
+.indicator-card {
+   background: white;
+   padding: 1.5rem;
+   border-radius: 0.5rem;
+   margin-bottom: 1rem;
+}
+
+.indicator-value {
+   font-size: 1.25rem;
+   font-weight: 600;
+   margin: 0.5rem 0;
+}
+
+/* Badges e Labels */
+.badge {
+   padding: 0.5em 0.8em;
+   font-weight: 500;
+   border-radius: 0.25rem;
+}
+
+.badge.growth-positive {
+   background-color: var(--success);
+   color: white;
+}
+
+.badge.growth-negative {
+   background-color: var(--danger);
+   color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+   .card-body {
+       padding: 1rem;
+   }
+
+   .market-share-cards {
+       grid-template-columns: 1fr;
+   }
+
+   .stat-value {
+       font-size: 1.25rem;
+   }
+
+   .table-responsive {
+       margin-bottom: 1rem;
+       overflow-x: auto;
+       -webkit-overflow-scrolling: touch;
+   }
+}
+
+/* Estilos de Impressão */
+@media print {
+   .btn-group, 
+   .form-select {
+       display: none;
+   }
+
+   .card {
+       break-inside: avoid;
+       page-break-inside: avoid;
+   }
+
+   .chart-container {
+       break-inside: avoid;
+       page-break-inside: avoid;
+   }
+
+   body {
+       font-size: 12pt;
+   }
+
+   h1 {
+       font-size: 18pt;
+   }
+
+   h2 {
+       font-size: 16pt;
+   }
+
+   h3 {
+       font-size: 14pt;
+   }
+
+   .table {
+       font-size: 10pt;
+   }
+}

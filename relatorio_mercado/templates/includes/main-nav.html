@@ -7,8 +7,8 @@
         </li>
 
         <li class="nav-item dropdown">
-            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'annual_report' %}" id="clothing-link" aria-haspopup="true" aria-expanded="false">
-                Relatorio Anual
+            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'dados_anuais:annual_report' %}" id="clothing-link" aria-haspopup="true" aria-expanded="false">
+                Relatório Anual
             </a>
         </li>
 
@@ -17,16 +17,15 @@
                 Dados Anuais
             </a>
             <div class="dropdown-menu border-0" aria-labelledby="dados-anuais-link">
-                <a href="{% url 'market_overview' %}" class="dropdown-item">Visão Geral do Mercado</a>
-                <a href="{% url 'market_evolution' %}" class="dropdown-item">Evolução do Mercado</a>
-                <a href="{% url 'annual_comparison' %}" class="dropdown-item">Comparação Anual</a>
-                <a href="{% url 'market_analysis' %}" class="dropdown-item">Análise de Mercado</a>
-                <a href="{% url 'operator_evolution' operadora='MTN' %}" class="dropdown-item">Evolução MTN</a>
-                <a href="{% url 'operator_evolution' operadora='ORANGE' %}" class="dropdown-item">Evolução Orange</a>
-                <a href="{% url 'growth_report' %}" class="dropdown-item">Relatório de Crescimento</a>
-                <a href="{% url 'sector_panorama' %}" class="dropdown-item">Panorama do Setor</a>
+                <a href="{% url 'dados_anuais:market_overview' %}" class="dropdown-item">Visão Geral do Mercado</a>
+                <a href="{% url 'dados_anuais:market_evolution' %}" class="dropdown-item">Evolução do Mercado</a>
+                <a href="{% url 'dados_anuais:annual_comparison' %}" class="dropdown-item">Comparação Anual</a>
+                <a href="{% url 'dados_anuais:market_analysis' %}" class="dropdown-item">Análise de Mercado</a>
+                <a href="{% url 'dados_anuais:operator_evolution' operadora='MTN' %}" class="dropdown-item">Evolução MTN</a>
+                <a href="{% url 'dados_anuais:operator_evolution' operadora='ORANGE' %}" class="dropdown-item">Evolução Orange</a>
+                <a href="{% url 'dados_anuais:growth_report' %}" class="dropdown-item">Relatório de Crescimento</a>
+                <a href="{% url 'dados_anuais:sector_panorama' %}" class="dropdown-item">Panorama do Setor</a>
             </div>
         </li>
-
     </ul>
 </div>
