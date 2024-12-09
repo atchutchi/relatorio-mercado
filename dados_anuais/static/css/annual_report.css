@@ -56,6 +56,75 @@
 }
 
 /* Estilos para as seções de análise */
+/* Estados de erro e vazio */
+.error-message {
+   background: var(--neutral-light);
+   border-left: 4px solid var(--danger);
+   padding: 1rem 1.5rem;
+   margin: 1rem 0;
+   border-radius: 0.25rem;
+}
+
+.error-message h3 {
+   color: var(--danger);
+   margin-bottom: 0.5rem;
+   font-size: 1.1rem;
+}
+
+.error-message p {
+   color: var(--text-secondary);
+   margin: 0;
+}
+
+.empty-state {
+   text-align: center;
+   padding: 2rem;
+   background: var(--neutral-light);
+   border-radius: 0.5rem;
+   margin: 1rem 0;
+}
+
+.empty-state i {
+   font-size: 2rem;
+   color: var(--text-secondary);
+   margin-bottom: 1rem;
+}
+
+.empty-state p {
+   color: var(--text-secondary);
+   margin: 0;
+}
+
+/* Melhorias no Resumo Executivo */
+.resumo-section {
+   background: #ffffff;
+   border-radius: 8px;
+   padding: 2rem;
+   margin-bottom: 2rem;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.resumo-section.error {
+   border-left: 4px solid var(--danger);
+   background: var(--neutral-light);
+}
+
+.resumo-section.success {
+   border-left: 4px solid var(--success);
+}
+
+/* Melhorias nas Análises Setoriais */
+.analysis-section {
+   background: var(--neutral-light);
+   padding: 2rem;
+   border-radius: 8px;
+   margin-bottom: 2rem;
+}
+
+.analysis-section.error {
+   border-left: 4px solid var(--danger);
+}
+
 .resumo-section, .analysis-section {
    margin-bottom: 2rem;
    padding-bottom: 1rem;

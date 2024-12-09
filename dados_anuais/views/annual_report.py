@@ -30,8 +30,12 @@ class AnnualReportView(TemplateView):
             dados_historicos = self.get_historic_data(ano_selecionado)
             data_estruturada = self.estruturar_dados_completos(dados_mercado, dados_historicos)
             
-            # Adicionar o ano_atual diretamente na estrutura de dados
-            data_estruturada['ano_atual'] = ano_selecionado
+            # Adicionar o ano_atual e as análises na estrutura de dados
+            data_estruturada.update({
+                'ano_atual': ano_selecionado,
+                'resumo_executivo': self.gerar_resumo_executivo(dados_mercado, dados_historicos),
+                'analise_setorial': self.gerar_analise_setorial(dados_mercado)
+            })
             
             context.update({
                 'appData': json.dumps(data_estruturada, default=self.decimal_default),
@@ -449,29 +453,56 @@ class AnnualReportView(TemplateView):
             logger.error(f"Erro ao buscar dados históricos: {str(e)}")
             return {'dados_anuais': [], 'market_share': {}}
     
+    def calcular_market_share_historico(self, dados_historicos):
+        """
+        Calcula o histórico de market share das operadoras.
+        """
+        try:
+            historico = []
+            for dado_anual in dados_historicos:
+                ano = dado_anual['ano']
+                dados = dado_anual['dados']
+                
+                market_share = self.estruturar_market_share(dados)
+                if market_share:
+                    historico.append({
+                        'ano': ano,
+                        'market_share': market_share
+                    })
+            
+            return historico
+        except Exception as e:
+            logger.error(f"Erro ao calcular histórico de market share: {str(e)}")
+            return []
+
     def gerar_resumo_executivo(self, dados_mercado, dados_historicos):
         """Gera um resumo executivo com análises e recomendações."""
-        
         try:
-            mercado_movel = dados_mercado['mercado_movel']
+            # Obter os dados da estrutura correta
+            mercado_movel = self.estruturar_mercado_movel(dados_mercado)
             market_share = self.estruturar_market_share(dados_mercado)
             
             # Análise de Market Share
-            operadora_dominante = "Orange" if market_share['assinantes_rede_movel']['ORANGE'] > 50 else "MTN"
-            share_dominante = max(market_share['assinantes_rede_movel'].values())
+            operadora_dominante = "Orange" if market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0) > 50 else "MTN"
+            share_dominante = max(
+                market_share.get('assinantes_rede_movel', {}).get('MTN', 0),
+                market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0)
+            )
             
             # Análise de Tecnologia
-            total_3g = mercado_movel['banda_larga_movel']['3g']['total']
-            total_4g = mercado_movel['banda_larga_movel']['4g']['total']
+            total_3g = mercado_movel.get('banda_larga_movel', {}).get('3g', {}).get('total', 0)
+            total_4g = mercado_movel.get('banda_larga_movel', {}).get('4g', {}).get('total', 0)
             ratio_4g = (total_4g / (total_3g + total_4g)) * 100 if (total_3g + total_4g) > 0 else 0
             
-            resumo = {
+            total_assinantes = mercado_movel.get('assinantes', {}).get('total', 0)
+            
+            return {
                 'visao_geral': {
                     'titulo': 'Visão Geral do Mercado',
                     'conteudo': f"""
                     O mercado de telecomunicações da Guiné-Bissau apresenta uma estrutura duopolista, 
                     com {operadora_dominante} mantendo posição dominante com {share_dominante:.1f}% do mercado. 
-                    A base total de assinantes alcançou {mercado_movel['assinantes']['total']:,} usuários,
+                    A base total de assinantes alcançou {total_assinantes:,} usuários,
                     demonstrando a crescente importância do setor para a economia nacional.
                     """
                 },
@@ -495,9 +526,7 @@ class AnnualReportView(TemplateView):
                     ]
                 }
             }
-            
-            return resumo
-            
+                
         except Exception as e:
             logger.error(f"Erro ao gerar resumo executivo: {str(e)}")
             return {
@@ -508,23 +537,29 @@ class AnnualReportView(TemplateView):
 
     def gerar_analise_setorial(self, dados_mercado):
         """Gera análises detalhadas por setor."""
-        
         try:
-            # Análise de Banda Larga
-            banda_larga = dados_mercado['mercado_movel']['banda_larga_movel']
-            total_usuarios = banda_larga['total']
+            # Obter os dados da estrutura correta
+            dados_estruturados = self.estruturar_dados_completos(dados_mercado, [])
             
-            # Análise de Emprego
-            emprego = dados_mercado['emprego']
-            ratio_genero = (emprego['mulheres'] / emprego['total']) * 100 if emprego['total'] > 0 else 0
+            banda_larga = dados_estruturados.get('mercado_movel', {}).get('banda_larga_movel', {})
+            emprego = dados_estruturados.get('emprego', {})
+            
+            total_usuarios = banda_larga.get('total', 0)
+            total_3g = banda_larga.get('3g', {}).get('total', 0)
+            total_4g = banda_larga.get('4g', {}).get('total', 0)
+            
+            total_emprego = emprego.get('total', 0)
+            total_mulheres = emprego.get('mulheres', 0)
+            
+            ratio_genero = (total_mulheres / total_emprego) * 100 if total_emprego > 0 else 0
             
             return {
                 'banda_larga': {
                     'titulo': 'Análise de Banda Larga Móvel',
                     'conteudo': f"""
                     O setor de banda larga móvel atende atualmente {total_usuarios:,} usuários,
-                    com uma distribuição entre tecnologias 3G ({banda_larga['3g']['total']:,} usuários) 
-                    e 4G ({banda_larga['4g']['total']:,} usuários). A evolução para tecnologias mais
+                    com uma distribuição entre tecnologias 3G ({total_3g:,} usuários) 
+                    e 4G ({total_4g:,} usuários). A evolução para tecnologias mais
                     avançadas é crucial para suportar o crescente consumo de dados e serviços digitais.
                     """,
                     'desafios': [
@@ -536,7 +571,7 @@ class AnnualReportView(TemplateView):
                 'emprego': {
                     'titulo': 'Análise do Mercado de Trabalho',
                     'conteudo': f"""
-                    O setor emprega um total de {emprego['total']:,} profissionais, com 
+                    O setor emprega um total de {total_emprego:,} profissionais, com 
                     {ratio_genero:.1f}% de representação feminina. A distribuição entre operadoras
                     mostra oportunidades para políticas de inclusão e diversidade mais efetivas.
                     """,

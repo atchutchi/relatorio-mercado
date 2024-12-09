@@ -343,24 +343,31 @@
         <div class="card-body">
             <h2>Resumo Executivo</h2>
             
-            <div class="resumo-section mb-4">
-                <h3>{{ dados_mercado.resumo_executivo.visao_geral.titulo }}</h3>
-                <p>{{ dados_mercado.resumo_executivo.visao_geral.conteudo }}</p>
-            </div>
-            
-            <div class="resumo-section mb-4">
-                <h3>{{ dados_mercado.resumo_executivo.tecnologia.titulo }}</h3>
-                <p>{{ dados_mercado.resumo_executivo.tecnologia.conteudo }}</p>
-            </div>
-            
-            <div class="resumo-section">
-                <h3>{{ dados_mercado.resumo_executivo.recomendacoes.titulo }}</h3>
-                <ul class="recommendations-list">
-                    {% for rec in dados_mercado.resumo_executivo.recomendacoes.pontos %}
-                        <li>{{ rec }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+            {% if dados_mercado.resumo_executivo %}
+                <div class="resumo-section success mb-4">
+                    <h3>{{ dados_mercado.resumo_executivo.visao_geral.titulo }}</h3>
+                    <p>{{ dados_mercado.resumo_executivo.visao_geral.conteudo|safe }}</p>
+                </div>
+                
+                <div class="resumo-section mb-4">
+                    <h3>{{ dados_mercado.resumo_executivo.tecnologia.titulo }}</h3>
+                    <p>{{ dados_mercado.resumo_executivo.tecnologia.conteudo|safe }}</p>
+                </div>
+                
+                <div class="resumo-section">
+                    <h3>{{ dados_mercado.resumo_executivo.recomendacoes.titulo }}</h3>
+                    <ul class="recommendations-list">
+                        {% for rec in dados_mercado.resumo_executivo.recomendacoes.pontos %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <div class="resumo-section error">
+                    <h3>Erro</h3>
+                    <p>Não foi possível gerar o resumo executivo.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 

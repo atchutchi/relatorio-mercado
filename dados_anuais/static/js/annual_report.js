@@ -27,7 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-    
+
+    // Configuração de estilo padrão
+    Chart.defaults.font.family = 'Poppins';
+    Chart.defaults.color = '#444';
+    Chart.defaults.responsive = true;
+
+    // Variáveis globais
     const chartColors = {
         MTN: {
             main: '#fecb00',           
@@ -45,22 +51,104 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Configuração de estilo padrão
+    // Configuração inicial
+    document.addEventListener('DOMContentLoaded', function() {
+        // Debug dos dados recebidos
+        console.log('Dados completos:', window.appData);
+        console.log('Resumo Executivo:', window.appData?.resumo_executivo);
+        console.log('Análise Setorial:', window.appData?.analise_setorial);
+        
+        if(window.appData) {
+            renderAllCharts();
+            setupEventListeners();
+        } else {
+            console.warn('Dados não disponíveis para renderização');
+        }
+    });
+
+    // Função para mudar o ano
+    function mudarAno(ano) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('ano', ano);
+        document.body.style.cursor = 'wait';
+        window.location.href = url.toString();
+    }
+
+    // Setup de event listeners
+    function setupEventListeners() {
+        const anoSelect = document.getElementById('anoSelect');
+        if (anoSelect) {
+            anoSelect.addEventListener('change', (e) => mudarAno(e.target.value));
+        }
+    }
+
+    // Configuração padrão dos gráficos
     Chart.defaults.font.family = 'Poppins';
     Chart.defaults.color = '#444';
     Chart.defaults.responsive = true;
 
+    // Funções de formatação
     function formatNumber(number) {
         return new Intl.NumberFormat('pt-BR').format(number);
     }
-    
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'XOF',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value);
+    }
+
+    // Configurações padrão dos gráficos
+    function getDefaultChartOptions(titulo, config = {}) {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: titulo,
+                    font: {
+                        family: 'Poppins',
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    padding: 20
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Poppins',
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleFont: {
+                        family: 'Poppins',
+                        size: 13
+                    },
+                    bodyFont: {
+                        family: 'Poppins',
+                        size: 12
+                    },
+                    padding: 12
+                }
+            },
+            ...config
+        };
+    }
+
+    // Função para renderizar todos os gráficos
     function renderAllCharts() {
         if(!window.appData) {
             console.error('Dados não disponíveis');
             return;
-        }
-        
-        renderAssinantesChart();
+        }        
         renderMarketShareChart();
         renderBandaLargaMovelChart();
         renderIndicadoresFinanceirosChart();
