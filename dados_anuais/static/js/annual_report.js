@@ -5,6 +5,28 @@ document.addEventListener('DOMContentLoaded', function() {
         renderAllCharts();
         setupEventListeners();
     }
+
+    function mudarAno(ano) {
+        // Construir a URL com o novo ano
+        const url = new URL(window.location.href);
+        url.searchParams.set('ano', ano);
+        
+        // Mostrar indicador de carregamento
+        document.body.style.cursor = 'wait';
+        
+        // Redirecionar para a nova URL
+        window.location.href = url.toString();
+    }
+    
+    // Adicionar listener para o select de ano
+    document.addEventListener('DOMContentLoaded', function() {
+        const anoSelect = document.getElementById('anoSelect');
+        if (anoSelect) {
+            anoSelect.addEventListener('change', function(e) {
+                mudarAno(e.target.value);
+            });
+        }
+    });
     
     const chartColors = {
         MTN: {

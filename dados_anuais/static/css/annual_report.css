@@ -55,6 +55,46 @@
    border-bottom: 2px solid var(--neutral-medium);
 }
 
+/* Estilos para as seções de análise */
+.resumo-section, .analysis-section {
+   margin-bottom: 2rem;
+   padding-bottom: 1rem;
+   border-bottom: 1px solid #eee;
+}
+
+.resumo-section:last-child, .analysis-section:last-child {
+   border-bottom: none;
+}
+
+.resumo-section h3, .analysis-section h3 {
+   color: #2c3e50;
+   margin-bottom: 1rem;
+   font-size: 1.5rem;
+}
+
+.resumo-section h4, .analysis-section h4 {
+   color: #34495e;
+   margin: 1rem 0;
+   font-size: 1.2rem;
+}
+
+.recommendations-list, .challenges-list {
+   padding-left: 1.5rem;
+}
+
+.recommendations-list li, .challenges-list li {
+   margin-bottom: 0.5rem;
+   line-height: 1.6;
+}
+
+.recommendations-list li::marker {
+   color: #27ae60;
+}
+
+.challenges-list li::marker {
+   color: #e74c3c;
+}
+
 /* Estatísticas e Indicadores */
 .key-stat-card {
    background: white;

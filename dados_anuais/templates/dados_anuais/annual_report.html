@@ -18,7 +18,7 @@
         <h2>Relatório Anual {{ ano_atual }}</h2>
         
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <select class="form-select w-auto" id="anoSelect">
+            <select class="form-select w-auto" id="anoSelect" onchange="mudarAno(this.value)">
                 {% for ano in anos_disponiveis %}
                     <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
                 {% endfor %}
@@ -334,6 +334,63 @@
                 <div class="col-12">
                     <canvas id="empregoChart" height="300"></canvas>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo Executivo -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Resumo Executivo</h2>
+            
+            <div class="resumo-section mb-4">
+                <h3>{{ dados_mercado.resumo_executivo.visao_geral.titulo }}</h3>
+                <p>{{ dados_mercado.resumo_executivo.visao_geral.conteudo }}</p>
+            </div>
+            
+            <div class="resumo-section mb-4">
+                <h3>{{ dados_mercado.resumo_executivo.tecnologia.titulo }}</h3>
+                <p>{{ dados_mercado.resumo_executivo.tecnologia.conteudo }}</p>
+            </div>
+            
+            <div class="resumo-section">
+                <h3>{{ dados_mercado.resumo_executivo.recomendacoes.titulo }}</h3>
+                <ul class="recommendations-list">
+                    {% for rec in dados_mercado.resumo_executivo.recomendacoes.pontos %}
+                        <li>{{ rec }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análises Setoriais -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Análises Setoriais</h2>
+            
+            <div class="analysis-section mb-4">
+                <h3>{{ dados_mercado.analise_setorial.banda_larga.titulo }}</h3>
+                <p>{{ dados_mercado.analise_setorial.banda_larga.conteudo }}</p>
+                
+                <h4>Principais Desafios:</h4>
+                <ul class="challenges-list">
+                    {% for desafio in dados_mercado.analise_setorial.banda_larga.desafios %}
+                        <li>{{ desafio }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="analysis-section">
+                <h3>{{ dados_mercado.analise_setorial.emprego.titulo }}</h3>
+                <p>{{ dados_mercado.analise_setorial.emprego.conteudo }}</p>
+                
+                <h4>Recomendações:</h4>
+                <ul class="recommendations-list">
+                    {% for rec in dados_mercado.analise_setorial.emprego.recomendacoes %}
+                        <li>{{ rec }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>

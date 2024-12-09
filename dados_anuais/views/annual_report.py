@@ -54,20 +54,40 @@ class AnnualReportView(TemplateView):
         except (TypeError, ValueError):
             return anos_disponiveis[-1]
 
+    def get_selected_year(self, anos_disponiveis):
+        """
+        Obtém o ano selecionado da query string ou usa o ano mais recente disponível.
+        """
+        try:
+            ano_selecionado = self.request.GET.get('ano')
+            if ano_selecionado:
+                ano_int = int(ano_selecionado)
+                if ano_int in anos_disponiveis:
+                    return ano_int
+            return anos_disponiveis[-1]  # Retorna o ano mais recente
+        except (TypeError, ValueError):
+            return anos_disponiveis[-1]
+
     def get_market_data(self, ano):
+        """
+        Obtém os dados de mercado para o ano específico.
+        """
         try:
             dados = {
                 'mtn': DadosAnuais.objects.filter(ano=ano, operadora='MTN').first(),
                 'orange': DadosAnuais.objects.filter(ano=ano, operadora='ORANGE').first()
             }
             
-            if not all(dados.values()):
+            # Verificar se temos dados para ambas as operadoras
+            if not dados['mtn'] or not dados['orange']:
+                logger.warning(f"Dados incompletos para o ano {ano}")
                 return None
 
+            # Calcular totais
             dados['totais'] = self.calcular_totais_mercado([dados['mtn'], dados['orange']])
             return dados
         except Exception as e:
-            logger.error(f"Erro ao buscar dados de mercado: {str(e)}")
+            logger.error(f"Erro ao buscar dados de mercado para o ano {ano}: {str(e)}")
             return None
 
     def calcular_totais_mercado(self, operadoras):
@@ -428,6 +448,112 @@ class AnnualReportView(TemplateView):
         except Exception as e:
             logger.error(f"Erro ao buscar dados históricos: {str(e)}")
             return {'dados_anuais': [], 'market_share': {}}
+    
+    def gerar_resumo_executivo(self, dados_mercado, dados_historicos):
+        """Gera um resumo executivo com análises e recomendações."""
+        
+        try:
+            mercado_movel = dados_mercado['mercado_movel']
+            market_share = self.estruturar_market_share(dados_mercado)
+            
+            # Análise de Market Share
+            operadora_dominante = "Orange" if market_share['assinantes_rede_movel']['ORANGE'] > 50 else "MTN"
+            share_dominante = max(market_share['assinantes_rede_movel'].values())
+            
+            # Análise de Tecnologia
+            total_3g = mercado_movel['banda_larga_movel']['3g']['total']
+            total_4g = mercado_movel['banda_larga_movel']['4g']['total']
+            ratio_4g = (total_4g / (total_3g + total_4g)) * 100 if (total_3g + total_4g) > 0 else 0
+            
+            resumo = {
+                'visao_geral': {
+                    'titulo': 'Visão Geral do Mercado',
+                    'conteudo': f"""
+                    O mercado de telecomunicações da Guiné-Bissau apresenta uma estrutura duopolista, 
+                    com {operadora_dominante} mantendo posição dominante com {share_dominante:.1f}% do mercado. 
+                    A base total de assinantes alcançou {mercado_movel['assinantes']['total']:,} usuários,
+                    demonstrando a crescente importância do setor para a economia nacional.
+                    """
+                },
+                'tecnologia': {
+                    'titulo': 'Evolução Tecnológica',
+                    'conteudo': f"""
+                    A adoção de tecnologias móveis mais avançadas continua em evolução, com o 4G 
+                    representando {ratio_4g:.1f}% do total de conexões de banda larga móvel. 
+                    Existe uma clara oportunidade de expansão da cobertura 4G, especialmente 
+                    considerando que {total_3g:,} usuários ainda utilizam tecnologia 3G.
+                    """
+                },
+                'recomendacoes': {
+                    'titulo': 'Recomendações',
+                    'pontos': [
+                        "Incentivar maior competição no mercado para beneficiar os consumidores",
+                        "Acelerar a expansão da cobertura 4G em áreas urbanas e rurais",
+                        "Desenvolver políticas para reduzir a disparidade de market share",
+                        "Promover a inclusão digital através de programas de acesso universal",
+                        "Monitorar a qualidade de serviço e satisfação do cliente"
+                    ]
+                }
+            }
+            
+            return resumo
+            
+        except Exception as e:
+            logger.error(f"Erro ao gerar resumo executivo: {str(e)}")
+            return {
+                'visao_geral': {'titulo': 'Erro', 'conteudo': 'Não foi possível gerar o resumo executivo.'},
+                'tecnologia': {'titulo': 'Erro', 'conteudo': ''},
+                'recomendacoes': {'titulo': 'Erro', 'pontos': []}
+            }
+
+    def gerar_analise_setorial(self, dados_mercado):
+        """Gera análises detalhadas por setor."""
+        
+        try:
+            # Análise de Banda Larga
+            banda_larga = dados_mercado['mercado_movel']['banda_larga_movel']
+            total_usuarios = banda_larga['total']
+            
+            # Análise de Emprego
+            emprego = dados_mercado['emprego']
+            ratio_genero = (emprego['mulheres'] / emprego['total']) * 100 if emprego['total'] > 0 else 0
+            
+            return {
+                'banda_larga': {
+                    'titulo': 'Análise de Banda Larga Móvel',
+                    'conteudo': f"""
+                    O setor de banda larga móvel atende atualmente {total_usuarios:,} usuários,
+                    com uma distribuição entre tecnologias 3G ({banda_larga['3g']['total']:,} usuários) 
+                    e 4G ({banda_larga['4g']['total']:,} usuários). A evolução para tecnologias mais
+                    avançadas é crucial para suportar o crescente consumo de dados e serviços digitais.
+                    """,
+                    'desafios': [
+                        "Expansão da cobertura em áreas rurais",
+                        "Modernização da infraestrutura existente",
+                        "Redução do custo de acesso para usuários finais"
+                    ]
+                },
+                'emprego': {
+                    'titulo': 'Análise do Mercado de Trabalho',
+                    'conteudo': f"""
+                    O setor emprega um total de {emprego['total']:,} profissionais, com 
+                    {ratio_genero:.1f}% de representação feminina. A distribuição entre operadoras
+                    mostra oportunidades para políticas de inclusão e diversidade mais efetivas.
+                    """,
+                    'recomendacoes': [
+                        "Implementar programas de capacitação profissional",
+                        "Aumentar a participação feminina em cargos técnicos",
+                        "Desenvolver políticas de retenção de talentos"
+                    ]
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro ao gerar análise setorial: {str(e)}")
+            return {
+                'banda_larga': {'titulo': 'Erro', 'conteudo': '', 'desafios': []},
+                'emprego': {'titulo': 'Erro', 'conteudo': '', 'recomendacoes': []}
+            }
 
     class Meta:
         verbose_name = "Relatório Anual do Mercado"
