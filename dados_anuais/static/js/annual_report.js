@@ -1,260 +1,120 @@
-// Configuração inicial e constantes
+// Variáveis e configurações globais
+const chartColors = {
+    MTN: {
+        main: '#fecb00',           
+        secondary: '#004f9f',      
+        background: 'rgba(254, 203, 0, 0.2)'
+    },
+    ORANGE: {
+        main: '#ff6f00',           
+        secondary: '#000000',      
+        background: 'rgba(255, 111, 0, 0.2)'
+    },
+    outros: {
+        main: '#75c7c3',          
+        background: 'rgba(117, 199, 195, 0.2)'
+    }
+};
+
+// Configurações do Chart.js
+Chart.defaults.font.family = 'Poppins';
+Chart.defaults.color = '#444';
+Chart.defaults.responsive = true;
+
+// Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dados recebidos:', window.appData);
     if(window.appData) {
         renderAllCharts();
         setupEventListeners();
     }
-
-    function mudarAno(ano) {
-        // Construir a URL com o novo ano
-        const url = new URL(window.location.href);
-        url.searchParams.set('ano', ano);
-        
-        // Mostrar indicador de carregamento
-        document.body.style.cursor = 'wait';
-        
-        // Redirecionar para a nova URL
-        window.location.href = url.toString();
-    }
-    
-    // Adicionar listener para o select de ano
-    document.addEventListener('DOMContentLoaded', function() {
-        const anoSelect = document.getElementById('anoSelect');
-        if (anoSelect) {
-            anoSelect.addEventListener('change', function(e) {
-                mudarAno(e.target.value);
-            });
-        }
-    });
-
-    // Configuração de estilo padrão
-    Chart.defaults.font.family = 'Poppins';
-    Chart.defaults.color = '#444';
-    Chart.defaults.responsive = true;
-
-    // Variáveis globais
-    const chartColors = {
-        MTN: {
-            main: '#fecb00',           
-            secondary: '#004f9f',      
-            background: 'rgba(254, 203, 0, 0.2)'
-        },
-        ORANGE: {
-            main: '#ff6f00',           
-            secondary: '#000000',      
-            background: 'rgba(255, 111, 0, 0.2)'
-        },
-        outros: {
-            main: '#75c7c3',          
-            background: 'rgba(117, 199, 195, 0.2)'
-        }
-    };
-
-    // Configuração inicial
-    document.addEventListener('DOMContentLoaded', function() {
-        // Debug dos dados recebidos
-        console.log('Dados completos:', window.appData);
-        console.log('Resumo Executivo:', window.appData?.resumo_executivo);
-        console.log('Análise Setorial:', window.appData?.analise_setorial);
-        
-        if(window.appData) {
-            renderAllCharts();
-            setupEventListeners();
-        } else {
-            console.warn('Dados não disponíveis para renderização');
-        }
-    });
-
-    // Função para mudar o ano
-    function mudarAno(ano) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('ano', ano);
-        document.body.style.cursor = 'wait';
-        window.location.href = url.toString();
-    }
-
-    // Setup de event listeners
-    function setupEventListeners() {
-        const anoSelect = document.getElementById('anoSelect');
-        if (anoSelect) {
-            anoSelect.addEventListener('change', (e) => mudarAno(e.target.value));
-        }
-    }
-
-    // Configuração padrão dos gráficos
-    Chart.defaults.font.family = 'Poppins';
-    Chart.defaults.color = '#444';
-    Chart.defaults.responsive = true;
-
-    // Funções de formatação
-    function formatNumber(number) {
-        return new Intl.NumberFormat('pt-BR').format(number);
-    }
-
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('fr-FR', {
-            style: 'currency',
-            currency: 'XOF',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value);
-    }
-
-    // Configurações padrão dos gráficos
-    function getDefaultChartOptions(titulo, config = {}) {
-        return {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: titulo,
-                    font: {
-                        family: 'Poppins',
-                        size: 16,
-                        weight: 'bold'
-                    },
-                    padding: 20
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            family: 'Poppins',
-                            size: 12
-                        }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleFont: {
-                        family: 'Poppins',
-                        size: 13
-                    },
-                    bodyFont: {
-                        family: 'Poppins',
-                        size: 12
-                    },
-                    padding: 12
-                }
-            },
-            ...config
-        };
-    }
-
-    // Função para renderizar todos os gráficos
-    function renderAllCharts() {
-        if(!window.appData) {
-            console.error('Dados não disponíveis');
-            return;
-        }        
-        renderMarketShareChart();
-        renderBandaLargaMovelChart();
-        renderIndicadoresFinanceirosChart();
-        renderTrafegoVozChart();
-        renderTrafegoDadosChart();
-        renderEmpregoChart();
-    }
-
-    // Adicione a função aqui
-    function getDefaultChartOptions(titulo, config = {}) {
-        return {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: titulo,
-                    font: {
-                        family: 'Poppins',
-                        size: 16,
-                        weight: 'bold'
-                    },
-                    padding: 20
-                },
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        font: {
-                            family: 'Poppins',
-                            size: 12
-                        }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleFont: {
-                        family: 'Poppins',
-                        size: 13
-                    },
-                    bodyFont: {
-                        family: 'Poppins',
-                        size: 12
-                    },
-                    padding: 12
-                }
-            },
-            ...config
-        };
-    }
-    
-    if(window.appData) {
-        renderAllCharts();
-        setupEventListeners();
-    }
 });
 
-function renderAssinantesChart() {
-    const assinantes = window.appData.mercado_movel?.assinantes;
-    if (!assinantes?.mtn_total || !assinantes?.orange_total) {
-        console.warn('Dados de assinantes incompletos');
+// Funções de utilidade
+function formatNumber(number) {
+    return new Intl.NumberFormat('pt-BR').format(number);
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'XOF',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(value);
+}
+
+function formatDataSize(bytes) {
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 B';
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
+
+// Opções padrão dos gráficos
+function getDefaultChartOptions(titulo, config = {}) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: titulo,
+                font: {
+                    family: 'Poppins',
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: 20
+            },
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: {
+                        family: 'Poppins',
+                        size: 12
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleFont: {
+                    family: 'Poppins',
+                    size: 13
+                },
+                bodyFont: {
+                    family: 'Poppins',
+                    size: 12
+                },
+                padding: 12
+            }
+        },
+        ...config
+    };
+}
+
+// Função principal de renderização
+function renderAllCharts() {
+    if(!window.appData) {
+        console.error('Dados não disponíveis');
         return;
     }
 
-    const ctx = document.getElementById('assinantesChart')?.getContext('2d');
-    if (!ctx) return;
-
-    new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['MTN', 'Orange'],
-            datasets: [{
-                data: [assinantes.mtn_total, assinantes.orange_total],
-                backgroundColor: [chartColors.MTN.main, chartColors.ORANGE.main],
-                borderColor: [chartColors.MTN.secondary, chartColors.ORANGE.secondary],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            ...getDefaultChartOptions('Distribuição de Assinantes'),
-            cutout: '30%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20,
-                        font: {
-                            size: 14
-                        }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.raw;
-                            const percentage = ((value / (assinantes.mtn_total + assinantes.orange_total)) * 100).toFixed(1);
-                            return `${label}: ${formatNumber(value)} (${percentage}%)`;
-                        }
-                    }
-                }
-            }
-        }
+    // Limpar gráficos existentes
+    Chart.helpers.each(Chart.instances, (instance) => {
+        instance.destroy();
     });
+
+    // Renderizar todos os gráficos
+    renderMarketShareChart();
+    renderBandaLargaMovelChart();
+    renderIndicadoresFinanceirosChart();
+    renderTrafegoVozChart();
+    renderTrafegoDadosChart();
+    renderEmpregoChart();
 }
 
+// Market Share Chart
 function renderMarketShareChart() {
     const marketShare = window.appData.market_share;
     if (!marketShare) {
@@ -263,7 +123,10 @@ function renderMarketShareChart() {
     }
 
     const ctx = document.getElementById('marketShareChart')?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Contexto do gráfico de market share não encontrado');
+        return;
+    }
 
     new Chart(ctx, {
         type: 'bar',
@@ -317,6 +180,7 @@ function renderMarketShareChart() {
     });
 }
 
+// Banda Larga Móvel Chart
 function renderBandaLargaMovelChart() {
     const bandaLarga = window.appData.mercado_movel?.banda_larga_movel;
     if (!bandaLarga) {
@@ -325,7 +189,10 @@ function renderBandaLargaMovelChart() {
     }
 
     const ctx = document.getElementById('bandaLargaMovelChart')?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Contexto do gráfico de banda larga não encontrado');
+        return;
+    }
 
     new Chart(ctx, {
         type: 'bar',
@@ -373,142 +240,7 @@ function renderBandaLargaMovelChart() {
     });
 }
 
-function renderTrafegoVozChart() {
-    const trafegoVoz = window.appData.trafego?.voz;
-    if (!trafegoVoz) {
-        console.warn('Dados de tráfego de voz não disponíveis');
-        return;
-    }
-
-    const ctx = document.getElementById('trafegoVozChart')?.getContext('2d');
-    if (!ctx) return;
-
-    // Preparar dados para cada operadora
-    const mtnData = {
-        onNet: trafegoVoz.mtn?.on_net || 0,
-        offNet: trafegoVoz.mtn?.off_net || 0
-    };
-
-    const orangeData = {
-        onNet: trafegoVoz.orange?.on_net || 0,
-        offNet: trafegoVoz.orange?.off_net || 0
-    };
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['On-net', 'Off-net', 'Internacional'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [mtnData.onNet, mtnData.offNet, trafegoVoz.mtn?.internacional || 0],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Orange',
-                    data: [orangeData.onNet, orangeData.offNet, trafegoVoz.orange?.internacional || 0],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
-        },
-        options: {
-            ...getDefaultChartOptions('Distribuição do Tráfego de Voz'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => `${formatNumber(value)} min`
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: ${formatNumber(context.raw)} minutos`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function renderTrafegoDadosChart() {
-    const trafegoDados = window.appData.trafego?.dados;
-    if (!trafegoDados) {
-        console.warn('Dados de tráfego de dados não disponíveis');
-        return;
-    }
-
-    const ctx = document.getElementById('trafegoDadosChart')?.getContext('2d');
-    if (!ctx) return;
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['3G', '4G'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [
-                        trafegoDados.mtn?.['3g'] || 0,
-                        trafegoDados.mtn?.['4g'] || 0
-                    ],
-                    backgroundColor: chartColors.MTN.background,
-                    borderColor: chartColors.MTN.main,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Orange',
-                    data: [
-                        trafegoDados.orange?.['3g'] || 0,
-                        trafegoDados.orange?.['4g'] || 0
-                    ],
-                    backgroundColor: chartColors.ORANGE.background,
-                    borderColor: chartColors.ORANGE.main,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
-        },
-        options: {
-            ...getDefaultChartOptions('Tráfego de Dados por Tecnologia'),
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: value => formatDataSize(value)
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: ${formatDataSize(context.raw)}`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function formatDataSize(bytes) {
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes === 0) return '0 B';
-    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-}
-
+// Indicadores Financeiros Chart
 function renderIndicadoresFinanceirosChart() {
     const indicadores = window.appData.indicadores_financeiros?.por_operadora;
     if (!indicadores?.MTN || !indicadores?.ORANGE) {
@@ -517,7 +249,10 @@ function renderIndicadoresFinanceirosChart() {
     }
 
     const ctx = document.getElementById('indicadoresFinanceirosChart')?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Contexto do gráfico de indicadores financeiros não encontrado');
+        return;
+    }
 
     new Chart(ctx, {
         type: 'bar',
@@ -569,6 +304,141 @@ function renderIndicadoresFinanceirosChart() {
     });
 }
 
+// Tráfego de Voz Chart
+function renderTrafegoVozChart() {
+    const trafegoVoz = window.appData.trafego?.voz;
+    if (!trafegoVoz || !trafegoVoz.por_operadora) {
+        console.warn('Dados de tráfego de voz não disponíveis');
+        return;
+    }
+
+    const ctx = document.getElementById('trafegoVozChart')?.getContext('2d');
+    if (!ctx) {
+        console.warn('Contexto do gráfico de tráfego de voz não encontrado');
+        return;
+    }
+
+    const mtnData = trafegoVoz.por_operadora.MTN || {};
+    const orangeData = trafegoVoz.por_operadora.ORANGE || {};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['On-net', 'Off-net', 'Internacional'],
+            datasets: [
+                {
+                    label: 'MTN',
+                    data: [
+                        mtnData.on_net || 0,
+                        mtnData.off_net || 0,
+                        mtnData.internacional || 0
+                    ],
+                    backgroundColor: chartColors.MTN.main,
+                    borderColor: chartColors.MTN.secondary,
+                    borderWidth: 2
+                },
+                {
+                    label: 'Orange',
+                    data: [
+                        orangeData.on_net || 0,
+                        orangeData.off_net || 0,
+                        orangeData.internacional || 0
+                    ],
+                    backgroundColor: chartColors.ORANGE.main,
+                    borderColor: chartColors.ORANGE.secondary,
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            ...getDefaultChartOptions('Distribuição do Tráfego de Voz'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => `${formatNumber(value)} min`
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${formatNumber(context.raw)} minutos`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Tráfego de Dados Chart
+function renderTrafegoDadosChart() {
+    const trafegoDados = window.appData.trafego?.dados;
+    if (!trafegoDados || !trafegoDados.por_operadora) {
+        console.warn('Dados de tráfego de dados não disponíveis');
+        return;
+    }
+
+    const ctx = document.getElementById('trafegoDadosChart')?.getContext('2d');
+    if (!ctx) {
+        console.warn('Contexto do gráfico de tráfego de dados não encontrado');
+        return;
+    }
+
+    const mtnData = trafegoDados.por_operadora.MTN || {};
+    const orangeData = trafegoDados.por_operadora.ORANGE || {};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['3G', '4G'],
+            datasets: [
+                {
+                    label: 'MTN',
+                    data: [mtnData['3g'] || 0, mtnData['4g'] || 0],
+                    backgroundColor: chartColors.MTN.background,
+                    borderColor: chartColors.MTN.main,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Orange',
+                    data: [orangeData['3g'] || 0, orangeData['4g'] || 0],
+                    backgroundColor: chartColors.ORANGE.background,
+                    borderColor: chartColors.ORANGE.main,
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            ...getDefaultChartOptions('Tráfego de Dados por Tecnologia'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => formatDataSize(value)
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${formatDataSize(context.raw)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Emprego Chart
 function renderEmpregoChart() {
     const emprego = window.appData.emprego?.por_operadora;
     if (!emprego?.MTN || !emprego?.ORANGE) {
@@ -577,7 +447,10 @@ function renderEmpregoChart() {
     }
 
     const ctx = document.getElementById('empregoChart')?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+        console.warn('Contexto do gráfico de emprego não encontrado');
+        return;
+    }
 
     new Chart(ctx, {
         type: 'bar',
@@ -608,12 +481,20 @@ function renderEmpregoChart() {
         },
         options: {
             ...getDefaultChartOptions('Emprego por Operadora e Gênero'),
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => formatNumber(value)
+                    }
+                }
+            },
             plugins: {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
                             const total = context.raw;
-                            const percentage = ((context.raw / window.appData.emprego.total) * 100).toFixed(1);
+                            const percentage = ((total / window.appData.emprego.total) * 100).toFixed(1);
                             return `${context.dataset.label}: ${formatNumber(total)} (${percentage}%)`;
                         }
                     }
@@ -624,90 +505,123 @@ function renderEmpregoChart() {
 }
 
 // Funções de Exportação
-function downloadPDF() {
-    const element = document.querySelector('.container');
-    if (!element) return;
-
-    // Configurações do PDF
-    const pdfOptions = {
-        margin: 10,
-        filename: `Relatorio_Mercado_Telecom_${window.appData.ano_atual}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait' 
+async function downloadPDF() {
+    try {
+        const element = document.querySelector('.container');
+        if (!element) {
+            console.error('Elemento container não encontrado');
+            return;
         }
-    };
 
-    // Criar uma cópia do elemento para modificar
-    const elementClone = element.cloneNode(true);
-    prepareElementForExport(elementClone);
+        // Mostrar loading
+        document.body.style.cursor = 'wait';
+        
+        // Aguardar renderização dos gráficos
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Gerar PDF
-    html2pdf().set(pdfOptions).from(elementClone).save().catch(error => {
+        // Criar clone para não modificar o original
+        const elementClone = element.cloneNode(true);
+        await prepareElementForExport(elementClone);
+
+        // Configurações do PDF
+        const opt = {
+            margin: 10,
+            filename: `Relatorio_Mercado_Telecom_${window.appData?.ano_atual || new Date().getFullYear()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                allowTaint: true,
+                foreignObjectRendering: true
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'portrait' 
+            }
+        };
+
+        // Gerar PDF
+        await html2pdf().set(opt).from(elementClone).save();
+
+    } catch (error) {
         console.error('Erro ao gerar PDF:', error);
         alert('Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.');
-    });
+    } finally {
+        document.body.style.cursor = 'default';
+    }
 }
 
 function downloadWord() {
-    const element = document.querySelector('.container');
-    if (!element) return;
+    try {
+        const element = document.querySelector('.container');
+        if (!element) {
+            console.error('Elemento container não encontrado');
+            return;
+        }
 
-    const header = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' 
-              xmlns:w='urn:schemas-microsoft-com:office:word' 
-              xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-            <meta charset='utf-8'>
-            <title>Relatório do Mercado de Telecomunicações</title>
-            <style>
-                /* Estilos para o documento Word */
-                body { font-family: 'Calibri', sans-serif; }
-                .chart-container { page-break-inside: avoid; }
-                table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid #ddd; padding: 8px; }
-                th { background-color: #f4f4f4; }
-            </style>
-        </head>
-        <body>
-    `;
+        // Mostrar loading
+        document.body.style.cursor = 'wait';
 
-    // Criar uma cópia do elemento para modificar
-    const elementClone = element.cloneNode(true);
-    prepareElementForExport(elementClone);
+        // Criar cabeçalho do documento
+        const header = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                  xmlns:w='urn:schemas-microsoft-com:office:word' 
+                  xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset='utf-8'>
+                <title>Relatório do Mercado de Telecomunicações</title>
+                <style>
+                    body { font-family: 'Calibri', sans-serif; }
+                    .chart-container { page-break-inside: avoid; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid #ddd; padding: 8px; }
+                    th { background-color: #f4f4f4; }
+                </style>
+            </head>
+            <body>
+        `;
 
-    // Converter gráficos em imagens
-    convertChartsToImages(elementClone).then(() => {
-        const blob = new Blob(
-            [header + elementClone.innerHTML + "</body></html>"], 
-            { type: 'application/msword' }
-        );
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `Relatorio_Mercado_Telecom_${window.appData.ano_atual}.doc`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    });
+        // Criar clone e preparar para exportação
+        const elementClone = element.cloneNode(true);
+        prepareElementForExport(elementClone);
+
+        // Converter gráficos em imagens
+        convertChartsToImages(elementClone).then(() => {
+            const blob = new Blob(
+                [header + elementClone.innerHTML + "</body></html>"], 
+                { type: 'application/msword' }
+            );
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Relatorio_Mercado_Telecom_${window.appData?.ano_atual || new Date().getFullYear()}.doc`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            
+            document.body.style.cursor = 'default';
+        });
+    } catch (error) {
+        console.error('Erro ao gerar documento Word:', error);
+        alert('Ocorreu um erro ao gerar o documento Word. Por favor, tente novamente.');
+        document.body.style.cursor = 'default';
+    }
 }
 
 // Funções auxiliares para exportação
-function prepareElementForExport(element) {
-    // Remover botões e elementos interativos
+async function prepareElementForExport(element) {
+    // Remover elementos interativos
     element.querySelectorAll('.btn-group, .form-select').forEach(el => el.remove());
     
-    // Adicionar estilos para impressão
+    // Configurar estilos de impressão
     element.querySelectorAll('.card').forEach(card => {
         card.style.pageBreakInside = 'avoid';
         card.style.marginBottom = '20px';
     });
+
+    // Aguardar um momento para os gráficos renderizarem
+    await new Promise(resolve => setTimeout(resolve, 500));
 }
 
 async function convertChartsToImages(element) {
@@ -726,12 +640,19 @@ async function convertChartsToImages(element) {
     }
 }
 
-// Função para formatar valores monetários em FCFA
-function formatCurrency(value) {
-    return new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'XOF',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(value);
+// Setup de eventos
+function setupEventListeners() {
+    const anoSelect = document.getElementById('anoSelect');
+    if (anoSelect) {
+        anoSelect.addEventListener('change', e => mudarAno(e.target.value));
+    }
+}
+
+function mudarAno(ano) {
+    if (!ano) return;
+    
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('ano', ano);
+    document.body.style.cursor = 'wait';
+    window.location.href = currentUrl.toString();
 }
