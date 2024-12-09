@@ -12,6 +12,15 @@ class AnnualReportView(TemplateView):
     template_name = 'dados_anuais/annual_report.html'
 
     def get_context_data(self, **kwargs):
+        """
+        Get the context data for the annual report view.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            dict: The context data for the annual report view.
+        """
         context = super().get_context_data(**kwargs)
         
         try:
@@ -30,7 +39,6 @@ class AnnualReportView(TemplateView):
             dados_historicos = self.get_historic_data(ano_selecionado)
             data_estruturada = self.estruturar_dados_completos(dados_mercado, dados_historicos)
             
-            # Adicionar o ano_atual e as análises na estrutura de dados
             data_estruturada.update({
                 'ano_atual': ano_selecionado,
                 'resumo_executivo': self.gerar_resumo_executivo(dados_mercado, dados_historicos),
@@ -52,15 +60,14 @@ class AnnualReportView(TemplateView):
         return context
 
     def get_selected_year(self, anos_disponiveis):
-        ano_selecionado = self.request.GET.get('ano', anos_disponiveis[-1])
-        try:
-            return int(ano_selecionado)
-        except (TypeError, ValueError):
-            return anos_disponiveis[-1]
-
-    def get_selected_year(self, anos_disponiveis):
         """
         Obtém o ano selecionado da query string ou usa o ano mais recente disponível.
+
+        Args:
+            anos_disponiveis (list): Lista de anos disponíveis.
+
+        Returns:
+            int: O ano selecionado.
         """
         try:
             ano_selecionado = self.request.GET.get('ano')
@@ -75,6 +82,12 @@ class AnnualReportView(TemplateView):
     def get_market_data(self, ano):
         """
         Obtém os dados de mercado para o ano específico.
+
+        Args:
+            ano (int): O ano para o qual obter os dados de mercado.
+
+        Returns:
+            dict: Dados de mercado para o ano especificado.
         """
         try:
             dados = {
@@ -82,12 +95,10 @@ class AnnualReportView(TemplateView):
                 'orange': DadosAnuais.objects.filter(ano=ano, operadora='ORANGE').first()
             }
             
-            # Verificar se temos dados para ambas as operadoras
             if not dados['mtn'] or not dados['orange']:
                 logger.warning(f"Dados incompletos para o ano {ano}")
                 return None
 
-            # Calcular totais
             dados['totais'] = self.calcular_totais_mercado([dados['mtn'], dados['orange']])
             return dados
         except Exception as e:
@@ -95,7 +106,15 @@ class AnnualReportView(TemplateView):
             return None
 
     def calcular_totais_mercado(self, operadoras):
-        """Calcula totais agregados do mercado."""
+        """
+        Calcula totais agregados do mercado.
+
+        Args:
+            operadoras (list): Lista de objetos de dados de operadoras.
+
+        Returns:
+            dict: Totais agregados do mercado.
+        """
         return {
             'assinantes_rede_movel': sum(op.assinantes_rede_movel or 0 for op in operadoras),
             'assinantes_pos_pago': sum(op.assinantes_pos_pago or 0 for op in operadoras),
@@ -114,6 +133,16 @@ class AnnualReportView(TemplateView):
         }
     
     def estruturar_dados_completos(self, dados_mercado, dados_historicos):
+        """
+        Estrutura os dados completos do mercado e históricos.
+
+        Args:
+            dados_mercado (dict): Dados de mercado.
+            dados_historicos (dict): Dados históricos.
+
+        Returns:
+            dict: Dados estruturados completos.
+        """
         try:
             return {
                 'mercado_movel': self.estruturar_mercado_movel(dados_mercado),
@@ -129,6 +158,15 @@ class AnnualReportView(TemplateView):
             return self.get_empty_structure_templates()
 
     def estruturar_mercado_movel(self, dados):
+        """
+        Estrutura os dados do mercado móvel.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Dados estruturados do mercado móvel.
+        """
         try:
             mtn = dados['mtn']
             orange = dados['orange']
@@ -162,6 +200,15 @@ class AnnualReportView(TemplateView):
             return self.get_empty_mercado_movel_structure()
 
     def estruturar_indicadores_financeiros(self, dados):
+        """
+        Estrutura os indicadores financeiros.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Indicadores financeiros estruturados.
+        """
         try:
             mtn = dados['mtn']
             orange = dados['orange']
@@ -197,6 +244,15 @@ class AnnualReportView(TemplateView):
             return self.get_empty_indicadores_financeiros_structure()
 
     def estruturar_trafego(self, dados):
+        """
+        Estrutura os dados de tráfego.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Dados estruturados de tráfego.
+        """
         try:
             mtn = dados['mtn']
             orange = dados['orange']
@@ -243,6 +299,15 @@ class AnnualReportView(TemplateView):
             return self.get_empty_trafego_structure()
     
     def estruturar_emprego(self, dados):
+        """
+        Estrutura os dados de emprego.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Dados estruturados de emprego.
+        """
         try:
             mtn = dados['mtn']
             orange = dados['orange']
@@ -270,6 +335,15 @@ class AnnualReportView(TemplateView):
             return self.get_empty_emprego_structure()
 
     def estruturar_market_share(self, dados):
+        """
+        Estrutura os dados de market share.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Dados estruturados de market share.
+        """
         try:
             mtn = dados['mtn']
             orange = dados['orange']
@@ -299,6 +373,15 @@ class AnnualReportView(TemplateView):
             return {}
 
     def calcular_penetracao(self, dados):
+        """
+        Calcula a taxa de penetração dos serviços de telecomunicações.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Taxas de penetração calculadas.
+        """
         try:
             totais = dados['totais']
             populacao = 1781308  # População estimada da Guiné-Bissau
@@ -319,6 +402,15 @@ class AnnualReportView(TemplateView):
             }
 
     def calcular_crescimento_detalhado(self, dados):
+        """
+        Calcula o crescimento detalhado dos serviços de telecomunicações.
+
+        Args:
+            dados (dict): Dados de mercado.
+
+        Returns:
+            dict: Crescimento detalhado calculado.
+        """
         try:
             ano_atual = dados['mtn'].ano
             ano_anterior = ano_atual - 1
@@ -356,6 +448,12 @@ class AnnualReportView(TemplateView):
             return {'anual': {}, 'trimestral': {}}
     
     def get_empty_structure_templates(self):
+        """
+        Retorna templates de estruturas vazias.
+
+        Returns:
+            dict: Templates de estruturas vazias.
+        """
         return {
             'mercado_movel': self.get_empty_mercado_movel_structure(),
             'indicadores_financeiros': self.get_empty_indicadores_financeiros_structure(),
@@ -364,6 +462,9 @@ class AnnualReportView(TemplateView):
         }
 
     def get_empty_mercado_movel_structure(self):
+        """
+        Returns a dictionary with the structure for empty mobile market data.
+        """
         return {
             'assinantes': {
                 'total': 0,
@@ -381,6 +482,9 @@ class AnnualReportView(TemplateView):
         }
 
     def get_empty_indicadores_financeiros_structure(self):
+        """
+        Returns a dictionary with the structure for empty financial indicators.
+        """
         return {
             'volume_negocio': {'total': 0},
             'receita_total': {'total': 0},
@@ -392,6 +496,9 @@ class AnnualReportView(TemplateView):
         }
 
     def get_empty_trafego_structure(self):
+        """
+        Returns a dictionary with the structure for empty traffic data.
+        """
         return {
             'voz': {
                 'total': 0,
@@ -415,6 +522,9 @@ class AnnualReportView(TemplateView):
         }
 
     def get_empty_emprego_structure(self):
+        """
+        Returns a dictionary with the structure for empty employment data.
+        """
         return {
             'total': 0,
             'homens': 0,
@@ -426,6 +536,9 @@ class AnnualReportView(TemplateView):
         }
 
     def decimal_default(self, obj):
+        """
+        JSON serializer for objects not serializable by default.
+        """
         if isinstance(obj, Decimal):
             return float(obj)
         if hasattr(obj, 'isoformat'):
@@ -433,6 +546,9 @@ class AnnualReportView(TemplateView):
         return str(obj)
 
     def get_historic_data(self, ano_atual):
+        """
+        Retrieves historic market data.
+        """
         try:
             anos_anteriores = range(ano_atual - 4, ano_atual + 1)
             dados_historicos = []
@@ -452,10 +568,10 @@ class AnnualReportView(TemplateView):
         except Exception as e:
             logger.error(f"Erro ao buscar dados históricos: {str(e)}")
             return {'dados_anuais': [], 'market_share': {}}
-    
+
     def calcular_market_share_historico(self, dados_historicos):
         """
-        Calcula o histórico de market share das operadoras.
+        Calculates the historic market share for operators.
         """
         try:
             historico = []
@@ -476,20 +592,19 @@ class AnnualReportView(TemplateView):
             return []
 
     def gerar_resumo_executivo(self, dados_mercado, dados_historicos):
-        """Gera um resumo executivo com análises e recomendações."""
+        """
+        Generates an executive summary with analysis and recommendations.
+        """
         try:
-            # Obter os dados da estrutura correta
             mercado_movel = self.estruturar_mercado_movel(dados_mercado)
             market_share = self.estruturar_market_share(dados_mercado)
             
-            # Análise de Market Share
             operadora_dominante = "Orange" if market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0) > 50 else "MTN"
             share_dominante = max(
                 market_share.get('assinantes_rede_movel', {}).get('MTN', 0),
                 market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0)
             )
             
-            # Análise de Tecnologia
             total_3g = mercado_movel.get('banda_larga_movel', {}).get('3g', {}).get('total', 0)
             total_4g = mercado_movel.get('banda_larga_movel', {}).get('4g', {}).get('total', 0)
             ratio_4g = (total_4g / (total_3g + total_4g)) * 100 if (total_3g + total_4g) > 0 else 0
@@ -536,9 +651,10 @@ class AnnualReportView(TemplateView):
             }
 
     def gerar_analise_setorial(self, dados_mercado):
-        """Gera análises detalhadas por setor."""
+        """
+        Generates detailed sector analysis.
+        """
         try:
-            # Obter os dados da estrutura correta
             dados_estruturados = self.estruturar_dados_completos(dados_mercado, [])
             
             banda_larga = dados_estruturados.get('mercado_movel', {}).get('banda_larga_movel', {})
