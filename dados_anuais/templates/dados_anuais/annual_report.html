@@ -20,12 +20,14 @@
         <h2>Relatório Anual {{ ano_atual }}</h2>
         
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <select class="form-select w-auto" id="anoSelect">
-                {% for ano in anos_disponiveis %}
-                    <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
-                {% endfor %}
-            </select>
-            
+            <div class="d-flex">
+                <select class="form-select w-auto" id="anoSelect">
+                    {% for ano in anos_disponiveis %}
+                        <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-secondary ms-2" id="confirmAnoButton">Confirmar</button>
+            </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" onclick="downloadPDF()">
                     <i class="fas fa-file-pdf"></i> Download PDF

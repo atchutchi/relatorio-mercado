@@ -21,14 +21,30 @@ Chart.defaults.font.family = 'Poppins';
 Chart.defaults.color = '#444';
 Chart.defaults.responsive = true;
 
-// Inicialização
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dados recebidos:', window.appData);
     if(window.appData) {
         renderAllCharts();
         setupEventListeners();
     }
+
+    // Event listener for Confirm button
+    const confirmAnoButton = document.getElementById('confirmAnoButton');
+    confirmAnoButton.addEventListener('click', function() {
+        const anoSelect = document.getElementById('anoSelect');
+        mudarAno(anoSelect.value);
+    });
 });
+
+// Function to change the year and reload the page with selected year
+function mudarAno(ano) {
+    if (!ano) return;
+    
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('ano', ano);
+    document.body.style.cursor = 'wait';
+    window.location.href = currentUrl.toString();
+}
 
 // Funções de utilidade
 function formatNumber(number) {
@@ -646,13 +662,4 @@ function setupEventListeners() {
     if (anoSelect) {
         anoSelect.addEventListener('change', e => mudarAno(e.target.value));
     }
-}
-
-function mudarAno(ano) {
-    if (!ano) return;
-    
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('ano', ano);
-    document.body.style.cursor = 'wait';
-    window.location.href = currentUrl.toString();
 }
