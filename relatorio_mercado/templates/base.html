@@ -26,7 +26,7 @@
 
    <title>Indicadores do Mercado das Telecomunicações{% block extra_title %}{% endblock %}</title>
  </head>
- <body class="d-flex flex-column {% if request.path == '/' %}home-bg{% else %}bg-white{% endif %}">
+ <body class="{% if request.path == '/' %}home-bg{% else %}bg-white{% endif %}">
    <header class="container-fluid">
        <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
            <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-left">
@@ -61,7 +61,7 @@
        </div>
    </header>
 
-   <main class="content {% if request.path == '/' %}p-0{% else %}container mt-4{% endif %}">
+   <main class="content container mt-4">
         {% block page_header %}{% endblock %}
         {% block content %}{% endblock %}
     </main>
