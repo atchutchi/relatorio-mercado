@@ -523,49 +523,107 @@ function renderEmpregoChart() {
 // Funções de Exportação
 async function downloadPDF() {
     try {
+        console.log('Iniciando download do PDF');
         const element = document.querySelector('.container');
         if (!element) {
             console.error('Elemento container não encontrado');
             return;
         }
 
-        // Mostrar loading
+        // Mostrar loading e feedback visual
         document.body.style.cursor = 'wait';
-        
-        // Aguardar renderização dos gráficos
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const loadingDiv = document.createElement('div');
+        loadingDiv.style.position = 'fixed';
+        loadingDiv.style.top = '50%';
+        loadingDiv.style.left = '50%';
+        loadingDiv.style.transform = 'translate(-50%, -50%)';
+        loadingDiv.style.background = 'rgba(0,0,0,0.8)';
+        loadingDiv.style.color = 'white';
+        loadingDiv.style.padding = '20px';
+        loadingDiv.style.borderRadius = '10px';
+        loadingDiv.innerHTML = 'Gerando PDF...';
+        document.body.appendChild(loadingDiv);
 
-        // Criar clone para não modificar o original
+        // Clonar elemento
         const elementClone = element.cloneNode(true);
-        await prepareElementForExport(elementClone);
+        
+        // Remover elementos desnecessários
+        elementClone.querySelectorAll('.btn-group, .form-select, button, select').forEach(el => el.remove());
+
+        // Converter Canvas para imagens
+        console.log('Convertendo gráficos para imagens');
+        const canvases = elementClone.querySelectorAll('canvas');
+        for (const canvas of canvases) {
+            try {
+                console.log('Processando canvas:', canvas);
+                const container = canvas.parentElement;
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.style.width = '100%';
+                img.style.maxWidth = '800px';
+                container.replaceChild(img, canvas);
+            } catch (err) {
+                console.error('Erro ao converter canvas:', err);
+            }
+        }
 
         // Configurações do PDF
         const opt = {
-            margin: 10,
+            margin: [10, 10, 10, 10],
             filename: `Relatorio_Mercado_Telecom_${window.appData?.ano_atual || new Date().getFullYear()}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
+            image: { type: 'jpeg', quality: 1 },
             html2canvas: { 
                 scale: 2,
                 useCORS: true,
                 logging: true,
                 allowTaint: true,
-                foreignObjectRendering: true
+                foreignObjectRendering: true,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: document.documentElement.offsetWidth,
+                windowHeight: document.documentElement.offsetHeight
             },
             jsPDF: { 
                 unit: 'mm', 
                 format: 'a4', 
-                orientation: 'portrait' 
-            }
+                orientation: 'portrait',
+                compress: true,
+                putOnlyUsedFonts: true
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
+        // Configurar estilos para impressão
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @media print {
+                body { font-size: 12pt; }
+                .card { page-break-inside: avoid; margin-bottom: 20px; }
+                table { page-break-inside: avoid; }
+                .chart-container { page-break-inside: avoid; }
+                h1, h2, h3 { page-break-after: avoid; }
+                img { max-width: 100% !important; }
+            }
+        `;
+        elementClone.appendChild(styleSheet);
+
+        console.log('Configurações PDF:', opt);
+
         // Gerar PDF
-        await html2pdf().set(opt).from(elementClone).save();
+        try {
+            const pdf = await html2pdf().set(opt).from(elementClone).save();
+            console.log('PDF gerado com sucesso');
+        } catch (error) {
+            console.error('Erro na geração do PDF:', error);
+            throw error;
+        }
 
     } catch (error) {
         console.error('Erro ao gerar PDF:', error);
         alert('Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.');
     } finally {
         document.body.style.cursor = 'default';
+        document.querySelectorAll('[data-loading]').forEach(el => el.remove());
     }
 }
 

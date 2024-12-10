@@ -23,8 +23,53 @@ body {
 .home-bg {
   background: url('/media/3439372_61769.jpg') no-repeat center center fixed;
   background-size: cover;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8); /* Ajuste a opacidade conforme necessário */
+  z-index: 0;
+}
+
+/* Home page styles */
+.home-container {
+  position: relative;
+  min-height: calc(100vh - 164px); /* Ajuste este valor baseado na altura do seu header */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.home-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  z-index: 1;
+}
+
+.text-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.button-container {
+  margin-top: 2rem;
+}
 
 /* Ajustar padding para evitar sobreposição com a navbar */
 .content {
@@ -517,6 +562,20 @@ body {
       .header-container {
           padding-top: 164px;
       }
+
+      .home-container {
+        min-height: calc(100vh - 116px); /* Ajuste para mobile */
+        padding-top: 0;
+      }
+
+      .text-container h1 {
+        font-size: 2.5rem; /* Texto menor em telas pequenas */
+      }
+
+    .shop-now-button {
+        padding: 0.75rem 1.5rem; /* Botão menor em telas pequenas */
+        font-size: 1rem;
+      }
   }
   
   /* pad the top a bit when navbar is collapsed on mobile */
@@ -578,3 +637,9 @@ body {
   }
 
   }
+
+  @media (max-width: 576px) {
+    .text-container h1 {
+        font-size: 2rem;
+    }
+}

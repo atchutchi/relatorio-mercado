@@ -26,7 +26,7 @@
                         <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
                     {% endfor %}
                 </select>
-                <button type="button" class="btn btn-secondary ms-2" id="confirmAnoButton">Confirmar</button>
+
             </div>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary" onclick="downloadPDF()">
@@ -411,13 +411,20 @@
 </div>
 
 {% block extra_js %}
-<script>
-    window.appData = {{ appData|safe }};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Primeiro carregue as dependências -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Depois carregue seus dados -->
+<script>
+    console.log('Carregando dados...');
+    window.appData = {{ appData|safe }};
+    console.log('Dados carregados:', window.appData);
+</script>
+
+<!-- Por último, carregue seu script -->
 <script src="{% static 'js/annual_report.js' %}"></script>
 {% endblock %}
 {% endblock %}

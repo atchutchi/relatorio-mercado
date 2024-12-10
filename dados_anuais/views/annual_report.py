@@ -45,13 +45,20 @@ class AnnualReportView(TemplateView):
                 'analise_setorial': self.gerar_analise_setorial(dados_mercado)
             })
             
+            # Preparar dados para JSON
+            data_estruturada_json = self.prepare_data_for_json(data_estruturada)
+            
             context.update({
-                'appData': json.dumps(data_estruturada, default=self.decimal_default),
+                'appData': json.dumps(data_estruturada_json),
                 'ano_atual': ano_selecionado,
                 'anos_disponiveis': anos_disponiveis,
                 'dados_mercado': data_estruturada,
                 'historic_data': dados_historicos
             })
+
+            # Adicionar logs para debug
+            logger.debug(f"Dados estruturados para JSON: {data_estruturada_json}")
+            logger.debug(f"Context final: {context}")
 
         except Exception as e:
             logger.error(f"Erro ao gerar contexto do relatório anual: {str(e)}")
@@ -540,10 +547,24 @@ class AnnualReportView(TemplateView):
         JSON serializer for objects not serializable by default.
         """
         if isinstance(obj, Decimal):
-            return float(obj)
+            return str(obj)
         if hasattr(obj, 'isoformat'):
             return obj.isoformat()
         return str(obj)
+    
+    def prepare_data_for_json(self, data):
+        """
+        Prepara dados para serialização JSON.
+        """
+        if isinstance(data, dict):
+            return {key: self.prepare_data_for_json(value) for key, value in data.items()}
+        elif isinstance(data, (list, tuple)):
+            return [self.prepare_data_for_json(item) for item in data]
+        elif isinstance(data, Decimal):
+            return str(data)
+        elif hasattr(data, 'isoformat'):
+            return data.isoformat()
+        return data
 
     def get_historic_data(self, ano_atual):
         """
