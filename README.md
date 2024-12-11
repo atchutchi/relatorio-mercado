@@ -1,189 +1,121 @@
-# Relatório do Mercado
+# Observatório do Mercado da Guiné-Bissau
 
 ### Link to the final page
 - [Observatório do Mercado das Telecomunicação na Guiné-Bissau](https://observatorio-mercado-gw-ccc5b800c903.herokuapp.com/).
 
-![ARN Logo]('/relatorio_mercado/media/arn-logo.png')
+![ARN Logo]('')
 
-Relatório do Mercado é um site desenvolvido para a Autoridade Reguladora Nacional (ARN) da Guiné-Bissau. O site apresenta análises detalhadas e indicadores do mercado de telecomunicações do país, incluindo dados sobre estações móveis, emprego no setor, tráfego nacional, quotas de mercado, taxa de penetração e volume de negócios.
 
-## Conteúdo
+## Overview
+O Observatório do Mercado da Guiné-Bissau é uma plataforma desenvolvida para monitorizar e reportar dados económicos e de mercado no país. O site apresenta informações detalhadas sobre indicadores mensais e trimestrais, permitindo análises e visualizações que apoiam a tomada de decisões estratégicas.
 
-- [Funcionalidades](#funcionalidades)
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
-- [Instalação](#instalação)
-- [Uso](#uso)
-- [Créditos](#créditos)
-- [Licença](#licença)
+## Strategy
+O objetivo principal do Observatório do Mercado é centralizar informações económicas relevantes, garantindo acessibilidade e transparência para diferentes stakeholders, incluindo governos, empresas e investigadores.
 
-## Funcionalidades
+## User Stories
+- **Usuário Geral:**
+  - Como um visitante do site, quero visualizar rapidamente os principais indicadores económicos para entender o estado atual do mercado.
+  - Como um analista, quero personalizar a visualização de dados para identificar padrões e realizar análises detalhadas.
 
-- Visualização de dados do mercado de telecomunicações em gráficos interativos
-- Análise detalhada de diversos indicadores do setor
-- Comparação entre operadoras (MTN e Orange)
-- Apresentação de relatórios trimestrais
-- Interface responsiva para acesso em diferentes dispositivos
+- **Administrador:**
+  - Como administrador, quero uma interface intuitiva para introduzir dados mensais e trimestrais, garantindo que a plataforma esteja sempre atualizada.
+  - Como administrador, quero gerenciar permissões de usuários para controlar o acesso às funcionalidades administrativas.
+
+- **Investigador:**
+  - Como investigador, quero exportar relatórios em diferentes formatos (PDF, Excel) para usá-los em análises externas.
+  - Como investigador, quero acessar dados históricos organizados para comparar tendências ao longo dos anos.
+
+## Skeleton
+- **Homepage:** Visão geral dos principais indicadores.
+- **Dashboard:** Painel interativo para filtrar e visualizar dados.
+- **Relatórios:** Página para download de relatórios.
+- **Admin Panel:** Interface para introdução e gestão de dados.
+
+## Models
+- **Indicadores Econômicos:** Modelos para armazenar dados mensais e trimestrais.
+- **Usuários:** Gestão de acessos e permissões.
+- **Relatórios:** Gerar e armazenar documentos de análise.
+
+## Features
+- **Homepage:**
+  - Exibição dos principais indicadores económicos em gráficos.
+  - Destaques de mudanças significativas no mercado.
+
+- **Dashboard:**
+  - Filtros para visualização personalizada de dados.
+  - Gráficos interativos com opções de download.
+
+- **Relatórios:**
+  - Área de download de relatórios anuais e trimestrais.
+  - Opção de solicitação de relatórios personalizados.
+
+- **Admin Panel:**
+  - Formulários para adicionar e atualizar dados económicos.
+  - Gestão de usuários e permissões.
 
 ## Testing and Troubleshooting
+### Estrutura (dados fornecidos posteriormente)
+- Testes de unidade para modelos e funcionalidades principais.
+- Testes de integração para fluxos de trabalho completos.
 
-During the development of this project, we encountered and resolved several issues. This document outlines these problems and their solutions for future reference.
+## Future Development
+- Desenvolvimento de modelos para introdução de dados mensais e trimestrais diretamente no sistema.
+- Implementação de alertas automáticos para atualizações de indicadores.
 
-### 1. UserProfile Redirect Issue
+## Validator Testing
+- Validação HTML, CSS, e JS.
+- Validação de dados no backend (detalhes fornecidos posteriormente).
 
-**Problem Description:**
-After updating the user profile, the application raised an ImproperlyConfigured exception with the message "No URL to redirect to. Either provide a url or define a get_absolute_url method on the Model."
+## Credits
+- **Code:**
+  - Desenvolvido por Atchutchi Ferreira.
+- **Storage:**
+  - Amazon AWS S3 para armazenamento de arquivos estáticos e media.
+- **Database:**
+  - ElephantSQL.
+- **Language Used:**
+  - Python Django, HTML, CSS, JavaScript.
+- **Deployment:**
+  - Heroku.
 
-**Solution:**
-We updated the UserProfileView to include a success_url:
+## Heroku Deployment Steps
+1. **Sign Up or Log In to Heroku**
+   - Acesse o site da Heroku e faça login ou crie uma conta.
 
-```python
-from django.urls import reverse_lazy
+2. **Create a New App**
+   - No Dashboard, crie uma nova aplicação com um nome único e selecione a região mais próxima.
 
-class UserProfileView(LoginRequiredMixin, UpdateView):
-    model = UserProfile
-    template_name = 'indicator_management/user_profile.html'
-    fields = ['bio', 'organization']
-    success_url = reverse_lazy('user_profile')
+3. **Configuration**
+   - Navegue para a aba Settings e configure as variáveis de ambiente, incluindo `DATABASE_URL` fornecido pela ElephantSQL.
 
-    def get_object(self, queryset=None):
-        return UserProfile.objects.get_or_create(user=self.request.user)[0]
-```
+4. **Environment Variables**
+   - Crie um arquivo `env.py` e defina as variáveis necessárias como `DATABASE_URL` e `SECRET_KEY`.
+   - Adicione as variáveis ao Config Vars no Heroku.
 
-### 2. Template Does Not Exist Error
-**Problem Description:**
-When trying to access the indicator creation page, a TemplateDoesNotExist error was raised for 'indicator_management/indicator_create.html'.
-**Solution:**
-We ensured that the template file was created in the correct directory and updated the TEMPLATES setting in settings.py to include the indicator_management templates directory:
+5. **Database Migration**
+   - Atualize `settings.py` com as configurações do banco de dados e realize as migrações.
 
-```python
+6. **Static and Media Files Configuration**
+   - Configure um bucket S3 na Amazon AWS.
+   - Atualize `settings.py` e `env.py` com os detalhes do bucket.
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            # ... other directories ...
-            os.path.join(BASE_DIR, 'indicator_management', 'templates'),
-        ],
-        'APP_DIRS': True,
-        # ... rest of the configuration ...
-    },
-]
-```
+7. **Disable Collectstatic**
+   - Temporariamente adicione `DISABLE_COLLECTSTATIC=1` no Config Vars do Heroku.
 
-### 3. Data Not Passing to Templates
-**Problem Description:**
-Data was not being correctly passed to the templates, resulting in empty or incorrect displays.
-**Solution:**
-We reviewed and updated the view functions to ensure all necessary data was being passed to the context. For example, in the market analysis view:
+8. **Dependencies**
+   - Garanta que todos os pacotes necessários estão listados em `requirements.txt`.
 
-```python
-def get_context_data(self, **kwargs):
-    context = super().get_context_data(**kwargs)
-    # ... data processing ...
-    context['market_share_data'] = json.dumps(market_share_data)
-    context['hhi_data'] = json.dumps(hhi_data)
-    # ... more context data ...
-    return context
-```
+9. **Application Settings**
+   - Configure `ALLOWED_HOSTS` e outros parâmetros no `settings.py`.
 
-### 4. Responsive Design Issues
-**Problem Description:**
-The layout was not properly responsive, especially for tablet-sized screens.
-**Solution:**
-We updated the CSS to better handle different screen sizes:
+10. **Procfile**
+    - Crie um arquivo `Procfile` com o comando para rodar a aplicação: `web: gunicorn your_project_name.wsgi`.
 
-```css
-@media (min-width: 768px) and (max-width: 991px) {
-    .container {
-        max-width: 95%;
-    }
-    .chart-container {
-        height: 300px;
-    }
-}
-```
+11. **Version Control**
+    - Faça commit e push das alterações no GitHub.
 
-### 5. Template Syntax Error with Custom Filter
+12. **Heroku Deployment**
+    - Realize o deploy manual no Heroku e monitore os logs de build.
 
-**Problem Description:**
-Encountered a TemplateSyntaxError with the message "Invalid filter: 'replace'" when trying to use a custom template filter.
-
-**Solution:**
-Updated the custom filter in `custom_filters.py` to use the built-in `cut` filter in combination with our custom `replace_underscore` filter:
-
-```python
-
-@register.filter
-def replace_underscore(value):
-    return value.replace('_', ' ')
-
-```
-Usage in template:
-```python
-{{ campo|cut:'_atual'|replace_underscore|title }}
-```
-
-### 6. Recursion Error in Custom getattr Filter
-**Problem Description:**
-Encountered a RecursionError with the message "maximum recursion depth exceeded" when using a custom getattr filter.
-**Solution:**
-Renamed the custom getattr filter to avoid conflict with Python's built-in getattr function and simplified its implementation:
-
-```python
-@register.filter
-def getattr_filter(obj, attr):
-    return getattr(obj, attr)
-
-```
-Updated template usage:
-
-```python
-{{ dado|getattr_filter:campo|intcomma }}
-```
-
-### 7. Data Not Rendering in Evolution of Indicators View
-**Problem Description:**
-The evolution of indicators data was not being rendered correctly in the template.
-**Solution:**
-Refactored the evolucao_indicadores view to handle missing data and sum operator data when necessary. Also updated the corresponding template and JavaScript to correctly display the data:
-
-Updated view to handle missing 'TOTAL' data and fallback to summing individual operator data.
-Modified template to use the new data structure.
-Updated JavaScript to create charts based on the new data format.
-
-### 8. Inconsistent Data Presentation in Annual Data Page
-**Problem Description:**
-The annual data page was not presenting data in an easily understandable format, and there were concerns about calculation accuracy.
-**Solution:**
-Proposed a new structure for the annual data presentation, including:
-
-Overview of the market with evolution of key indicators.
-Annual comparison between operators.
-Operator-specific evolution pages.
-Market analysis with market share visualizations.
-Detailed pages for specific indicator categories.
-Growth report with year-over-year comparisons.
-Overall sector panorama.
-Interactive dashboard for custom data visualization.
-
-Implementation of this solution involves updating models, views, templates, and JavaScript to ensure accurate calculations and clear data presentation.
-
-
-
-
-
-## Tecnologias Utilizadas
-
-- HTML
-- CSS
-- JavaScript
-- Python
-- Django
-- Chart.js
-- Bootstrap
-
-## Instalação
-
-1. Clone o repositório:
-
-## Créditos
+## DATABASES
+- **ElephantSQL**: Usado como solução de banco de dados em nuvem para Django.
