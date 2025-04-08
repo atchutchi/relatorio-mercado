@@ -45,10 +45,11 @@ ALLOWED_HOSTS = [
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://8000-atchutchi-relatoriomerc-rujuzfe5s9q.ws-eu116.gitpod.io',
+    'https://8000-atchutchi-relatoriomerc-dkhcg1k89gd.ws-eu118.gitpod.io',
     'https://observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
     'http://localhost',
     'https://*.herokuapp.com',
+    'https://*.gitpod.io'
 ]
 
 # Application definition
