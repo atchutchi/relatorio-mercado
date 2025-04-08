@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (marketData && marketData.length > 0) {
         renderChart();
         renderMarketSummary();
-        renderDataTable();
+        // A tabela agora é renderizada diretamente no template via Django
     } else {
         document.querySelector('.container').innerHTML += '<p class="alert alert-warning">Nenhum dado disponível para exibição.</p>';
     }
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let summaryHtml = `
         <p>Em ${lastYear.ano}, o mercado de telecomunicações atingiu ${formatNumber(lastYear.assinantes_total)} assinantes,
-        com uma receita total de ${formatNumber(lastYear.receita_total)} FCFA.
+        com uma receita total de ${formatCurrency(lastYear.receita_total)} FCFA.
         O tráfego de dados totalizou ${formatNumber(lastYear.trafego_dados_total)} MB,
-        enquanto os investimentos no setor chegaram a ${formatNumber(lastYear.investimentos_total)} FCFA.</p>
+        enquanto os investimentos no setor chegaram a ${formatCurrency(lastYear.investimentos_total)} FCFA.</p>
     `;
  
     if (penultimateYear) {
@@ -135,9 +135,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         Object.values(indicators).forEach(({ atual, anterior, label }) => {
             const crescimento = ((atual - anterior) / anterior) * 100;
-            const color = crescimento >= 0 ? operadoraColors.MTN.main : '#dc3545';
+            const cssClass = crescimento >= 0 ? 'positive-growth' : 'negative-growth';
             crescimentoHtml += `
-                <br>• ${label}: <span style="color: ${color}; font-weight: 500;">${formatNumber(crescimento, 2)}%</span>`;
+                <br>• ${label}: <span class="${cssClass}">${formatNumber(crescimento, 2)}%</span>`;
         });
  
         summaryHtml += crescimentoHtml + '</p>';
@@ -146,25 +146,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('marketSummary').innerHTML = summaryHtml;
  }
  
- function renderDataTable() {
-    const tableBody = document.querySelector('#annualDataTable tbody');
-    
-    const tableHtml = marketData.slice().reverse().map(data => `
-        <tr>
-            <td>${data.ano}</td>
-            <td>${formatNumber(data.assinantes_total)}</td>
-            <td>${formatNumber(data.receita_total)}</td>
-            <td>${formatNumber(data.trafego_dados_total)}</td>
-            <td>${formatNumber(data.investimentos_total)}</td>
-        </tr>
-    `).join('');
-    
-    tableBody.innerHTML = tableHtml;
- }
- 
+ // Função para formatação de números (para uso no JavaScript)
  function formatNumber(number, decimals = 0) {
     return new Intl.NumberFormat('pt-BR', { 
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals 
     }).format(number);
+ }
+ 
+ // Função para formatação de valores monetários
+ function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', { 
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2 
+    }).format(value);
  }

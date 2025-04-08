@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from ..models import DadosAnuais
+from ..models import DadosAnuais, Operadora
 import json
 from decimal import Decimal
 
@@ -10,34 +10,23 @@ class GrowthReportView(TemplateView):
        context = super().get_context_data(**kwargs)
        
        anos = list(DadosAnuais.get_anos_disponiveis())
-       operadoras = [op[0] for op in DadosAnuais.OPERADORAS if op[0] != 'TOTAL']
+       operadoras = list(Operadora.objects.values_list('nome', flat=True))
 
        growth_data = self.calculate_growth_rates(anos, operadoras)
+       
+       # Adicionar crescimento total do mercado
+       growth_data['MERCADO_TOTAL'] = self.calculate_total_market_growth(anos)
 
        context['growth_data'] = json.dumps(growth_data, default=self.decimal_default)
        context['anos'] = json.dumps(anos)
-       context['operadoras'] = json.dumps(operadoras)
+       context['operadoras'] = json.dumps(operadoras + ['MERCADO_TOTAL'])  # Adicionar total do mercado
 
        return context
 
    def calculate_growth_rates(self, anos, operadoras):
        growth_data = {}
-       for operadora in operadoras:
-           growth_data[operadora] = {}
-           for i in range(1, len(anos)):
-               ano_anterior = anos[i-1]
-               ano_atual = anos[i]
-               dados_anterior = DadosAnuais.objects.filter(ano=ano_anterior, operadora=operadora).first()
-               dados_atual = DadosAnuais.objects.filter(ano=ano_atual, operadora=operadora).first()
-               
-               if dados_anterior and dados_atual:
-                   growth_data[operadora][ano_atual] = self.calculate_indicators_growth(
-                       dados_anterior, dados_atual
-                   )
-
-       return growth_data
-
-   def calculate_indicators_growth(self, dados_anterior, dados_atual):
+       
+       # Dicionário de indicadores principais a serem incluídos no relatório
        indicadores_principais = {
            'assinantes_rede_movel': 'Assinantes Rede Móvel',
            'assinantes_banda_larga_movel': 'Banda Larga Móvel',
@@ -54,23 +43,70 @@ class GrowthReportView(TemplateView):
            'investimentos': 'Investimentos',
            'volume_negocio': 'Volume de Negócio'
        }
-
-       growth = {}
-       for campo, nome in indicadores_principais.items():
-           valor_anterior = getattr(dados_anterior, campo) or 0
-           valor_atual = getattr(dados_atual, campo) or 0
+       
+       for operadora_nome in operadoras:
+           growth_data[operadora_nome] = {}
            
-           if isinstance(valor_anterior, Decimal):
-               valor_anterior = float(valor_anterior)
-           if isinstance(valor_atual, Decimal):
-               valor_atual = float(valor_atual)
+           operadora = Operadora.objects.get(nome=operadora_nome)
+           
+           for i in range(1, len(anos)):
+               ano_atual = anos[i]
                
-           if valor_anterior != 0:
-               growth[campo] = ((valor_atual - valor_anterior) / valor_anterior) * 100
-           else:
-               growth[campo] = 0 if valor_atual == 0 else 100
+               # Obter o objeto DadosAnuais para este ano e operadora
+               dados_atual = DadosAnuais.objects.filter(
+                   ano=ano_atual, 
+                   operadora=operadora
+               ).select_related('operadora').first()
+               
+               if dados_atual:
+                   growth_data[operadora_nome][ano_atual] = {}
+                   
+                   # Calcular crescimento para cada indicador usando o método do modelo
+                   for campo, nome in indicadores_principais.items():
+                       crescimento = dados_atual.calcular_crescimento(campo)
+                       growth_data[operadora_nome][ano_atual][campo] = float(crescimento)
 
-       return growth
+       return growth_data
+       
+   def calculate_total_market_growth(self, anos):
+       """Calcula o crescimento do mercado total para cada ano."""
+       growth_data = {}
+       
+       # Dicionário de indicadores principais a serem incluídos no relatório
+       indicadores_principais = [
+           'assinantes_rede_movel',
+           'assinantes_banda_larga_movel',
+           'assinantes_3g',
+           'assinantes_4g',
+           'banda_larga_256kbps',
+           'receita_total',
+           'trafego_dados',
+           'investimentos',
+           'volume_negocio'
+       ]
+       
+       for i in range(1, len(anos)):
+           ano_anterior = anos[i-1]
+           ano_atual = anos[i]
+           growth_data[ano_atual] = {}
+           
+           for campo in indicadores_principais:
+               # Obter os totais para o ano atual e anterior
+               total_atual = DadosAnuais.get_total_mercado(ano_atual, campo)
+               total_anterior = DadosAnuais.get_total_mercado(ano_anterior, campo)
+               
+               # Calcular o crescimento
+               if total_anterior and total_anterior != 0:
+                   if isinstance(total_atual, Decimal) and isinstance(total_anterior, Decimal):
+                       crescimento = ((total_atual - total_anterior) / total_anterior) * Decimal('100')
+                       growth_data[ano_atual][campo] = float(crescimento)
+                   else:
+                       crescimento = ((total_atual - total_anterior) / total_anterior) * 100
+                       growth_data[ano_atual][campo] = crescimento
+               else:
+                   growth_data[ano_atual][campo] = 0 if total_atual == 0 else 100
+       
+       return growth_data
 
    def decimal_default(self, obj):
        if isinstance(obj, Decimal):

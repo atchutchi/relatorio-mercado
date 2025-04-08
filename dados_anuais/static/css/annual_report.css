@@ -198,13 +198,28 @@
    color: var(--danger);
 }
 
-/* Operadoras */
-.operator-card.mtn {
-   border-left: 4px solid var(--mtn-yellow);
+/* Estilos para cartões de operadoras */
+.operator-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+/* Estilo específico para MTN */
+.operator-card.mtn {
+    border-left: 5px solid var(--mtn-yellow);
+}
+
+/* Estilo específico para ORANGE */
 .operator-card.orange {
-   border-left: 4px solid var(--orange-primary);
+    border-left: 5px solid var(--orange-primary);
+}
+
+/* Estilos dinâmicos para outras operadoras */
+.operator-card:not(.mtn):not(.orange) {
+    border-left: 5px solid var(--success);
 }
 
 /* Gráficos */
@@ -237,26 +252,35 @@
 
 /* Market Share */
 .market-share-cards {
-   display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-   gap: 1rem;
-   margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .market-share-card {
-   padding: 1.5rem;
-   border-radius: 0.5rem;
-   text-align: center;
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    min-width: 180px;
 }
 
+/* Estilo específico para MTN */
 .market-share-card.mtn {
-   background: linear-gradient(135deg, var(--mtn-yellow) 0%, var(--neutral-light) 100%);
-   color: var(--mtn-blue);
+    border-top: 5px solid var(--mtn-yellow);
 }
 
+/* Estilo específico para ORANGE */
 .market-share-card.orange {
-   background: linear-gradient(135deg, var(--orange-primary) 0%, var(--neutral-light) 100%);
-   color: var(--orange-black);
+    border-top: 5px solid var(--orange-primary);
+}
+
+/* Estilos dinâmicos para outras operadoras */
+.market-share-card:not(.mtn):not(.orange) {
+    border-top: 5px solid var(--success);
 }
 
 .share-value {

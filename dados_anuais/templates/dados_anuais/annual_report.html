@@ -52,11 +52,11 @@
                         </div>
                         <h3>Total de Assinantes</h3>
                         <div class="stat-value">
-                            {{ dados_mercado.mercado_movel.assinantes.total|intcomma }}
+                            {{ dados_mercado.mercado.assinantes.total|format_number }}
                         </div>
                         <div class="stat-change">
                             {% with dados_mercado.crescimento.anual.assinantes_rede_movel as cresc %}
-                            <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            <span class="{{ cresc|growth_class }}">
                                 {{ cresc|floatformat:1 }}%
                             </span>
                             {% endwith %}
@@ -72,11 +72,11 @@
                         </div>
                         <h3>Volume de Negócio</h3>
                         <div class="stat-value">
-                            {{ dados_mercado.indicadores_financeiros.volume_negocio.total|intcomma }} FCFA
+                            {{ dados_mercado.indicadores_financeiros.volume_negocio.TOTAL|currency }}
                         </div>
                         <div class="stat-change">
                             {% with dados_mercado.crescimento.anual.volume_negocio as cresc %}
-                            <span class="badge {% if cresc > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                            <span class="{{ cresc|growth_class }}">
                                 {{ cresc|floatformat:1 }}%
                             </span>
                             {% endwith %}
@@ -91,11 +91,14 @@
                             <i class="fas fa-signal"></i>
                         </div>
                         <h3>Taxa de Penetração</h3>
-                        <div class="stat-value">
-                            {{ dados_mercado.penetracao.telefonia_movel|floatformat:1 }}%
-                        </div>
-                        <div class="stat-info">
-                            Total do mercado móvel
+                        <div class="metric-growth">
+                            <div class="metric">
+                                <i class="fas fa-users"></i>
+                                <div class="value">
+                                    {{ dados_mercado.penetracao.penetracao_movel|floatformat:1 }}%
+                                </div>
+                                <div class="label">Taxa de Penetração</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -112,16 +115,15 @@
                 <div class="col-md-6">
                     <h3>Market Share - Assinantes</h3>
                     <div class="market-share-cards">
-                        <div class="market-share-card mtn">
-                            <div class="operator-logo">MTN</div>
-                            <div class="share-value">{{ dados_mercado.market_share.assinantes_rede_movel.MTN|floatformat:1 }}%</div>
-                            <div class="share-total">{{ dados_mercado.mercado_movel.assinantes.mtn_total|intcomma }}</div>
+                        {% for operadora in dados_mercado.market_share.assinantes_rede_movel.keys %}
+                        {% if operadora != "TOTAL" %}
+                        <div class="market-share-card {{ operadora|lower }}">
+                            <div class="operator-logo">{{ operadora }}</div>
+                            <div class="share-value">{{ dados_mercado.market_share.assinantes_rede_movel|get_item:operadora|floatformat:1 }}%</div>
+                            <div class="share-total">{{ dados_mercado.mercado.assinantes.por_operadora|get_item:operadora|format_number }}</div>
                         </div>
-                        <div class="market-share-card orange">
-                            <div class="operator-logo">Orange</div>
-                            <div class="share-value">{{ dados_mercado.market_share.assinantes_rede_movel.ORANGE|floatformat:1 }}%</div>
-                            <div class="share-total">{{ dados_mercado.mercado_movel.assinantes.orange_total|intcomma }}</div>
-                        </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -141,27 +143,36 @@
                         <thead>
                             <tr>
                                 <th>Tecnologia</th>
-                                <th>MTN</th>
-                                <th>Orange</th>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <th>{{ operadora }}</th>
+                                {% endif %}
+                                {% endfor %}
                                 <th>Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>3G</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.3g.mtn|intcomma }}</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.3g.orange|intcomma }}</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.3g.total|intcomma }}</td>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.3g.por_operadora|get_item:operadora|format_number }}</td>
+                                {% endif %}
+                                {% endfor %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.3g.total|format_number }}</td>
                             </tr>
                             <tr>
                                 <td>4G</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.4g.mtn|intcomma }}</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.4g.orange|intcomma }}</td>
-                                <td>{{ dados_mercado.mercado_movel.banda_larga_movel.4g.total|intcomma }}</td>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.4g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.4g.por_operadora|get_item:operadora|format_number }}</td>
+                                {% endif %}
+                                {% endfor %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.4g.total|format_number }}</td>
                             </tr>
                             <tr class="table-active">
                                 <td><strong>Total</strong></td>
-                                <td colspan="3">{{ dados_mercado.mercado_movel.banda_larga_movel.total|intcomma }}</td>
+                                <td colspan="{{ dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys|length }}">{{ dados_mercado.mercado.banda_larga_movel.total|format_number }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -179,16 +190,12 @@
                     <h3>Taxa de Penetração</h3>
                     <div class="penetration-cards">
                         <div class="penetration-card">
-                            <div class="label">3G</div>
-                            <div class="value">{{ dados_mercado.penetracao.3g|floatformat:1 }}%</div>
+                            <div class="label">Penetração Móvel</div>
+                            <div class="value">{{ dados_mercado.penetracao.penetracao_movel|floatformat:1 }}%</div>
                         </div>
                         <div class="penetration-card">
-                            <div class="label">4G</div>
-                            <div class="value">{{ dados_mercado.penetracao.4g|floatformat:1 }}%</div>
-                        </div>
-                        <div class="penetration-card">
-                            <div class="label">Total</div>
-                            <div class="value">{{ dados_mercado.penetracao.banda_larga_movel|floatformat:1 }}%</div>
+                            <div class="label">População</div>
+                            <div class="value">{{ dados_mercado.penetracao.populacao|format_number }}</div>
                         </div>
                     </div>
                 </div>
@@ -202,16 +209,14 @@
             <h2>Indicadores Financeiros</h2>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="financial-card">
-                        <h3>Volume de Negócio</h3>
-                        <div class="value">{{ dados_mercado.indicadores_financeiros.volume_negocio.total|intcomma }} FCFA</div>
+                    <div class="info-card">
+                        <div class="indicator">
+                            <div class="label">Volume de Negócio</div>
+                            <div class="value">{{ dados_mercado.indicadores_financeiros.volume_negocio.TOTAL|currency }}</div>
+                        </div>
                         <div class="operator-split">
-                            <div class="mtn">
-                                MTN: {{ dados_mercado.indicadores_financeiros.por_operadora.MTN.volume_negocio|intcomma }} FCFA
-                            </div>
-                            <div class="orange">
-                                Orange: {{ dados_mercado.indicadores_financeiros.por_operadora.ORANGE.volume_negocio|intcomma }} FCFA
-                            </div>
+                            <div>MTN: {{ dados_mercado.indicadores_financeiros.volume_negocio.MTN|currency }}</div>
+                            <div>Orange: {{ dados_mercado.indicadores_financeiros.volume_negocio.ORANGE|currency }}</div>
                         </div>
                     </div>
                 </div>
@@ -229,18 +234,18 @@
                     <div class="traffic-stats">
                         <div class="stat-row">
                             <div class="stat-label">On-Net</div>
-                            <div class="stat-value">{{ dados_mercado.trafego.voz.on_net|intcomma }} min</div>
+                            <div class="stat-value">{{ dados_mercado.trafego.trafego_voz_on_net.TOTAL|intcomma }} min</div>
                             <div class="stat-split">
-                                <span class="mtn">MTN: {{ dados_mercado.trafego.voz.por_operadora.MTN.on_net|intcomma }}</span>
-                                <span class="orange">Orange: {{ dados_mercado.trafego.voz.por_operadora.ORANGE.on_net|intcomma }}</span>
+                                <span class="mtn">MTN: {{ dados_mercado.trafego.trafego_voz_on_net.MTN|intcomma }} min</span>
+                                <span class="orange">Orange: {{ dados_mercado.trafego.trafego_voz_on_net.ORANGE|intcomma }} min</span>
                             </div>
                         </div>
                         <div class="stat-row">
                             <div class="stat-label">Off-Net</div>
-                            <div class="stat-value">{{ dados_mercado.trafego.voz.off_net|intcomma }} min</div>
+                            <div class="stat-value">{{ dados_mercado.trafego.trafego_voz_off_net.TOTAL|intcomma }} min</div>
                             <div class="stat-split">
-                                <span class="mtn">MTN: {{ dados_mercado.trafego.voz.por_operadora.MTN.off_net|intcomma }}</span>
-                                <span class="orange">Orange: {{ dados_mercado.trafego.voz.por_operadora.ORANGE.off_net|intcomma }}</span>
+                                <span class="mtn">MTN: {{ dados_mercado.trafego.trafego_voz_off_net.MTN|intcomma }} min</span>
+                                <span class="orange">Orange: {{ dados_mercado.trafego.trafego_voz_off_net.ORANGE|intcomma }} min</span>
                             </div>
                         </div>
                     </div>
@@ -261,29 +266,23 @@
                             <thead>
                                 <tr>
                                     <th>Tecnologia</th>
-                                    <th>MTN</th>
-                                    <th>Orange</th>
+                                    {% for operadora in dados_mercado.trafego.trafego_dados.keys %}
+                                    {% if operadora != "TOTAL" %}
+                                    <th>{{ operadora }}</th>
+                                    {% endif %}
+                                    {% endfor %}
                                     <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>3G</td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.MTN.3g|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.ORANGE.3g|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.3g|filesizeformat }}</td>
-                                </tr>
-                                <tr>
-                                    <td>4G</td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.MTN.4g|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.ORANGE.4g|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.4g|filesizeformat }}</td>
-                                </tr>
-                                <tr class="table-active">
-                                    <td><strong>Total</strong></td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.MTN.total|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.por_operadora.ORANGE.total|filesizeformat }}</td>
-                                    <td>{{ dados_mercado.trafego.dados.total|filesizeformat }}</td>
+                                    <td>Total</td>
+                                    {% for operadora in dados_mercado.trafego.trafego_dados.keys %}
+                                    {% if operadora != "TOTAL" %}
+                                    <td>{{ dados_mercado.trafego.trafego_dados|get_item:operadora|filesizeformat }}</td>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <td>{{ dados_mercado.trafego.trafego_dados.TOTAL|filesizeformat }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -306,15 +305,15 @@
                 <div class="col-md-4">
                     <div class="employment-card">
                         <h3>Total de Empregos</h3>
-                        <div class="total-value">{{ dados_mercado.emprego.total|intcomma }}</div>
+                        <div class="total-value">{{ dados_mercado.emprego.emprego_total.TOTAL|intcomma }}</div>
                         <div class="gender-split">
-                            <div class="male">
+                            <div class="local">
                                 <i class="fas fa-male"></i>
-                                <span>{{ dados_mercado.emprego.homens|intcomma }}</span>
+                                <span>Homens: {{ dados_mercado.emprego.emprego_homens.TOTAL|intcomma }}</span>
                             </div>
-                            <div class="female">
+                            <div class="estrangeiro">
                                 <i class="fas fa-female"></i>
-                                <span>{{ dados_mercado.emprego.mulheres|intcomma }}</span>
+                                <span>Mulheres: {{ dados_mercado.emprego.emprego_mulheres.TOTAL|intcomma }}</span>
                             </div>
                         </div>
                     </div>
@@ -322,26 +321,20 @@
                 <div class="col-md-8">
                     <div class="operator-employment">
                         <div class="row">
+                            {% for operadora in dados_mercado.emprego.emprego_total.keys %}
+                            {% if operadora != "TOTAL" %}
                             <div class="col-md-6">
-                                <div class="operator-card mtn">
-                                    <h4>MTN</h4>
-                                    <div class="total">{{ dados_mercado.emprego.por_operadora.MTN.total|intcomma }}</div>
+                                <div class="operator-card {{ operadora|lower }}">
+                                    <h4>{{ operadora }}</h4>
+                                    <div class="total">{{ dados_mercado.emprego.emprego_total|get_item:operadora|intcomma }}</div>
                                     <div class="gender-split">
-                                        <div>Homens: {{ dados_mercado.emprego.por_operadora.MTN.homens|intcomma }}</div>
-                                        <div>Mulheres: {{ dados_mercado.emprego.por_operadora.MTN.mulheres|intcomma }}</div>
+                                        <div>Homens: {{ dados_mercado.emprego.emprego_homens|get_item:operadora|intcomma }}</div>
+                                        <div>Mulheres: {{ dados_mercado.emprego.emprego_mulheres|get_item:operadora|intcomma }}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="operator-card orange">
-                                    <h4>Orange</h4>
-                                    <div class="total">{{ dados_mercado.emprego.por_operadora.ORANGE.total|intcomma }}</div>
-                                    <div class="gender-split">
-                                        <div>Homens: {{ dados_mercado.emprego.por_operadora.ORANGE.homens|intcomma }}</div>
-                                        <div>Mulheres: {{ dados_mercado.emprego.por_operadora.ORANGE.mulheres|intcomma }}</div>
-                                    </div>
-                                </div>
-                            </div>
+                            {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView
-from ..models import DadosAnuais
+from django.shortcuts import get_object_or_404
+from ..models import DadosAnuais, Operadora
 import json
 from decimal import Decimal
 
@@ -8,8 +9,12 @@ class OperatorEvolutionView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        operadora = self.kwargs.get('operadora')
+        operadora_nome = self.kwargs.get('operadora')
         
+        # Obter a instância de Operadora pelo nome
+        operadora = get_object_or_404(Operadora, nome=operadora_nome)
+        
+        # Usar a instância de Operadora para filtrar os dados
         dados = DadosAnuais.objects.filter(operadora=operadora).order_by('ano')
         anos = list(dados.values_list('ano', flat=True))
 
@@ -53,17 +58,17 @@ class OperatorEvolutionView(TemplateView):
             growth_data[indicador] = growth
 
         # Gerar resumo incluindo banda larga fixa
-        resumo = self.gerar_resumo(evolution_data, growth_data, anos)
+        resumo = self.gerar_resumo(evolution_data, growth_data, anos, operadora.nome)
 
-        context['operadora'] = operadora
+        context['operadora'] = operadora.nome
         context['anos'] = json.dumps(anos)
         context['evolution_data'] = json.dumps(evolution_data)
         context['growth_data'] = json.dumps(growth_data)
         context['resumo'] = resumo
         return context
 
-    def gerar_resumo(self, evolution_data, growth_data, anos):
-        resumo = f"Resumo da evolução da {self.kwargs.get('operadora')} de {anos[0]} a {anos[-1]}:\n\n"
+    def gerar_resumo(self, evolution_data, growth_data, anos, operadora_nome):
+        resumo = f"Resumo da evolução da {operadora_nome} de {anos[0]} a {anos[-1]}:\n\n"
 
         indicadores_principais = [
             'assinantes_rede_movel',

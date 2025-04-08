@@ -1,48 +1,68 @@
-<li class="list-inline-item">
-    <a class="text-black nav-link d-block d-lg-none" href="#" id="mobile-search" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <div class="text-center">
-            <div><i class="fas fa-search fa-lg"></i></div>
-            <p class="my-0">Search</p>
-        </div>
-    </a>
-    <div class="dropdown-menu border-0 w-100 p-3 rounded-0 my-0" aria-labelledby="mobile-search">
-        <form class="form" method="GET" action="">
-            <div class="input-group w-100">
-                <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
-                <div class="input-group-append">
-                    <button class="form-control form-control btn btn-black border border-black rounded-0" type="submit">
-                        <span class="icon">
-                            <i class="fas fa-search"></i>
-                        </span>
+<!-- Ações móveis - visíveis apenas em dispositivos pequenos -->
+<div class="mobile-actions">
+    <!-- Pesquisa -->
+    <div class="mobile-action-item">
+        <a class="mobile-action-link" href="#" id="mobile-search" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-search"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="mobile-search">
+            <form method="GET" action="{% url 'home' %}">
+                <div class="input-group">
+                    <input class="form-control" type="text" name="q" placeholder="Pesquisar...">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
-            </div>
-        </form>
-    </div>
-</li>
-<li class="list-inline-item dropdown">
-    <a class="text-black nav-link d-block d-lg-none" href="#" id="user-options" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <div class="text-center">
-            <div><i class="fas fa-user fa-lg"></i></div>
-            <p class="my-0">Meu Perfil</p>
+            </form>
         </div>
-    </a>
-    <div class="dropdown-menu border-0" aria-labelledby="user-options">
-        {% if request.user.is_authenticated %}
-            {% if request.user.is_superuser %}
-                <a href="{% url 'indicator_list' %}" class="dropdown-item">Gestão de Indicadores</a>
-            {% endif %}
-            <a href="{% url 'user_profile' %}" class="dropdown-item">Meu Perfil</a>
-            <a href="{% url 'notification_list' %}" class="dropdown-item">
-                Notificações 
-                {% if request.unread_notifications_count %}
-                    <span class="badge bg-danger">{{ request.unread_notifications_count }}</span>
-                {% endif %}
-            </a>
-            <a href="{% url 'account_logout' %}" class="dropdown-item">Sair</a>
-        {% else %}
-            <a href="{% url 'account_signup' %}" class="dropdown-item">Registrar</a>
-            <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
-        {% endif %}
     </div>
-</li>
+
+    <!-- Notificações -->
+    <div class="mobile-action-item">
+        <a class="mobile-action-link" href="#" id="mobile-notifications">
+            <i class="fas fa-bell"></i>
+            {% if unread_notifications %}
+            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge rounded-pill">
+                {{ unread_notifications }}
+            </span>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- Usuário -->
+    <div class="mobile-action-item">
+        <a class="mobile-action-link" href="#" id="mobile-user" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="mobile-user">
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_superuser %}
+                    <a class="dropdown-item" href="{% url 'admin:index' %}">
+                        <i class="fas fa-cog"></i> Gestão de Indicadores
+                    </a>
+                    <div class="dropdown-divider"></div>
+                {% endif %}
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-user-circle"></i> Meu Perfil
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-bell"></i> Notificações 
+                    {% if unread_notifications %}
+                        <span class="badge bg-danger">{{ unread_notifications }}</span>
+                    {% endif %}
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'account_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            {% else %}
+                <a class="dropdown-item" href="{% url 'account_signup' %}">
+                    <i class="fas fa-user-plus"></i> Registrar
+                </a>
+                <a class="dropdown-item" href="{% url 'account_login' %}">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>

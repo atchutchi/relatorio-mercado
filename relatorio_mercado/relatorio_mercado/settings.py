@@ -33,7 +33,7 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = [
-    '8000-atchutchi-relatoriomerc-fg9qnyacbq7.ws-eu117.gitpod.io',
+    '8000-atchutchi-relatoriomerc-dkhcg1k89gd.ws-eu118.gitpod.io',
     'observatorio-mercado-gw-ccc5b800c903.herokuapp.com',
     'localhost',
     '.herokuapp.com',

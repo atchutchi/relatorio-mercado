@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block title %}Observatório do Mercado de Telecomunicações {{ ano_atual }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/annual_report.css' %}">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Cabeçalho -->
+    <div class="report-header text-center mb-5">
+        <img src="{% static 'images/logo_arn.png' %}" alt="Logo ARN" class="mb-3">
+        <h1>Observatório do Mercado de Telecomunicações</h1>
+        <h2>Relatório Anual {{ ano_atual }}</h2>
+        
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex">
+                <select class="form-select w-auto" id="anoSelect">
+                    {% for ano in anos_disponiveis %}
+                        <option value="{{ ano }}" {% if ano == ano_atual %}selected{% endif %}>{{ ano }}</option>
+                    {% endfor %}
+                </select>
+
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </button>
+                <button type="button" class="btn btn-primary" onclick="downloadWord()">
+                    <i class="fas fa-file-word"></i> Download Word
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visão Geral do Mercado -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Visão Geral do Mercado</h2>
+            <div class="row">
+                <!-- Card Total de Assinantes -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Total de Assinantes</h3>
+                        <div class="stat-value">
+                            {{ dados_mercado.mercado.assinantes.total|format_number }}
+                        </div>
+                        <div class="stat-change">
+                            {% with dados_mercado.crescimento.anual.assinantes_rede_movel as cresc %}
+                            <span class="{{ cresc|growth_class }}">
+                                {{ cresc|floatformat:1 }}%
+                            </span>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Receita Total -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Volume de Negócio</h3>
+                        <div class="stat-value">
+                            {{ dados_mercado.indicadores_financeiros.volume_negocio.total|currency }}
+                        </div>
+                        <div class="stat-change">
+                            {% with dados_mercado.crescimento.anual.volume_negocio as cresc %}
+                            <span class="{{ cresc|growth_class }}">
+                                {{ cresc|floatformat:1 }}%
+                            </span>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Taxa de Penetração -->
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-signal"></i>
+                        </div>
+                        <h3>Taxa de Penetração</h3>
+                        <div class="stat-value">
+                            {{ dados_mercado.penetracao.telefonia_movel|floatformat:1 }}%
+                        </div>
+                        <div class="stat-info">
+                            Total do mercado móvel
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Share e Indicadores -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Distribuição do Mercado</h2>
+            <div class="row">
+                <!-- Market Share Assinantes -->
+                <div class="col-md-6">
+                    <h3>Market Share - Assinantes</h3>
+                    <div class="market-share-cards">
+                        {% for operadora in dados_mercado.market_share.assinantes_rede_movel.keys %}
+                        {% if operadora != "TOTAL" %}
+                        <div class="market-share-card {{ operadora|lower }}">
+                            <div class="operator-logo">{{ operadora }}</div>
+                            <div class="share-value">{{ dados_mercado.market_share.assinantes_rede_movel|get_item:operadora|floatformat:1 }}%</div>
+                            <div class="share-total">{{ dados_mercado.mercado.assinantes.por_operadora|get_item:operadora|format_number }}</div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="marketShareChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dados Móveis -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h3>Banda Larga Móvel</h3>
+                </div>
+                <div class="col-md-6">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tecnologia</th>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <th>{{ operadora }}</th>
+                                {% endif %}
+                                {% endfor %}
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>3G</td>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.3g.por_operadora|get_item:operadora|format_number }}</td>
+                                {% endif %}
+                                {% endfor %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.3g.total|format_number }}</td>
+                            </tr>
+                            <tr>
+                                <td>4G</td>
+                                {% for operadora in dados_mercado.mercado.banda_larga_movel.4g.por_operadora.keys %}
+                                {% if operadora != "TOTAL" %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.4g.por_operadora|get_item:operadora|format_number }}</td>
+                                {% endif %}
+                                {% endfor %}
+                                <td>{{ dados_mercado.mercado.banda_larga_movel.4g.total|format_number }}</td>
+                            </tr>
+                            <tr class="table-active">
+                                <td><strong>Total</strong></td>
+                                <td colspan="{{ dados_mercado.mercado.banda_larga_movel.3g.por_operadora.keys|length }}">{{ dados_mercado.mercado.banda_larga_movel.total|format_number }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="bandaLargaMovelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Taxa de Penetração -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h3>Taxa de Penetração</h3>
+                    <div class="penetration-cards">
+                        <div class="penetration-card">
+                            <div class="label">Penetração Móvel</div>
+                            <div class="value">{{ dados_mercado.penetracao.penetracao_movel|floatformat:1 }}%</div>
+                        </div>
+                        <div class="penetration-card">
+                            <div class="label">População</div>
+                            <div class="value">{{ dados_mercado.penetracao.populacao|format_number }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicadores Financeiros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Indicadores Financeiros</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="financial-card">
+                        <h3>Volume de Negócio</h3>
+                        <div class="value">{{ dados_mercado.indicadores_financeiros.volume_negocio.total|currency }}</div>
+                        <div class="operator-split">
+                            <div class="mtn">
+                                MTN: {{ dados_mercado.indicadores_financeiros.por_operadora.MTN.volume_negocio|currency }}
+                            </div>
+                            <div class="orange">
+                                Orange: {{ dados_mercado.indicadores_financeiros.por_operadora.ORANGE.volume_negocio|currency }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="indicadoresFinanceirosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tráfego de Voz -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h3>Tráfego de Voz</h3>
+                    <div class="traffic-stats">
+                        <div class="stat-row">
+                            <div class="stat-label">On-Net</div>
+                            <div class="stat-value">{{ dados_mercado.trafego.trafego_voz_on_net|intcomma }} min</div>
+                            <div class="stat-split">
+                                <span class="mtn">MTN: {{ dados_mercado.trafego.trafego_voz_on_net.MTN.on_net|intcomma }}</span>
+                                <span class="orange">Orange: {{ dados_mercado.trafego.trafego_voz_on_net.ORANGE.on_net|intcomma }}</span>
+                            </div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label">Off-Net</div>
+                            <div class="stat-value">{{ dados_mercado.trafego.trafego_voz_off_net|intcomma }} min</div>
+                            <div class="stat-split">
+                                <span class="mtn">MTN: {{ dados_mercado.trafego.trafego_voz_on_net.MTN.off_net|intcomma }}</span>
+                                <span class="orange">Orange: {{ dados_mercado.trafego.trafego_voz_on_net.ORANGE.off_net|intcomma }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="trafegoVozChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tráfego de Dados -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h3>Tráfego de Dados</h3>
+                    <div class="data-traffic">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tecnologia</th>
+                                    {% for operadora in dados_mercado.trafego.trafego_dados.keys %}
+                                    {% if operadora != "TOTAL" %}
+                                    <th>{{ operadora }}</th>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Total</td>
+                                    {% for operadora in dados_mercado.trafego.trafego_dados.keys %}
+                                    {% if operadora != "TOTAL" %}
+                                    <td>{{ dados_mercado.trafego.trafego_dados|get_item:operadora|filesizeformat }}</td>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <td>{{ dados_mercado.trafego.trafego_dados.TOTAL|filesizeformat }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="trafegoDadosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emprego -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Emprego no Setor</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="employment-card">
+                        <h3>Total de Empregos</h3>
+                        <div class="total-value">{{ dados_mercado.emprego.emprego_total.TOTAL|intcomma }}</div>
+                        <div class="gender-split">
+                            <div class="local">
+                                <i class="fas fa-user"></i>
+                                <span>Nacionais: {{ dados_mercado.emprego.emprego_homens.TOTAL|intcomma }}</span>
+                            </div>
+                            <div class="estrangeiro">
+                                <i class="fas fa-user-tie"></i>
+                                <span>Estrangeiros: {{ dados_mercado.emprego.emprego_mulheres.TOTAL|intcomma }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="operator-employment">
+                        <div class="row">
+                            {% for operadora in dados_mercado.emprego.emprego_total.keys %}
+                            {% if operadora != "TOTAL" %}
+                            <div class="col-md-6">
+                                <div class="operator-card {{ operadora|lower }}">
+                                    <h4>{{ operadora }}</h4>
+                                    <div class="total">{{ dados_mercado.emprego.emprego_total|get_item:operadora|intcomma }}</div>
+                                    <div class="gender-split">
+                                        <div>Nacionais: {{ dados_mercado.emprego.emprego_homens|get_item:operadora|intcomma }}</div>
+                                        <div>Estrangeiros: {{ dados_mercado.emprego.emprego_mulheres|get_item:operadora|intcomma }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="empregoChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo Executivo -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2>Resumo Executivo</h2>
+            
+            {% if dados_mercado.resumo_executivo %}
+                <div class="resumo-section success mb-4">
+                    <h3>{{ dados_mercado.resumo_executivo.visao_geral.titulo }}</h3>
+                    <p>{{ dados_mercado.resumo_executivo.visao_geral.conteudo|safe }}</p>
+                </div>
+                
+                <div class="resumo-section mb-4">
+                    <h3>{{ dados_mercado.resumo_executivo.tecnologia.titulo }}</h3>
+                    <p>{{ dados_mercado.resumo_executivo.tecnologia.conteudo|safe }}</p>
+                </div>
+                
+                <div class="resumo-section">
+                    <h3>{{ dados_mercado.resumo_executivo.recomendacoes.titulo }}</h3>
+                    <ul class="recommendations-list">
+                        {% for rec in dados_mercado.resumo_executivo.recomendacoes.pontos %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <div class="resumo-section error">
+                    <h3>Erro</h3>
+                    <p>Não foi possível gerar o resumo executivo.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Rodapé do Relatório -->
+    <div class="report-footer mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="metadata">
+                    <p>Relatório gerado em: {% now "d/m/Y H:i" %}</p>
+                    <p>Período de referência: {{ ano_atual }}</p>
+                    <p>Fonte dos dados: ARN - Autoridade Reguladora Nacional</p>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="contact-info">
+                    <p><i class="fas fa-envelope"></i> info@arn.gw</p>
+                    <p><i class="fas fa-phone"></i> +245 956 763 154 | 969 004 023</p>
+                    <p><i class="fas fa-globe"></i> www.arn.gw</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<!-- Primeiro carregue as dependências -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Depois carregue seus dados -->
+<script>
+    console.log('Carregando dados...');
+    window.appData = {{ appData|safe }};
+    console.log('Dados carregados:', window.appData);
+</script>
+
+<!-- Por último, carregue seu script -->
+<script src="{% static 'js/annual_report.js' %}"></script>
+{% endblock %}
+{% endblock %}

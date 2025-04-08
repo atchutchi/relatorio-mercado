@@ -15,25 +15,21 @@ class MarketOverviewView(TemplateView):
         
         overview_data = []
         for ano in anos:
-            total = DadosAnuais.get_total_mercado(ano)
-            if total:
-                if isinstance(total, DadosAnuais):
-                    data = {
-                        'ano': ano,
-                        'assinantes_total': total.assinantes_rede_movel or 0,
-                        'receita_total': float(total.receita_total or 0),
-                        'trafego_dados_total': total.trafego_dados or 0,
-                        'investimentos_total': float(total.investimentos or 0)
-                    }
-                else:
-                    data = {
-                        'ano': ano,
-                        'assinantes_total': total['assinantes_rede_movel'] or 0,
-                        'receita_total': float(total['receita_total'] or 0),
-                        'trafego_dados_total': total['trafego_dados'] or 0,
-                        'investimentos_total': float(total['investimentos'] or 0)
-                    }
-                overview_data.append(data)
+            # Usar os novos métodos para cálculo de totais dinâmicos
+            assinantes_total = DadosAnuais.get_total_mercado(ano, 'assinantes_rede_movel')
+            receita_total = DadosAnuais.get_total_mercado(ano, 'receita_total')
+            trafego_dados_total = DadosAnuais.get_total_mercado(ano, 'trafego_dados')
+            investimentos_total = DadosAnuais.get_total_mercado(ano, 'investimentos')
+            
+            # Converter para formato adequado para JSON
+            data = {
+                'ano': ano,
+                'assinantes_total': assinantes_total,  # Já é int
+                'receita_total': float(receita_total) if isinstance(receita_total, Decimal) else receita_total,
+                'trafego_dados_total': trafego_dados_total,  # Já é int
+                'investimentos_total': float(investimentos_total) if isinstance(investimentos_total, Decimal) else investimentos_total
+            }
+            overview_data.append(data)
 
         context['overview_data'] = json.dumps(overview_data)
         context['anos'] = json.dumps(anos)

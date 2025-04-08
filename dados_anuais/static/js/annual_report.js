@@ -16,6 +16,18 @@ const chartColors = {
     }
 };
 
+// Cores alternativas para operadoras adicionais
+const fallbackColors = [
+    { main: '#4285F4', secondary: '#0F9D58', background: 'rgba(66, 133, 244, 0.2)' }, // Azul Google
+    { main: '#DB4437', secondary: '#4285F4', background: 'rgba(219, 68, 55, 0.2)' },  // Vermelho Google
+    { main: '#0F9D58', secondary: '#DB4437', background: 'rgba(15, 157, 88, 0.2)' },  // Verde Google
+    { main: '#F4B400', secondary: '#0F9D58', background: 'rgba(244, 180, 0, 0.2)' },  // Amarelo Google
+    { main: '#673AB7', secondary: '#3F51B5', background: 'rgba(103, 58, 183, 0.2)' }, // Roxo
+    { main: '#3F51B5', secondary: '#673AB7', background: 'rgba(63, 81, 181, 0.2)' },  // Indigo
+    { main: '#009688', secondary: '#4CAF50', background: 'rgba(0, 150, 136, 0.2)' },  // Teal
+    { main: '#4CAF50', secondary: '#009688', background: 'rgba(76, 175, 80, 0.2)' }   // Verde
+];
+
 // Configurações do Chart.js
 Chart.defaults.font.family = 'Poppins';
 Chart.defaults.color = '#444';
@@ -24,17 +36,82 @@ Chart.defaults.responsive = true;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dados recebidos:', window.appData);
     if(window.appData) {
+        // Configurar cores dinâmicas para operadoras
+        setupOperadoraColors();
         renderAllCharts();
         setupEventListeners();
     }
 
     // Event listener for Confirm button
     const confirmAnoButton = document.getElementById('confirmAnoButton');
-    confirmAnoButton.addEventListener('click', function() {
-        const anoSelect = document.getElementById('anoSelect');
-        mudarAno(anoSelect.value);
-    });
+    if (confirmAnoButton) {
+        confirmAnoButton.addEventListener('click', function() {
+            const anoSelect = document.getElementById('anoSelect');
+            mudarAno(anoSelect.value);
+        });
+    }
 });
+
+// Configura cores dinâmicas para todas as operadoras encontradas nos dados
+function setupOperadoraColors() {
+    try {
+        if (!window.appData) {
+            console.warn('Dados não disponíveis para configurar cores de operadoras');
+            return;
+        }
+        
+        // Tenta obter operadoras de várias fontes possíveis
+        let operadoras = new Set();
+        
+        // Market share (assinantes)
+        if (window.appData.market_share?.assinantes_rede_movel) {
+            Object.keys(window.appData.market_share.assinantes_rede_movel)
+                .filter(op => op !== 'TOTAL')
+                .forEach(op => operadoras.add(op));
+        }
+        
+        // Indicadores financeiros
+        if (window.appData.indicadores_financeiros?.receita_total) {
+            Object.keys(window.appData.indicadores_financeiros.receita_total)
+                .filter(op => op !== 'TOTAL')
+                .forEach(op => operadoras.add(op));
+        }
+        
+        // Tráfego
+        if (window.appData.trafego?.trafego_dados) {
+            Object.keys(window.appData.trafego.trafego_dados)
+                .filter(op => op !== 'TOTAL')
+                .forEach(op => operadoras.add(op));
+        }
+        
+        // Emprego
+        if (window.appData.emprego?.total) {
+            Object.keys(window.appData.emprego.total)
+                .filter(op => op !== 'TOTAL')
+                .forEach(op => operadoras.add(op));
+        }
+        
+        // Se não encontrou operadoras, tenta definir as padrões (MTN e ORANGE)
+        if (operadoras.size === 0) {
+            console.warn('Nenhuma operadora encontrada nos dados, usando operadoras padrão');
+            operadoras.add('MTN');
+            operadoras.add('ORANGE');
+        }
+        
+        // Adiciona cores para operadoras que não possuem configuração
+        let colorIndex = 0;
+        operadoras.forEach(operadora => {
+            if (!chartColors[operadora]) {
+                chartColors[operadora] = fallbackColors[colorIndex % fallbackColors.length];
+                colorIndex++;
+            }
+        });
+        
+        console.log('Cores configuradas para operadoras:', operadoras);
+    } catch (error) {
+        console.error('Erro ao configurar cores para operadoras:', error);
+    }
+}
 
 // Function to change the year and reload the page with selected year
 function mudarAno(ano) {
@@ -116,25 +193,58 @@ function renderAllCharts() {
         return;
     }
 
-    // Limpar gráficos existentes
-    Chart.helpers.each(Chart.instances, (instance) => {
-        instance.destroy();
-    });
+    try {
+        // Limpar gráficos existentes
+        Chart.helpers.each(Chart.instances, (instance) => {
+            instance.destroy();
+        });
 
-    // Renderizar todos os gráficos
-    renderMarketShareChart();
-    renderBandaLargaMovelChart();
-    renderIndicadoresFinanceirosChart();
-    renderTrafegoVozChart();
-    renderTrafegoDadosChart();
-    renderEmpregoChart();
+        // Renderizar todos os gráficos - com tratamento de erros para cada um
+        try {
+            renderMarketShareChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de market share:', error);
+        }
+
+        try {
+            renderBandaLargaMovelChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de banda larga móvel:', error);
+        }
+
+        try {
+            renderIndicadoresFinanceirosChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de indicadores financeiros:', error);
+        }
+
+        try {
+            renderTrafegoVozChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de tráfego de voz:', error);
+        }
+
+        try {
+            renderTrafegoDadosChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de tráfego de dados:', error);
+        }
+
+        try {
+            renderEmpregoChart();
+        } catch (error) {
+            console.error('Erro ao renderizar gráfico de emprego:', error);
+        }
+    } catch (error) {
+        console.error('Erro ao renderizar gráficos:', error);
+    }
 }
 
 // Market Share Chart
 function renderMarketShareChart() {
     const marketShare = window.appData.market_share;
-    if (!marketShare) {
-        console.warn('Dados de market share não disponíveis');
+    if (!marketShare || !marketShare.assinantes_rede_movel) {
+        console.warn('Dados de market share não disponíveis ou incompletos');
         return;
     }
 
@@ -144,34 +254,37 @@ function renderMarketShareChart() {
         return;
     }
 
+    // Obter todas as operadoras (excluindo TOTAL)
+    const operadoras = Object.keys(marketShare.assinantes_rede_movel || {})
+                       .filter(op => op !== 'TOTAL');
+                       
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada nos dados de market share');
+        return;
+    }
+
+    // Indicadores a serem mostrados
+    const indicadores = ['assinantes_rede_movel', 'receita_total', 'trafego_dados'];
+    const labels = ['Assinantes', 'Receita', 'Tráfego'];
+
+    // Criar datasets dinâmicos para cada operadora
+    const datasets = operadoras.map(operadora => {
+        return {
+            label: operadora,
+            data: indicadores.map(indicador => {
+                return marketShare[indicador]?.[operadora] || 0;
+            }),
+            backgroundColor: chartColors[operadora]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadora]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        };
+    });
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Assinantes', 'Receita', 'Tráfego'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [
-                        marketShare.assinantes_rede_movel?.MTN || 0,
-                        marketShare.receita_total?.MTN || 0,
-                        marketShare.trafego_dados?.MTN || 0
-                    ],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Orange',
-                    data: [
-                        marketShare.assinantes_rede_movel?.ORANGE || 0,
-                        marketShare.receita_total?.ORANGE || 0,
-                        marketShare.trafego_dados?.ORANGE || 0
-                    ],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
+            labels: labels,
+            datasets: datasets
         },
         options: {
             ...getDefaultChartOptions('Market Share por Indicador'),
@@ -198,9 +311,9 @@ function renderMarketShareChart() {
 
 // Banda Larga Móvel Chart
 function renderBandaLargaMovelChart() {
-    const bandaLarga = window.appData.mercado_movel?.banda_larga_movel;
-    if (!bandaLarga) {
-        console.warn('Dados de banda larga móvel não disponíveis');
+    const bandaLarga = window.appData.mercado?.banda_larga_movel;
+    if (!bandaLarga || !bandaLarga['3g'] || !bandaLarga['4g']) {
+        console.warn('Dados de banda larga móvel não disponíveis ou incompletos');
         return;
     }
 
@@ -210,26 +323,39 @@ function renderBandaLargaMovelChart() {
         return;
     }
 
+    // Obter todas as operadoras da estrutura de dados
+    const operadoras3g = Object.keys(bandaLarga['3g'].por_operadora || {})
+                        .filter(op => op !== 'TOTAL');
+    const operadoras4g = Object.keys(bandaLarga['4g'].por_operadora || {})
+                        .filter(op => op !== 'TOTAL');
+                        
+    // Unir os conjuntos de operadoras
+    const operadoras = [...new Set([...operadoras3g, ...operadoras4g])];
+    
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada nos dados de banda larga móvel');
+        return;
+    }
+
+    // Criar datasets dinâmicos para cada operadora
+    const datasets = operadoras.map(operadora => {
+        return {
+            label: operadora,
+            data: [
+                bandaLarga['3g'].por_operadora?.[operadora] || 0,
+                bandaLarga['4g'].por_operadora?.[operadora] || 0
+            ],
+            backgroundColor: chartColors[operadora]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadora]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        };
+    });
+
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['3G', '4G'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [bandaLarga['3g'].mtn, bandaLarga['4g'].mtn],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Orange',
-                    data: [bandaLarga['3g'].orange, bandaLarga['4g'].orange],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
+            datasets: datasets
         },
         options: {
             ...getDefaultChartOptions('Banda Larga Móvel por Tecnologia'),
@@ -258,9 +384,9 @@ function renderBandaLargaMovelChart() {
 
 // Indicadores Financeiros Chart
 function renderIndicadoresFinanceirosChart() {
-    const indicadores = window.appData.indicadores_financeiros?.por_operadora;
-    if (!indicadores?.MTN || !indicadores?.ORANGE) {
-        console.warn('Dados de indicadores financeiros incompletos');
+    const indicadores = window.appData.indicadores_financeiros;
+    if (!indicadores) {
+        console.warn('Dados de indicadores financeiros não disponíveis');
         return;
     }
 
@@ -270,32 +396,43 @@ function renderIndicadoresFinanceirosChart() {
         return;
     }
 
+    // Verificar se temos os campos necessários
+    if (!indicadores.volume_negocio && !indicadores.receita_total) {
+        console.warn('Campos necessários de indicadores financeiros não disponíveis:', Object.keys(indicadores));
+        return;
+    }
+
+    // Obter operadoras (excluindo TOTAL)
+    const operadoras = Object.keys(indicadores.volume_negocio || indicadores.receita_total || {})
+                        .filter(op => op !== 'TOTAL');
+    
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada nos dados de indicadores financeiros');
+        return;
+    }
+    
+    // Indicadores financeiros a mostrar
+    const indicadoresFinanceiros = ['volume_negocio', 'receita_total', 'investimentos'];
+    const labels = ['Volume de Negócio', 'Receita Total', 'Investimentos'];
+    
+    // Criar datasets para cada operadora
+    const datasets = operadoras.map(operadora => {
+        return {
+            label: operadora,
+            data: indicadoresFinanceiros.map(indicador => 
+                indicadores[indicador]?.[operadora] || 0
+            ),
+            backgroundColor: chartColors[operadora]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadora]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        };
+    });
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Volume de Negócio', 'Receita Total'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [
-                        indicadores.MTN.volume_negocio,
-                        indicadores.MTN.receita_total
-                    ],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Orange',
-                    data: [
-                        indicadores.ORANGE.volume_negocio,
-                        indicadores.ORANGE.receita_total
-                    ],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
+            labels: labels,
+            datasets: datasets
         },
         options: {
             ...getDefaultChartOptions('Indicadores Financeiros por Operadora'),
@@ -322,9 +459,9 @@ function renderIndicadoresFinanceirosChart() {
 
 // Tráfego de Voz Chart
 function renderTrafegoVozChart() {
-    const trafegoVoz = window.appData.trafego?.voz;
-    if (!trafegoVoz || !trafegoVoz.por_operadora) {
-        console.warn('Dados de tráfego de voz não disponíveis');
+    const trafego = window.appData.trafego;
+    if (!trafego) {
+        console.warn('Dados de tráfego não disponíveis');
         return;
     }
 
@@ -334,37 +471,41 @@ function renderTrafegoVozChart() {
         return;
     }
 
-    const mtnData = trafegoVoz.por_operadora.MTN || {};
-    const orangeData = trafegoVoz.por_operadora.ORANGE || {};
+    // Verificar se temos dados para os campos específicos
+    if (!trafego.trafego_voz_on_net || !trafego.trafego_voz_off_net || !trafego.trafego_voz_internacional) {
+        console.warn('Dados específicos de tráfego de voz não disponíveis');
+        return;
+    }
+
+    // Obter operadoras (excluindo TOTAL)
+    const operadoras = Object.keys(trafego.trafego_voz_on_net || {})
+                        .filter(op => op !== 'TOTAL');
+    
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada para tráfego de voz');
+        return;
+    }
+
+    // Criar datasets para cada operadora
+    const datasets = operadoras.map(operadora => {
+        return {
+            label: operadora,
+            data: [
+                trafego.trafego_voz_on_net[operadora] || 0,
+                trafego.trafego_voz_off_net[operadora] || 0,
+                trafego.trafego_voz_internacional[operadora] || 0
+            ],
+            backgroundColor: chartColors[operadora]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadora]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        };
+    });
 
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['On-net', 'Off-net', 'Internacional'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [
-                        mtnData.on_net || 0,
-                        mtnData.off_net || 0,
-                        mtnData.internacional || 0
-                    ],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Orange',
-                    data: [
-                        orangeData.on_net || 0,
-                        orangeData.off_net || 0,
-                        orangeData.internacional || 0
-                    ],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
+            datasets: datasets
         },
         options: {
             ...getDefaultChartOptions('Distribuição do Tráfego de Voz'),
@@ -391,9 +532,9 @@ function renderTrafegoVozChart() {
 
 // Tráfego de Dados Chart
 function renderTrafegoDadosChart() {
-    const trafegoDados = window.appData.trafego?.dados;
-    if (!trafegoDados || !trafegoDados.por_operadora) {
-        console.warn('Dados de tráfego de dados não disponíveis');
+    const trafego = window.appData.trafego;
+    if (!trafego || !trafego.trafego_dados) {
+        console.warn('Dados de tráfego não disponíveis ou incompletos');
         return;
     }
 
@@ -403,36 +544,36 @@ function renderTrafegoDadosChart() {
         return;
     }
 
-    const mtnData = trafegoDados.por_operadora.MTN || {};
-    const orangeData = trafegoDados.por_operadora.ORANGE || {};
+    // Obter todas as operadoras (excluindo TOTAL)
+    const operadoras = Object.keys(trafego.trafego_dados || {})
+                        .filter(op => op !== 'TOTAL');
+    
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada para tráfego de dados');
+        return;
+    }
+    
+    // Criar datasets dinâmicos para cada operadora
+    const datasets = operadoras.map((operadora, index) => {
+        return {
+            label: operadora,
+            data: [trafego.trafego_dados[operadora] || 0],
+            backgroundColor: chartColors[operadora]?.background || chartColors.outros.background,
+            borderColor: chartColors[operadora]?.main || chartColors.outros.main,
+            borderWidth: 3,
+            tension: 0.4,
+            fill: true
+        };
+    });
 
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
-            labels: ['3G', '4G'],
-            datasets: [
-                {
-                    label: 'MTN',
-                    data: [mtnData['3g'] || 0, mtnData['4g'] || 0],
-                    backgroundColor: chartColors.MTN.background,
-                    borderColor: chartColors.MTN.main,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Orange',
-                    data: [orangeData['3g'] || 0, orangeData['4g'] || 0],
-                    backgroundColor: chartColors.ORANGE.background,
-                    borderColor: chartColors.ORANGE.main,
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true
-                }
-            ]
+            labels: ['Tráfego de Dados'],
+            datasets: datasets
         },
         options: {
-            ...getDefaultChartOptions('Tráfego de Dados por Tecnologia'),
+            ...getDefaultChartOptions('Tráfego de Dados por Operadora'),
             scales: {
                 y: {
                     beginAtZero: true,
@@ -456,9 +597,9 @@ function renderTrafegoDadosChart() {
 
 // Emprego Chart
 function renderEmpregoChart() {
-    const emprego = window.appData.emprego?.por_operadora;
-    if (!emprego?.MTN || !emprego?.ORANGE) {
-        console.warn('Dados de emprego incompletos');
+    const emprego = window.appData.emprego;
+    if (!emprego) {
+        console.warn('Dados de emprego não disponíveis');
         return;
     }
 
@@ -468,35 +609,50 @@ function renderEmpregoChart() {
         return;
     }
 
+    // Verificar se temos os campos necessários
+    if (!emprego.emprego_total || !emprego.emprego_homens || !emprego.emprego_mulheres) {
+        console.warn('Campos necessários de emprego não disponíveis:', Object.keys(emprego));
+        return;
+    }
+
+    // Obter todas as operadoras (excluindo TOTAL)
+    const operadoras = Object.keys(emprego.emprego_total || {})
+                      .filter(op => op !== 'TOTAL');
+    
+    if (operadoras.length === 0) {
+        console.warn('Nenhuma operadora encontrada nos dados de emprego');
+        return;
+    }
+    
+    // Preparar dados para o gráfico
+    const labels = operadoras;
+    
+    // Criar datasets para funcionários homens e mulheres
+    const datasets = [
+        {
+            label: 'Homens',
+            data: operadoras.map(op => emprego.emprego_homens[op] || 0),
+            backgroundColor: chartColors[operadoras[0]]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadoras[0]]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        },
+        {
+            label: 'Mulheres',
+            data: operadoras.map(op => emprego.emprego_mulheres[op] || 0),
+            backgroundColor: chartColors[operadoras[1] || operadoras[0]]?.main || chartColors.outros.main,
+            borderColor: chartColors[operadoras[1] || operadoras[0]]?.secondary || chartColors.outros.main,
+            borderWidth: 2
+        }
+    ];
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['MTN', 'Orange'],
-            datasets: [
-                {
-                    label: 'Homens',
-                    data: [
-                        emprego.MTN.homens,
-                        emprego.ORANGE.homens
-                    ],
-                    backgroundColor: chartColors.MTN.main,
-                    borderColor: chartColors.MTN.secondary,
-                    borderWidth: 2
-                },
-                {
-                    label: 'Mulheres',
-                    data: [
-                        emprego.MTN.mulheres,
-                        emprego.ORANGE.mulheres
-                    ],
-                    backgroundColor: chartColors.ORANGE.main,
-                    borderColor: chartColors.ORANGE.secondary,
-                    borderWidth: 2
-                }
-            ]
+            labels: labels,
+            datasets: datasets
         },
         options: {
-            ...getDefaultChartOptions('Emprego por Operadora e Gênero'),
+            ...getDefaultChartOptions('Emprego por Operadora'),
             scales: {
                 y: {
                     beginAtZero: true,
@@ -510,7 +666,8 @@ function renderEmpregoChart() {
                     callbacks: {
                         label: function(context) {
                             const total = context.raw;
-                            const percentage = ((total / window.appData.emprego.total) * 100).toFixed(1);
+                            const totalEmpregos = emprego.emprego_total.TOTAL || 0;
+                            const percentage = totalEmpregos > 0 ? ((total / totalEmpregos) * 100).toFixed(1) : 0;
                             return `${context.dataset.label}: ${formatNumber(total)} (${percentage}%)`;
                         }
                     }

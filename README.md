@@ -54,9 +54,73 @@ O objetivo principal do Observatório do Mercado é centralizar informações ec
   - Gestão de usuários e permissões.
 
 ## Testing and Troubleshooting
-### Estrutura (dados fornecidos posteriormente)
-- Testes de unidade para modelos e funcionalidades principais.
-- Testes de integração para fluxos de trabalho completos.
+
+### Problemas Encontrados e Soluções
+
+#### 1. Problemas de Layout e Interface
+- **Problema**: Layout desorganizado com elementos sobrepostos, especialmente no cabeçalho e na navegação.
+  - **Solução**: Reestruturação completa do HTML/CSS seguindo as melhores práticas do Bootstrap 5. Implementação de um sistema de grid responsivo e uso consistente de classes utilitárias.
+
+- **Problema**: Incompatibilidade de estilo entre dispositivos móveis e desktop.
+  - **Solução**: Criação de um sistema de design com variáveis CSS (`:root`) para garantir consistência visual. Implementação de media queries específicas para cada breakpoint.
+
+- **Problema**: Sobreposição do conteúdo com o cabeçalho fixo.
+  - **Solução**: Adição de `padding-top` ao body correspondente à altura do cabeçalho, com ajustes dinâmicos para diferentes tamanhos de tela.
+
+#### 2. Problemas de Responsividade
+- **Problema**: Menu de navegação quebrado em dispositivos móveis.
+  - **Solução**: Criação de componentes específicos para dispositivos móveis (`mobile-top-header.html`) e implementação de lógica condicional para exibição baseada no tamanho da tela.
+
+- **Problema**: Elementos UI muito grandes ou pequenos em diferentes dispositivos.
+  - **Solução**: Implementação de tipografia responsiva e ajuste dos tamanhos de fonte, ícones e espaçamento usando unidades relativas (rem) e media queries.
+
+#### 3. Problemas com JavaScript
+- **Problema**: Variáveis sendo redeclaradas causando erros no console.
+  - **Solução**: Utilização de `const` em vez de `let` para declarações que não mudam e implementação de um padrão IIFE (Immediately Invoked Function Expression) para evitar poluição do escopo global.
+
+- **Problema**: Funcionalidades JavaScript não funcionando em alguns navegadores.
+  - **Solução**: Adição de verificações de recursos (feature detection) e implementação de fallbacks para navegadores que não suportam recursos modernos.
+
+#### 4. Problemas de Carregamento de Dados
+- **Problema**: Erros quando não há dados disponíveis para exibição.
+  - **Solução**: Implementação de verificações robustas para `null`, `undefined` e objetos vazios. Adição de estados vazios (empty states) com mensagens informativas para o usuário.
+
+- **Problema**: Dados inconsistentes entre diferentes visualizações.
+  - **Solução**: Centralização da lógica de busca de dados e implementação de validação consistente em todo o aplicativo.
+
+#### 5. Problemas de Desempenho
+- **Problema**: Carregamento lento de páginas com muitos elementos visuais.
+  - **Solução**: Otimização de imagens, carregamento assíncrono de recursos não críticos, e implementação de lazy loading para conteúdo abaixo da dobra.
+
+- **Problema**: Animações causando travamentos em dispositivos de baixo desempenho.
+  - **Solução**: Simplificação de animações e uso da propriedade CSS `will-change` para elementos animados. Implementação de detecção de capacidade do dispositivo para ajustar a complexidade visual.
+
+### Testes Realizados
+
+#### Testes de Interface
+- Verificação de consistência visual em diferentes navegadores (Chrome, Firefox, Safari, Edge).
+- Testes de responsividade em múltiplos dispositivos e orientações (desktop, tablet, mobile).
+- Verificação de acessibilidade usando ferramentas como WAVE e Lighthouse.
+
+#### Testes Funcionais
+- Verificação da funcionalidade de pesquisa e filtragem de dados.
+- Testes das interações de usuário (cliques, hover, formulários).
+- Validação da exibição correta de gráficos e visualizações de dados.
+
+#### Testes de Performance
+- Análise de tempo de carregamento usando Chrome DevTools.
+- Otimização de recursos estáticos (CSS, JavaScript, imagens).
+- Verificação de performance em conexões lentas.
+
+#### Testes de Browser Compatibility
+- Verificação de compatibilidade em diferentes navegadores e versões.
+- Validação da experiência do usuário em diferentes sistemas operacionais.
+
+### Ferramentas Utilizadas para Testes
+- Chrome DevTools para debugging e performance testing
+- Lighthouse para auditorias de performance e acessibilidade
+- Validators W3C para HTML e CSS
+- ESLint para validação de JavaScript
 
 ## Future Development
 - Desenvolvimento de modelos para introdução de dados mensais e trimestrais diretamente no sistema.

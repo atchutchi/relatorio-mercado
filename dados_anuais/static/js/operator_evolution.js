@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     renderCharts();
-    renderGrowthTable();
+    // A tabela de crescimento agora é renderizada no template
  });
  
  const operadoraColors = {
@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
  };
  
  function renderCharts() {
-    const currentOperadora = document.querySelector('h1').textContent.split(' ')[2]; // Gets "MTN" or "ORANGE" from title
-    const color = operadoraColors[currentOperadora];
+    // Usa a variável operadora definida no template
+    const currentOperadora = operadora;
+    const color = operadoraColors[currentOperadora] || operadoraColors.MTN; // Fallback para MTN
  
     renderAssinantesChart(color);
     renderReceitaInvestimentosChart(color);
@@ -184,6 +185,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 bodyFont: {
                     family: 'Poppins',
                     size: 13
+                },
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        let value = context.parsed.y;
+                        if (label) {
+                            label += ': ';
+                        }
+                        
+                        if (label.includes('Receita') || label.includes('Investimentos')) {
+                            return label + formatCurrency(value);
+                        } else {
+                            return label + formatNumber(value);
+                        }
+                    }
                 }
             }
         },
@@ -202,41 +218,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
  }
- 
- function renderGrowthTable() {
-    const tableHead = document.querySelector('#growthTable thead tr');
-    const tableBody = document.querySelector('#growthTable tbody');
-    const currentOperadora = document.querySelector('h1').textContent.split(' ')[2];
-    const color = operadoraColors[currentOperadora];
- 
-    let headerHtml = '<th>Indicador</th>';
-    for (let i = 1; i < anos.length; i++) {
-        headerHtml += `<th>${anos[i]}</th>`;
-    }
-    tableHead.innerHTML = headerHtml;
- 
-    let bodyHtml = '';
-    for (const [indicador, dados] of Object.entries(growthData)) {
-        bodyHtml += `
-            <tr>
-                <td>${formatIndicatorName(indicador)}</td>
-                ${dados.map(valor => {
-                    const growthColor = valor >= 0 ? color.main : '#dc3545';
-                    return `<td style="color: ${growthColor}; font-weight: 500;">${formatNumber(valor, 2)}%</td>`;
-                }).join('')}
-            </tr>
-        `;
-    }
-    tableBody.innerHTML = bodyHtml;
- }
- 
- function formatIndicatorName(name) {
-    return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
- }
- 
+
+ // Funções auxiliares para formatação
  function formatNumber(number, decimals = 0) {
     return new Intl.NumberFormat('pt-BR', { 
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals 
     }).format(number);
+ }
+ 
+ function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', { 
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2 
+    }).format(value) + ' FCFA';
  }

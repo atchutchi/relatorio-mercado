@@ -10,15 +10,48 @@
 }
 
 canvas {
-    max-height: 300px;
+    height: 300px !important;
+    width: 100% !important;
+}
+
+pre {
+    white-space: pre-wrap;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+/* Estilos para as tabelas */
+#growthTable th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+}
+
+#growthTable td:first-child {
+    font-weight: 500;
+}
+
+/* Estilos para os indicadores de crescimento */
+.positive-growth {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.negative-growth {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.zero-growth {
+    color: #6c757d;
+    font-weight: 500;
 }
 
 .table-responsive {
     overflow-x: auto;
-}
-
-#growthTable th {
-    background-color: #f8f9fa;
 }
 
 @media (max-width: 768px) {
@@ -31,6 +64,6 @@ canvas {
     }
     
     canvas {
-        max-height: 200px;
+        height: 250px !important;
     }
 }

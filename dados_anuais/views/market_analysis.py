@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from ..models import DadosAnuais
+from ..models import DadosAnuais, Operadora
 import json
 from decimal import Decimal
 import logging
@@ -13,7 +13,7 @@ class MarketAnalysisView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         anos = list(DadosAnuais.get_anos_disponiveis())
-        operadoras = [op[0] for op in DadosAnuais.OPERADORAS if op[0] != 'TOTAL']
+        operadoras = list(Operadora.objects.values_list('nome', flat=True))
 
         market_share_data = {}
         hhi_data = {}
@@ -23,12 +23,17 @@ class MarketAnalysisView(TemplateView):
         emprego_data = {}
 
         for ano in anos:
-            market_share_data[ano] = self.calculate_market_share(ano, operadoras)
-            hhi_data[ano] = self.calculate_hhi(market_share_data[ano])
-            volume_negocio_data[ano] = self.get_indicator_data(ano, operadoras, 'volume_negocio')
-            investimentos_data[ano] = self.get_indicator_data(ano, operadoras, 'investimentos')
-            trafego_dados_data[ano] = self.get_indicator_data(ano, operadoras, 'trafego_dados')
-            emprego_data[ano] = self.get_indicator_data(ano, operadoras, 'emprego_total')
+            # Calcular market share com método dinâmico
+            market_share_data[ano] = self.calculate_market_share(ano)
+            
+            # Usar o método calculate_hhi do modelo
+            hhi_data[ano] = float(DadosAnuais.calculate_hhi(ano, 'assinantes_rede_movel'))
+            
+            # Obter dados de indicadores para cada operadora
+            volume_negocio_data[ano] = self.get_indicator_data(ano, 'volume_negocio')
+            investimentos_data[ano] = self.get_indicator_data(ano, 'investimentos')
+            trafego_dados_data[ano] = self.get_indicator_data(ano, 'trafego_dados')
+            emprego_data[ano] = self.get_indicator_data(ano, 'emprego_total')
 
         logger.debug(f"Anos: {anos}")
         logger.debug(f"Operadoras: {operadoras}")
@@ -50,31 +55,50 @@ class MarketAnalysisView(TemplateView):
         
         return context
 
-    def calculate_market_share(self, ano, operadoras):
+    def calculate_market_share(self, ano):
+        """
+        Calcula a participação de mercado de cada operadora para um determinado ano,
+        em relação ao número de assinantes.
+        """
         market_shares = {}
-        total_assinantes = sum(DadosAnuais.objects.filter(ano=ano, operadora__in=operadoras).values_list('assinantes_rede_movel', flat=True))
+        total_assinantes = DadosAnuais.get_total_mercado(ano, 'assinantes_rede_movel')
         
         if total_assinantes:
-            for operadora in operadoras:
-                dados = DadosAnuais.objects.filter(ano=ano, operadora=operadora).first()
+            # Obter todas as operadoras que têm dados para este ano
+            operadoras_no_ano = DadosAnuais.get_operadoras_por_ano(ano)
+            
+            for operadora in operadoras_no_ano:
+                dados = DadosAnuais.objects.filter(
+                    ano=ano, 
+                    operadora=operadora
+                ).select_related('operadora').first()
+                
                 if dados and dados.assinantes_rede_movel:
-                    market_shares[operadora] = (dados.assinantes_rede_movel / total_assinantes) * 100
+                    # Calcular a porcentagem e arredondar para 2 casas decimais
+                    market_share = (dados.assinantes_rede_movel / total_assinantes) * 100
+                    market_shares[operadora.nome] = float(round(market_share, 2))
                 else:
-                    market_shares[operadora] = 0
+                    market_shares[operadora.nome] = 0
         
         logger.debug(f"Market shares para o ano {ano}: {market_shares}")
         return market_shares
 
-    def calculate_hhi(self, market_shares):
-        hhi = sum(share ** 2 for share in market_shares.values())
-        logger.debug(f"HHI calculado: {hhi}")
-        return hhi
-
-    def get_indicator_data(self, ano, operadoras, indicator):
+    def get_indicator_data(self, ano, indicator):
+        """
+        Obtém os valores de um indicador específico para todas as operadoras em um determinado ano.
+        """
         data = {}
-        for operadora in operadoras:
-            dados = DadosAnuais.objects.filter(ano=ano, operadora=operadora).first()
+        operadoras_no_ano = DadosAnuais.get_operadoras_por_ano(ano)
+        
+        for operadora in operadoras_no_ano:
+            dados = DadosAnuais.objects.filter(
+                ano=ano, 
+                operadora=operadora
+            ).select_related('operadora').first()
+            
             if dados:
                 value = getattr(dados, indicator)
-                data[operadora] = float(value) if isinstance(value, Decimal) else value
+                # Converter Decimal para float para serialização JSON
+                data[operadora.nome] = float(value) if isinstance(value, Decimal) else value
+        
         return data

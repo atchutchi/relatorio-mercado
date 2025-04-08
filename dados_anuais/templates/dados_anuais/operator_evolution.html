@@ -66,11 +66,20 @@
                     <thead>
                         <tr>
                             <th>Indicador</th>
-                            <!-- Anos serão inseridos aqui via JavaScript -->
+                            {% for ano in anos|slice:"1:" %}
+                                <th>{{ ano }}</th>
+                            {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Dados serão inseridos aqui via JavaScript -->
+                        {% for indicador, valores in growth_data.items %}
+                        <tr>
+                            <td>{{ indicador|replace_underscore }}</td>
+                            {% for valor in valores %}
+                                <td class="{{ valor|growth_class }}">{{ valor|floatformat:2 }}%</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -82,6 +91,7 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    var operadora = "{{ operadora }}";
     var anos = {{ anos|safe }};
     var evolutionData = {{ evolution_data|safe }};
     var growthData = {{ growth_data|safe }};

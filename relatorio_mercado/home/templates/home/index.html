@@ -2,29 +2,177 @@
 {% load static %} 
 
 {% block page_header %}
-<div class="container header-container">
-  <div class="row">
-    <div class="col"></div>
-  </div>
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Observatório do Mercado<br>de <span class="highlight">Telecomunicações</span></h1>
+        <p class="hero-subtitle">Dados, análises e relatórios sobre o mercado de telecomunicações em Guiné-Bissau</p>
+        <div class="hero-buttons">
+            <a href="{% url 'dados_anuais:annual_report' %}" class="btn btn-primary btn-lg me-3">
+                <i class="far fa-file-alt me-2"></i>Relatório Anual
+            </a>
+            <a href="{% url 'dados_anuais:market_overview' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-chart-pie me-2"></i>Visão Geral
+            </a>
+        </div>
+    </div>
+    <div class="hero-overlay"></div>
 </div>
 {% endblock %} 
 
 {% block content %}
-<div class="home-container">
-    <div class="home-content">
-        <div class="text-container">
-            <h1 class="display-3 logo-font text-black">
-                Todos os dados do Mercado
-            </h1>
-            <div class="button-container">
-                <h4>
-                    <a href="{% url 'dados_anuais:market_overview' %}" 
-                       class="shop-now-button btn btn-lg rounded-0 text-uppercase py-3">
-                       Visão Geral do Mercado
-                    </a>
-                </h4>
+<!-- Seção de Destaques -->
+<section class="highlights-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Principais Indicadores</h2>
+            <p>Estatísticas e tendências atuais do mercado de telecomunicações</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Assinantes</h3>
+                    <div class="highlight-value">2.3M</div>
+                    <div class="highlight-trend positive">
+                        <i class="fas fa-arrow-up"></i> 3.2%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Penetração</h3>
+                    <div class="highlight-value">95.8%</div>
+                    <div class="highlight-trend positive">
+                        <i class="fas fa-arrow-up"></i> 1.5%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Receita</h3>
+                    <div class="highlight-value">128B XOF</div>
+                    <div class="highlight-trend positive">
+                        <i class="fas fa-arrow-up"></i> 4.7%
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="highlight-card">
+                    <div class="highlight-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Operadoras</h3>
+                    <div class="highlight-value">2</div>
+                    <div class="operator-logos">
+                        <span class="operator-icon mtn">MTN</span>
+                        <span class="operator-icon orange">Orange</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Seção de Relatórios -->
+<section class="reports-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Relatórios Disponíveis</h2>
+            <p>Análises detalhadas do mercado de telecomunicações</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="far fa-file-alt"></i>
+                    </div>
+                    <h3>Relatório Anual</h3>
+                    <p>Visão abrangente do mercado de telecomunicações com análise de todos os indicadores-chave.</p>
+                    <a href="{% url 'dados_anuais:annual_report' %}" class="btn btn-outline-primary">Ver Relatório</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Visão Geral do Mercado</h3>
+                    <p>Panorama dos principais indicadores e estatísticas do mercado de telecomunicações.</p>
+                    <a href="{% url 'dados_anuais:market_overview' %}" class="btn btn-outline-primary">Ver Relatório</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="report-card">
+                    <div class="report-icon">
+                        <i class="fas fa-search-dollar"></i>
+                    </div>
+                    <h3>Análise de Mercado</h3>
+                    <p>Análise aprofundada das tendências e dinâmicas do mercado de telecomunicações.</p>
+                    <a href="{% url 'dados_anuais:market_analysis' %}" class="btn btn-outline-primary">Ver Relatório</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Seção de Operadoras -->
+<section class="operators-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Operadoras</h2>
+            <p>Informações sobre as principais operadoras do mercado</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="operator-card mtn-card">
+                    <div class="operator-header">
+                        <div class="operator-logo">MTN</div>
+                        <h3>MTN Guiné-Bissau</h3>
+                    </div>
+                    <div class="operator-stats">
+                        <div class="operator-stat">
+                            <div class="stat-label">Market Share</div>
+                            <div class="stat-value">65.2%</div>
+                        </div>
+                        <div class="operator-stat">
+                            <div class="stat-label">Assinantes</div>
+                            <div class="stat-value">1.5M</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'dados_anuais:operator_evolution' operadora='MTN' %}" class="btn btn-outline-primary">Ver Detalhes</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="operator-card orange-card">
+                    <div class="operator-header">
+                        <div class="operator-logo">Orange</div>
+                        <h3>Orange Guiné-Bissau</h3>
+                    </div>
+                    <div class="operator-stats">
+                        <div class="operator-stat">
+                            <div class="stat-label">Market Share</div>
+                            <div class="stat-value">34.8%</div>
+                        </div>
+                        <div class="operator-stat">
+                            <div class="stat-label">Assinantes</div>
+                            <div class="stat-value">0.8M</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'dados_anuais:operator_evolution' operadora='ORANGE' %}" class="btn btn-outline-primary">Ver Detalhes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

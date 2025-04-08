@@ -4,7 +4,7 @@ from django.db.models import Sum, Avg, F, Count, Q
 from decimal import Decimal
 from datetime import datetime, timedelta
 import json
-from ..models import DadosAnuais
+from ..models import DadosAnuais, Operadora
 
 logger = logging.getLogger(__name__)
 
@@ -13,33 +13,53 @@ class AnnualReportView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """
-        Get the context data for the annual report view.
+        Obtém os dados de contexto para o relatório anual.
 
         Args:
-            **kwargs: Additional keyword arguments.
+            **kwargs: Argumentos adicionais.
 
         Returns:
-            dict: The context data for the annual report view.
+            dict: Dados de contexto para o relatório anual.
         """
         context = super().get_context_data(**kwargs)
         
         try:
+            # Obter anos disponíveis
             anos_disponiveis = list(DadosAnuais.get_anos_disponiveis())
             if not anos_disponiveis:
                 logger.warning("Nenhum ano disponível encontrado")
+                self._add_empty_context(context)
                 return context
                 
+            # Obter o ano selecionado
             ano_selecionado = self.get_selected_year(anos_disponiveis)
+            
+            # Obter dados do mercado para o ano selecionado
             dados_mercado = self.get_market_data(ano_selecionado)
             
+            # Se não há dados para o ano selecionado, tenta usar o ano mais recente disponível
+            if not dados_mercado and ano_selecionado != anos_disponiveis[-1]:
+                logger.warning(f"Dados não encontrados para o ano {ano_selecionado}, tentando ano mais recente")
+                ano_selecionado = anos_disponiveis[-1]
+                dados_mercado = self.get_market_data(ano_selecionado)
+            
+            # Se ainda não há dados, retorna estrutura vazia
             if not dados_mercado:
                 logger.warning(f"Dados de mercado não encontrados para o ano {ano_selecionado}")
+                self._add_empty_context(context, ano_selecionado, anos_disponiveis)
                 return context
 
+            # Obter dados históricos
             dados_historicos = self.get_historic_data(ano_selecionado)
-            data_estruturada = self.estruturar_dados_completos(dados_mercado, dados_historicos)
             
+            # Estruturar os dados
+            data_estruturada = self.estruturar_dados_completos(dados_mercado, dados_historicos.get('dados_anuais', []))
+            
+            # Adicionar informações adicionais
             data_estruturada.update({
+                'historico': dados_historicos.get('market_share', []),
+                'anos_disponiveis': anos_disponiveis,
+                'ano_selecionado': ano_selecionado,
                 'ano_atual': ano_selecionado,
                 'resumo_executivo': self.gerar_resumo_executivo(dados_mercado, dados_historicos),
                 'analise_setorial': self.gerar_analise_setorial(dados_mercado)
@@ -48,6 +68,7 @@ class AnnualReportView(TemplateView):
             # Preparar dados para JSON
             data_estruturada_json = self.prepare_data_for_json(data_estruturada)
             
+            # Atualizar contexto
             context.update({
                 'appData': json.dumps(data_estruturada_json),
                 'ano_atual': ano_selecionado,
@@ -62,7 +83,8 @@ class AnnualReportView(TemplateView):
 
         except Exception as e:
             logger.error(f"Erro ao gerar contexto do relatório anual: {str(e)}")
-            context['erro'] = "Ocorreu um erro ao gerar o relatório"
+            context['erro'] = f"Ocorreu um erro ao gerar o relatório: {str(e)}"
+            self._add_empty_context(context)
 
         return context
 
@@ -94,20 +116,46 @@ class AnnualReportView(TemplateView):
             ano (int): O ano para o qual obter os dados de mercado.
 
         Returns:
-            dict: Dados de mercado para o ano especificado.
+            dict: Dados de mercado para o ano especificado ou None se não encontrar.
         """
         try:
-            dados = {
-                'mtn': DadosAnuais.objects.filter(ano=ano, operadora='MTN').first(),
-                'orange': DadosAnuais.objects.filter(ano=ano, operadora='ORANGE').first()
-            }
+            # Buscar operadoras disponíveis
+            operadoras = {op.nome.lower(): op for op in Operadora.objects.all()}
+            if not operadoras:
+                logger.warning(f"Nenhuma operadora encontrada no sistema para o ano {ano}")
+                return None
+                
+            dados = {}
+            found_any = False
             
-            if not dados['mtn'] or not dados['orange']:
-                logger.warning(f"Dados incompletos para o ano {ano}")
+            # Buscar dados para cada operadora
+            for nome_op, op_obj in operadoras.items():
+                try:
+                    dados_op = DadosAnuais.objects.filter(
+                        ano=ano, 
+                        operadora__id=op_obj.id
+                    ).select_related('operadora').first()
+                    
+                    if dados_op:
+                        dados[nome_op] = dados_op
+                        found_any = True
+                    else:
+                        logger.warning(f"Dados não encontrados para {nome_op.upper()} no ano {ano}")
+                except Exception as e:
+                    logger.error(f"Erro ao buscar dados para {nome_op.upper()} no ano {ano}: {str(e)}")
+                    
+            if not found_any:
+                logger.warning(f"Nenhum dado de operadora encontrado para o ano {ano}")
                 return None
 
-            dados['totais'] = self.calcular_totais_mercado([dados['mtn'], dados['orange']])
-            return dados
+            # Calcular totais apenas se tiver dados
+            if dados:
+                totais = self.calcular_totais_mercado(list(dados.values()))
+                dados['totais'] = totais
+                return dados
+                
+            return None
+            
         except Exception as e:
             logger.error(f"Erro ao buscar dados de mercado para o ano {ano}: {str(e)}")
             return None
@@ -115,6 +163,9 @@ class AnnualReportView(TemplateView):
     def calcular_totais_mercado(self, operadoras):
         """
         Calcula totais agregados do mercado.
+        
+        NOTA: Este método foi mantido por compatibilidade, mas agora usa valores padrão 0
+        dos campos numéricos ao invés de verificar None.
 
         Args:
             operadoras (list): Lista de objetos de dados de operadoras.
@@ -123,20 +174,20 @@ class AnnualReportView(TemplateView):
             dict: Totais agregados do mercado.
         """
         return {
-            'assinantes_rede_movel': sum(op.assinantes_rede_movel or 0 for op in operadoras),
-            'assinantes_pos_pago': sum(op.assinantes_pos_pago or 0 for op in operadoras),
-            'assinantes_pre_pago': sum(op.assinantes_pre_pago or 0 for op in operadoras),
-            'utilizacao_efetiva': sum(op.utilizacao_efetiva or 0 for op in operadoras),
-            'assinantes_banda_larga_movel': sum(op.assinantes_banda_larga_movel or 0 for op in operadoras),
-            'assinantes_3g': sum(op.assinantes_3g or 0 for op in operadoras),
-            'assinantes_4g': sum(op.assinantes_4g or 0 for op in operadoras),
-            'volume_negocio': sum(op.volume_negocio or 0 for op in operadoras),
-            'receita_total': sum(op.receita_total or 0 for op in operadoras),
-            'investimentos': sum(op.investimentos or 0 for op in operadoras),
-            'trafego_dados': sum(op.trafego_dados or 0 for op in operadoras),
-            'emprego_total': sum(op.emprego_total or 0 for op in operadoras),
-            'emprego_homens': sum(op.emprego_homens or 0 for op in operadoras),
-            'emprego_mulheres': sum(op.emprego_mulheres or 0 for op in operadoras)
+            'assinantes_rede_movel': sum(op.assinantes_rede_movel for op in operadoras),
+            'assinantes_pos_pago': sum(op.assinantes_pos_pago for op in operadoras),
+            'assinantes_pre_pago': sum(op.assinantes_pre_pago for op in operadoras),
+            'utilizacao_efetiva': sum(op.utilizacao_efetiva for op in operadoras),
+            'assinantes_banda_larga_movel': sum(op.assinantes_banda_larga_movel for op in operadoras),
+            'assinantes_3g': sum(op.assinantes_3g for op in operadoras),
+            'assinantes_4g': sum(op.assinantes_4g for op in operadoras),
+            'volume_negocio': sum(op.volume_negocio for op in operadoras),
+            'receita_total': sum(op.receita_total for op in operadoras),
+            'investimentos': sum(op.investimentos for op in operadoras),
+            'trafego_dados': sum(op.trafego_dados for op in operadoras),
+            'emprego_total': sum(op.emprego_total for op in operadoras),
+            'emprego_homens': sum(op.emprego_homens for op in operadoras),
+            'emprego_mulheres': sum(op.emprego_mulheres for op in operadoras)
         }
     
     def estruturar_dados_completos(self, dados_mercado, dados_historicos):
@@ -151,12 +202,25 @@ class AnnualReportView(TemplateView):
             dict: Dados estruturados completos.
         """
         try:
+            # Se não tiver dados do mercado, retorna estrutura vazia
+            if not dados_mercado:
+                logger.warning("Estruturação de dados cancelada: dados_mercado está vazio")
+                return self.get_empty_structure_templates()
+                
+            # Dados do histórico para cálculo de crescimento (pode ser None)
+            dados_ano_anterior = None
+            if dados_historicos and len(dados_historicos) > 1:
+                for item in dados_historicos:
+                    if item['ano'] < dados_mercado['mtn'].ano:
+                        dados_ano_anterior = item['dados']
+                        break
+                
             return {
-                'mercado_movel': self.estruturar_mercado_movel(dados_mercado),
+                'mercado': self.estruturar_mercado_movel(dados_mercado),
                 'indicadores_financeiros': self.estruturar_indicadores_financeiros(dados_mercado),
                 'trafego': self.estruturar_trafego(dados_mercado),
                 'emprego': self.estruturar_emprego(dados_mercado),
-                'crescimento': self.calcular_crescimento_detalhado(dados_mercado),
+                'crescimento': self.calcular_crescimento_detalhado(dados_mercado, dados_ano_anterior),
                 'market_share': self.estruturar_market_share(dados_mercado),
                 'penetracao': self.calcular_penetracao(dados_mercado)
             }
@@ -175,36 +239,66 @@ class AnnualReportView(TemplateView):
             dict: Dados estruturados do mercado móvel.
         """
         try:
-            mtn = dados['mtn']
-            orange = dados['orange']
-            totais = dados['totais']
+            if not dados:
+                return {}
+                
+            ano = list(dados.values())[0].ano
+            operadoras = Operadora.objects.values_list('nome', flat=True)
+            
+            # Cálculo dos totais
+            total_assinantes = DadosAnuais.get_total_mercado(ano, 'assinantes_rede_movel')
+            total_pos_pago = DadosAnuais.get_total_mercado(ano, 'assinantes_pos_pago')
+            total_pre_pago = DadosAnuais.get_total_mercado(ano, 'assinantes_pre_pago')
+            total_utilizacao_efetiva = DadosAnuais.get_total_mercado(ano, 'utilizacao_efetiva')
+            total_banda_larga = DadosAnuais.get_total_mercado(ano, 'assinantes_banda_larga_movel')
+            total_3g = DadosAnuais.get_total_mercado(ano, 'assinantes_3g')
+            total_4g = DadosAnuais.get_total_mercado(ano, 'assinantes_4g')
+            
+            # Estrutura para assinantes por operadora
+            assinantes_por_operadora = {}
+            for operadora in operadoras:
+                if operadora.lower() in dados:
+                    op_data = dados[operadora.lower()]
+                    assinantes_por_operadora[operadora.upper()] = op_data.assinantes_rede_movel or 0
+            
+            # Estrutura para 3G por operadora
+            assinantes_3g_por_operadora = {}
+            for operadora in operadoras:
+                if operadora.lower() in dados:
+                    op_data = dados[operadora.lower()]
+                    assinantes_3g_por_operadora[operadora.upper()] = op_data.assinantes_3g or 0
+                    
+            # Estrutura para 4G por operadora
+            assinantes_4g_por_operadora = {}
+            for operadora in operadoras:
+                if operadora.lower() in dados:
+                    op_data = dados[operadora.lower()]
+                    assinantes_4g_por_operadora[operadora.upper()] = op_data.assinantes_4g or 0
 
+            # Estrutura final
             return {
                 'assinantes': {
-                    'total': totais['assinantes_rede_movel'],
-                    'pos_pago': totais['assinantes_pos_pago'],
-                    'pre_pago': totais['assinantes_pre_pago'],
-                    'utilizacao_efetiva': totais['utilizacao_efetiva'],
-                    'mtn_total': mtn.assinantes_rede_movel or 0,
-                    'orange_total': orange.assinantes_rede_movel or 0
+                    'total': total_assinantes,
+                    'pos_pago': total_pos_pago,
+                    'pre_pago': total_pre_pago,
+                    'utilizacao_efetiva': total_utilizacao_efetiva,
+                    'por_operadora': assinantes_por_operadora
                 },
                 'banda_larga_movel': {
-                    'total': totais['assinantes_banda_larga_movel'],
+                    'total': total_banda_larga,
                     '3g': {
-                        'total': totais['assinantes_3g'],
-                        'mtn': mtn.assinantes_3g or 0,
-                        'orange': orange.assinantes_3g or 0
+                        'total': total_3g,
+                        'por_operadora': assinantes_3g_por_operadora
                     },
                     '4g': {
-                        'total': totais['assinantes_4g'],
-                        'mtn': mtn.assinantes_4g or 0,
-                        'orange': orange.assinantes_4g or 0
+                        'total': total_4g,
+                        'por_operadora': assinantes_4g_por_operadora
                     }
                 }
             }
         except Exception as e:
             logger.error(f"Erro ao estruturar mercado móvel: {str(e)}")
-            return self.get_empty_mercado_movel_structure()
+            return {}
 
     def estruturar_indicadores_financeiros(self, dados):
         """
@@ -217,39 +311,44 @@ class AnnualReportView(TemplateView):
             dict: Indicadores financeiros estruturados.
         """
         try:
-            mtn = dados['mtn']
-            orange = dados['orange']
-            totais = dados['totais']
-
-            return {
-                'volume_negocio': {
-                    'total': float(totais['volume_negocio']),
-                    'mtn': float(mtn.volume_negocio or 0),
-                    'orange': float(orange.volume_negocio or 0)
-                },
-                'receita_total': {
-                    'total': float(totais['receita_total']),
-                    'mtn': float(mtn.receita_total or 0),
-                    'orange': float(orange.receita_total or 0)
-                },
-                'investimentos': {
-                    'total': float(totais['investimentos'])
-                },
-                'por_operadora': {
-                    'MTN': {
-                        'volume_negocio': float(mtn.volume_negocio or 0),
-                        'receita_total': float(mtn.receita_total or 0)
-                    },
-                    'ORANGE': {
-                        'volume_negocio': float(orange.volume_negocio or 0),
-                        'receita_total': float(orange.receita_total or 0)
-                    }
-                }
-            }
+            if not dados:
+                return {}
+                
+            ano = list(dados.values())[0].ano if list(dados.values()) else None
+            if not ano:
+                return {}
+                
+            operadoras = Operadora.objects.values_list('nome', flat=True)
+            
+            resultado = {}
+            
+            # Campos financeiros a serem estruturados - apenas usar campos que existem no modelo
+            campos = [
+                'volume_negocio', 'receita_total', 'receita_servicos_voz', 'receita_dados_moveis',
+                'receita_servicos_mensagens', 'receita_roaming_out', 'receita_chamadas_terminadas',
+                'investimentos'
+            ]
+            
+            # Para cada campo, estruturar por operadora e calcular o total
+            for campo in campos:
+                resultado[campo] = {}
+                
+                # Adicionar valor de cada operadora
+                for operadora in operadoras:
+                    if operadora.lower() in dados and dados[operadora.lower()]:
+                        try:
+                            resultado[campo][operadora.upper()] = getattr(dados[operadora.lower()], campo) or 0
+                        except AttributeError:
+                            resultado[campo][operadora.upper()] = 0
+                    
+                # Adicionar o total
+                resultado[campo]['TOTAL'] = DadosAnuais.get_total_mercado(ano, campo) or 0
+                
+            return resultado
         except Exception as e:
             logger.error(f"Erro ao estruturar indicadores financeiros: {str(e)}")
-            return self.get_empty_indicadores_financeiros_structure()
-
+            return {}
+            
     def estruturar_trafego(self, dados):
         """
         Estrutura os dados de tráfego.
@@ -258,53 +357,59 @@ class AnnualReportView(TemplateView):
             dados (dict): Dados de mercado.
 
         Returns:
-            dict: Dados estruturados de tráfego.
+            dict: Dados de tráfego estruturados.
         """
         try:
-            mtn = dados['mtn']
-            orange = dados['orange']
-
-            return {
-                'voz': {
-                    'total': sum(op.trafego_voz_originado or 0 for op in [mtn, orange]),
-                    'on_net': sum(op.trafego_voz_on_net or 0 for op in [mtn, orange]),
-                    'off_net': sum(op.trafego_voz_off_net or 0 for op in [mtn, orange]),
-                    'internacional': sum(op.trafego_voz_internacional or 0 for op in [mtn, orange]),
-                    'por_operadora': {
-                        'MTN': {
-                            'total': mtn.trafego_voz_originado or 0,
-                            'on_net': mtn.trafego_voz_on_net or 0,
-                            'off_net': mtn.trafego_voz_off_net or 0
-                        },
-                        'ORANGE': {
-                            'total': orange.trafego_voz_originado or 0,
-                            'on_net': orange.trafego_voz_on_net or 0,
-                            'off_net': orange.trafego_voz_off_net or 0
-                        }
-                    }
-                },
-                'dados': {
-                    'total': sum(op.trafego_dados or 0 for op in [mtn, orange]),
-                    '3g': sum(op.trafego_dados_3g or 0 for op in [mtn, orange]),
-                    '4g': sum(op.trafego_dados_4g or 0 for op in [mtn, orange]),
-                    'por_operadora': {
-                        'MTN': {
-                            'total': mtn.trafego_dados or 0,
-                            '3g': mtn.trafego_dados_3g or 0,
-                            '4g': mtn.trafego_dados_4g or 0
-                        },
-                        'ORANGE': {
-                            'total': orange.trafego_dados or 0,
-                            '3g': orange.trafego_dados_3g or 0,
-                            '4g': orange.trafego_dados_4g or 0
-                        }
-                    }
-                }
-            }
+            if not dados:
+                return {}
+                
+            ano = list(dados.values())[0].ano if list(dados.values()) else None
+            if not ano:
+                return {}
+                
+            operadoras = Operadora.objects.values_list('nome', flat=True)
+            
+            resultado = {}
+            
+            # Campos de tráfego que existem no modelo
+            campos = [
+                'trafego_voz_originado', 'trafego_dados', 'trafego_sms',
+                'trafego_voz_on_net', 'trafego_voz_off_net', 'trafego_voz_internacional',
+                'trafego_sms_on_net', 'trafego_sms_off_net', 'trafego_sms_internacional'
+            ]
+            
+            # Para cada campo, estruturar por operadora e calcular o total
+            for campo in campos:
+                resultado[campo] = {}
+                
+                # Adicionar valor de cada operadora
+                for operadora in operadoras:
+                    if operadora.lower() in dados and dados[operadora.lower()]:
+                        try:
+                            resultado[campo][operadora.upper()] = getattr(dados[operadora.lower()], campo) or 0
+                        except AttributeError:
+                            resultado[campo][operadora.upper()] = 0
+                    
+                # Adicionar o total
+                resultado[campo]['TOTAL'] = DadosAnuais.get_total_mercado(ano, campo) or 0
+            
+            # Estruturar dados por operadora para facilitar o acesso no template
+            resultado['por_operadora'] = {}
+            for operadora in operadoras:
+                if operadora.lower() in dados:
+                    op_data = {}
+                    for campo in campos:
+                        try:
+                            op_data[campo] = getattr(dados[operadora.lower()], campo) or 0
+                        except AttributeError:
+                            op_data[campo] = 0
+                    resultado['por_operadora'][operadora.upper()] = op_data
+                
+            return resultado
         except Exception as e:
-            logger.error(f"Erro ao estruturar tráfego: {str(e)}")
-            return self.get_empty_trafego_structure()
-    
+            logger.error(f"Erro ao estruturar dados de tráfego: {str(e)}")
+            return {}
+            
     def estruturar_emprego(self, dados):
         """
         Estrutura os dados de emprego.
@@ -313,33 +418,44 @@ class AnnualReportView(TemplateView):
             dados (dict): Dados de mercado.
 
         Returns:
-            dict: Dados estruturados de emprego.
+            dict: Dados de emprego estruturados.
         """
         try:
-            mtn = dados['mtn']
-            orange = dados['orange']
-            totais = dados['totais']
-
-            return {
-                'total': totais['emprego_total'],
-                'homens': totais['emprego_homens'],
-                'mulheres': totais['emprego_mulheres'],
-                'por_operadora': {
-                    'MTN': {
-                        'total': mtn.emprego_total or 0,
-                        'homens': mtn.emprego_homens or 0,
-                        'mulheres': mtn.emprego_mulheres or 0
-                    },
-                    'ORANGE': {
-                        'total': orange.emprego_total or 0,
-                        'homens': orange.emprego_homens or 0,
-                        'mulheres': orange.emprego_mulheres or 0
-                    }
-                }
-            }
+            if not dados:
+                return {}
+                
+            ano = list(dados.values())[0].ano if list(dados.values()) else None
+            if not ano:
+                return {}
+                
+            operadoras = Operadora.objects.values_list('nome', flat=True)
+            
+            resultado = {}
+            
+            # Campos de emprego que existem no modelo
+            campos = [
+                'emprego_total', 'emprego_homens', 'emprego_mulheres'
+            ]
+            
+            # Para cada campo, estruturar por operadora e calcular o total
+            for campo in campos:
+                resultado[campo] = {}
+                
+                # Adicionar valor de cada operadora
+                for operadora in operadoras:
+                    if operadora.lower() in dados and dados[operadora.lower()]:
+                        try:
+                            resultado[campo][operadora.upper()] = getattr(dados[operadora.lower()], campo) or 0
+                        except AttributeError:
+                            resultado[campo][operadora.upper()] = 0
+                    
+                # Adicionar o total
+                resultado[campo]['TOTAL'] = DadosAnuais.get_total_mercado(ano, campo) or 0
+                
+            return resultado
         except Exception as e:
             logger.error(f"Erro ao estruturar dados de emprego: {str(e)}")
-            return self.get_empty_emprego_structure()
+            return {}
 
     def estruturar_market_share(self, dados):
         """
@@ -354,25 +470,34 @@ class AnnualReportView(TemplateView):
         try:
             mtn = dados['mtn']
             orange = dados['orange']
-            totais = dados['totais']
+            ano = mtn.ano  # Ambos objetos têm o mesmo ano
 
-            def calcular_share(valor_operadora, valor_total):
-                if not valor_total:
+            # Função auxiliar para calcular market share usando a propriedade do modelo
+            def get_market_share(objeto, campo):
+                if campo == 'assinantes_rede_movel':
+                    return float(objeto.market_share_assinantes)
+                elif campo == 'receita_total':
+                    return float(objeto.market_share_receita)
+                else:
+                    # Calcular diretamente usando get_total_mercado
+                    total = DadosAnuais.get_total_mercado(ano, campo)
+                    valor = getattr(objeto, campo)
+                    if total and valor:
+                        return (valor / total) * 100
                     return 0
-                return (valor_operadora / valor_total) * 100
 
             return {
                 'assinantes_rede_movel': {
-                    'MTN': calcular_share(mtn.assinantes_rede_movel or 0, totais['assinantes_rede_movel']),
-                    'ORANGE': calcular_share(orange.assinantes_rede_movel or 0, totais['assinantes_rede_movel'])
+                    'MTN': get_market_share(mtn, 'assinantes_rede_movel'),
+                    'ORANGE': get_market_share(orange, 'assinantes_rede_movel')
                 },
                 'receita_total': {
-                    'MTN': calcular_share(mtn.receita_total or 0, totais['receita_total']),
-                    'ORANGE': calcular_share(orange.receita_total or 0, totais['receita_total'])
+                    'MTN': get_market_share(mtn, 'receita_total'),
+                    'ORANGE': get_market_share(orange, 'receita_total')
                 },
                 'trafego_dados': {
-                    'MTN': calcular_share(mtn.trafego_dados or 0, totais['trafego_dados']),
-                    'ORANGE': calcular_share(orange.trafego_dados or 0, totais['trafego_dados'])
+                    'MTN': get_market_share(mtn, 'trafego_dados'),
+                    'ORANGE': get_market_share(orange, 'trafego_dados')
                 }
             }
         except Exception as e:
@@ -381,91 +506,139 @@ class AnnualReportView(TemplateView):
 
     def calcular_penetracao(self, dados):
         """
-        Calcula a taxa de penetração dos serviços de telecomunicações.
+        Calcula a penetração de serviços móveis.
 
         Args:
             dados (dict): Dados de mercado.
 
         Returns:
-            dict: Taxas de penetração calculadas.
+            dict: Dados de penetração.
         """
         try:
-            totais = dados['totais']
-            populacao = 1781308  # População estimada da Guiné-Bissau
-
+            if not dados or 'mtn' not in dados:
+                return {
+                    'penetracao_movel': 0,
+                    'populacao': 2000000
+                }
+                
+            year = dados['mtn'].ano
+            
+            # Obter o total de assinantes móveis usando get_total_mercado
+            total_assinantes = DadosAnuais.get_total_mercado(year, 'assinantes_rede_movel')
+            
+            # Valor estático para população já que não temos o campo no modelo
+            # Para uma implementação real, este valor deveria ser dinâmico ou vir de outra fonte
+            populacao_estimada = 2000000  # Estimativa genérica - substituir por valor real
+            
+            # Calcular a penetração
+            penetracao = (total_assinantes / populacao_estimada) * 100 if populacao_estimada else 0
+                
             return {
-                'telefonia_movel': (totais['assinantes_rede_movel'] / populacao) * 100,
-                'banda_larga_movel': (totais['assinantes_banda_larga_movel'] / populacao) * 100,
-                '3g': (totais['assinantes_3g'] / populacao) * 100,
-                '4g': (totais['assinantes_4g'] / populacao) * 100
+                'penetracao_movel': penetracao,
+                'populacao': populacao_estimada
             }
         except Exception as e:
-            logger.error(f"Erro ao calcular taxas de penetração: {str(e)}")
+            logger.error(f"Erro ao calcular penetração: {str(e)}")
             return {
-                'telefonia_movel': 0,
-                'banda_larga_movel': 0,
-                '3g': 0,
-                '4g': 0
+                'penetracao_movel': 0,
+                'populacao': 2000000
             }
 
-    def calcular_crescimento_detalhado(self, dados):
+    def calcular_crescimento_detalhado(self, current_year_data, previous_year_data):
         """
-        Calcula o crescimento detalhado dos serviços de telecomunicações.
+        Calcula o crescimento detalhado entre dois anos.
 
         Args:
-            dados (dict): Dados de mercado.
+            current_year_data (dict): Dados do ano atual.
+            previous_year_data (dict): Dados do ano anterior.
 
         Returns:
-            dict: Crescimento detalhado calculado.
+            dict: Dados de crescimento.
         """
+        if not current_year_data or not previous_year_data:
+            return {}
+
         try:
-            ano_atual = dados['mtn'].ano
-            ano_anterior = ano_atual - 1
+            # Obtém objetos do ano atual
+            mtn_current = current_year_data['mtn']
+            orange_current = current_year_data['orange']
+            year = mtn_current.ano
             
-            dados_anteriores = self.get_market_data(ano_anterior)
-            if not dados_anteriores:
-                return {'anual': {}, 'trimestral': {}}
+            # Obtém objetos do ano anterior
+            mtn_previous = previous_year_data['mtn']
+            orange_previous = previous_year_data['orange']
+            prev_year = mtn_previous.ano
 
-            totais_atual = dados['totais']
-            totais_anterior = dados_anteriores['totais']
-
-            def calcular_crescimento(valor_atual, valor_anterior):
-                if not valor_anterior:
+            # Obter totais de mercado para os dois anos
+            current_total_subscribers = DadosAnuais.get_total_mercado(year, 'assinantes_rede_movel')
+            previous_total_subscribers = DadosAnuais.get_total_mercado(prev_year, 'assinantes_rede_movel')
+            
+            current_total_revenue = DadosAnuais.get_total_mercado(year, 'receita_total')
+            previous_total_revenue = DadosAnuais.get_total_mercado(prev_year, 'receita_total')
+            
+            # Calcular crescimento de assinantes
+            def calcular_crescimento(atual, anterior):
+                if not anterior or anterior == 0:
                     return 0
-                return ((valor_atual - valor_anterior) / valor_anterior) * 100
+                return ((atual - anterior) / anterior) * 100
 
-            return {
-                'anual': {
-                    'assinantes_rede_movel': calcular_crescimento(
-                        totais_atual['assinantes_rede_movel'],
-                        totais_anterior['assinantes_rede_movel']
-                    ),
-                    'receita_total': calcular_crescimento(
-                        totais_atual['receita_total'],
-                        totais_anterior['receita_total']
-                    ),
-                    'trafego_dados': calcular_crescimento(
-                        totais_atual['trafego_dados'],
-                        totais_anterior['trafego_dados']
+            resultado = {
+                'assinantes_rede_movel': {
+                    'MTN': calcular_crescimento(mtn_current.assinantes_rede_movel, mtn_previous.assinantes_rede_movel),
+                    'ORANGE': calcular_crescimento(orange_current.assinantes_rede_movel, orange_previous.assinantes_rede_movel),
+                    'TOTAL': calcular_crescimento(current_total_subscribers, previous_total_subscribers)
+                },
+                'receita_total': {
+                    'MTN': calcular_crescimento(mtn_current.receita_total, mtn_previous.receita_total),
+                    'ORANGE': calcular_crescimento(orange_current.receita_total, orange_previous.receita_total),
+                    'TOTAL': calcular_crescimento(current_total_revenue, previous_total_revenue)
+                },
+                'volume_negocio': {
+                    'MTN': calcular_crescimento(mtn_current.volume_negocio, mtn_previous.volume_negocio),
+                    'ORANGE': calcular_crescimento(orange_current.volume_negocio, orange_previous.volume_negocio),
+                    'TOTAL': calcular_crescimento(
+                        DadosAnuais.get_total_mercado(year, 'volume_negocio'), 
+                        DadosAnuais.get_total_mercado(prev_year, 'volume_negocio')
                     )
                 }
             }
+            
+            # Usar o método calcular_crescimento do modelo para outros campos
+            campos = ['trafego_dados', 'investimentos', 'assinantes_banda_larga_movel', 'assinantes_banda_larga_fixa']
+            
+            for campo in campos:
+                current_total = DadosAnuais.get_total_mercado(year, campo)
+                previous_total = DadosAnuais.get_total_mercado(prev_year, campo)
+                
+                resultado[campo] = {
+                    'MTN': mtn_current.calcular_crescimento(campo, mtn_previous),
+                    'ORANGE': orange_current.calcular_crescimento(campo, orange_previous),
+                    'TOTAL': calcular_crescimento(current_total, previous_total)
+                }
+            
+            return resultado
         except Exception as e:
             logger.error(f"Erro ao calcular crescimento detalhado: {str(e)}")
-            return {'anual': {}, 'trimestral': {}}
+            return {}
     
     def get_empty_structure_templates(self):
         """
-        Retorna templates de estruturas vazias.
+        Retorna uma estrutura vazia para os templates.
 
         Returns:
-            dict: Templates de estruturas vazias.
+            dict: Estrutura vazia para os templates.
         """
         return {
-            'mercado_movel': self.get_empty_mercado_movel_structure(),
-            'indicadores_financeiros': self.get_empty_indicadores_financeiros_structure(),
-            'trafego': self.get_empty_trafego_structure(),
-            'emprego': self.get_empty_emprego_structure()
+            'mercado': {},
+            'historico': [],
+            'anos_disponiveis': [],
+            'ano_selecionado': None,
+            'indicadores_financeiros': {},
+            'trafego': {},
+            'emprego': {},
+            'crescimento': {},
+            'market_share': {},
+            'penetracao': {}
         }
 
     def get_empty_mercado_movel_structure(self):
@@ -485,60 +658,6 @@ class AnnualReportView(TemplateView):
                 'total': 0,
                 '3g': {'total': 0, 'mtn': 0, 'orange': 0},
                 '4g': {'total': 0, 'mtn': 0, 'orange': 0}
-            }
-        }
-
-    def get_empty_indicadores_financeiros_structure(self):
-        """
-        Returns a dictionary with the structure for empty financial indicators.
-        """
-        return {
-            'volume_negocio': {'total': 0},
-            'receita_total': {'total': 0},
-            'investimentos': {'total': 0},
-            'por_operadora': {
-                'MTN': {'volume_negocio': 0, 'receita_total': 0},
-                'ORANGE': {'volume_negocio': 0, 'receita_total': 0}
-            }
-        }
-
-    def get_empty_trafego_structure(self):
-        """
-        Returns a dictionary with the structure for empty traffic data.
-        """
-        return {
-            'voz': {
-                'total': 0,
-                'on_net': 0,
-                'off_net': 0,
-                'internacional': 0,
-                'por_operadora': {
-                    'MTN': {'total': 0, 'on_net': 0, 'off_net': 0},
-                    'ORANGE': {'total': 0, 'on_net': 0, 'off_net': 0}
-                }
-            },
-            'dados': {
-                'total': 0,
-                '3g': 0,
-                '4g': 0,
-                'por_operadora': {
-                    'MTN': {'total': 0, '3g': 0, '4g': 0},
-                    'ORANGE': {'total': 0, '3g': 0, '4g': 0}
-                }
-            }
-        }
-
-    def get_empty_emprego_structure(self):
-        """
-        Returns a dictionary with the structure for empty employment data.
-        """
-        return {
-            'total': 0,
-            'homens': 0,
-            'mulheres': 0,
-            'por_operadora': {
-                'MTN': {'total': 0, 'homens': 0, 'mulheres': 0},
-                'ORANGE': {'total': 0, 'homens': 0, 'mulheres': 0}
             }
         }
 
@@ -569,14 +688,32 @@ class AnnualReportView(TemplateView):
     def get_historic_data(self, ano_atual):
         """
         Retrieves historic market data.
+        
+        Args:
+            ano_atual (int): O ano atual para o qual buscar dados históricos.
+            
+        Returns:
+            dict: Dados históricos estruturados ou dicionário vazio se não encontrar dados.
         """
         try:
-            anos_anteriores = range(ano_atual - 4, ano_atual + 1)
+            # Pegar apenas anos que tenham dados
+            anos_disponiveis = list(DadosAnuais.get_anos_disponiveis())
+            if not anos_disponiveis:
+                logger.warning("Nenhum ano disponível encontrado para dados históricos")
+                return {'dados_anuais': [], 'market_share': []}
+            
+            # Filtra apenas anos anteriores ou igual ao ano_atual
+            anos_anteriores = [ano for ano in anos_disponiveis if ano <= ano_atual]
+            
+            # Limita a no máximo 5 anos (incluindo o atual)
+            if len(anos_anteriores) > 5:
+                anos_anteriores = anos_anteriores[-5:]
+                
             dados_historicos = []
             
             for ano in anos_anteriores:
                 dados_ano = self.get_market_data(ano)
-                if dados_ano:
+                if dados_ano:  # Só adiciona se encontrou dados válidos
                     dados_historicos.append({
                         'ano': ano,
                         'dados': dados_ano
@@ -588,7 +725,7 @@ class AnnualReportView(TemplateView):
             }
         except Exception as e:
             logger.error(f"Erro ao buscar dados históricos: {str(e)}")
-            return {'dados_anuais': [], 'market_share': {}}
+            return {'dados_anuais': [], 'market_share': []}
 
     def calcular_market_share_historico(self, dados_historicos):
         """
@@ -617,26 +754,40 @@ class AnnualReportView(TemplateView):
         Generates an executive summary with analysis and recommendations.
         """
         try:
-            mercado_movel = self.estruturar_mercado_movel(dados_mercado)
+            # Obter dados estruturados
+            mercado = self.estruturar_mercado_movel(dados_mercado)
             market_share = self.estruturar_market_share(dados_mercado)
             
-            operadora_dominante = "Orange" if market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0) > 50 else "MTN"
-            share_dominante = max(
-                market_share.get('assinantes_rede_movel', {}).get('MTN', 0),
-                market_share.get('assinantes_rede_movel', {}).get('ORANGE', 0)
-            )
+            # Obter operadoras
+            operadoras = Operadora.objects.values_list('nome', flat=True)
             
-            total_3g = mercado_movel.get('banda_larga_movel', {}).get('3g', {}).get('total', 0)
-            total_4g = mercado_movel.get('banda_larga_movel', {}).get('4g', {}).get('total', 0)
+            # Encontrar a operadora dominante (com maior market share)
+            operadora_dominante = None
+            share_dominante = 0
+            
+            for operadora in operadoras:
+                share = market_share.get('assinantes_rede_movel', {}).get(operadora.upper(), 0)
+                if share > share_dominante:
+                    share_dominante = share
+                    operadora_dominante = operadora
+            
+            # Se não encontrou operadora dominante
+            if not operadora_dominante:
+                operadora_dominante = "operadora principal"
+                share_dominante = 50  # valor padrão
+            
+            # Calcular dados de tecnologia
+            total_3g = mercado.get('banda_larga_movel', {}).get('3g', {}).get('total', 0)
+            total_4g = mercado.get('banda_larga_movel', {}).get('4g', {}).get('total', 0)
             ratio_4g = (total_4g / (total_3g + total_4g)) * 100 if (total_3g + total_4g) > 0 else 0
             
-            total_assinantes = mercado_movel.get('assinantes', {}).get('total', 0)
+            total_assinantes = mercado.get('assinantes', {}).get('total', 0)
             
             return {
                 'visao_geral': {
                     'titulo': 'Visão Geral do Mercado',
                     'conteudo': f"""
-                    O mercado de telecomunicações da Guiné-Bissau apresenta uma estrutura duopolista, 
+                    O mercado de telecomunicações da Guiné-Bissau apresenta uma estrutura com {len(operadoras)} operadoras, 
                     com {operadora_dominante} mantendo posição dominante com {share_dominante:.1f}% do mercado. 
                     A base total de assinantes alcançou {total_assinantes:,} usuários,
                     demonstrando a crescente importância do setor para a economia nacional.
@@ -676,19 +827,37 @@ class AnnualReportView(TemplateView):
         Generates detailed sector analysis.
         """
         try:
+            if not dados_mercado:
+                return {
+                    'banda_larga': {'titulo': 'Erro', 'conteudo': '', 'desafios': []},
+                    'emprego': {'titulo': 'Erro', 'conteudo': '', 'recomendacoes': []}
+                }
+                
+            # Usando o método existente para estruturar os dados
             dados_estruturados = self.estruturar_dados_completos(dados_mercado, [])
             
-            banda_larga = dados_estruturados.get('mercado_movel', {}).get('banda_larga_movel', {})
+            # Obtendo operadoras
+            operadoras = Operadora.objects.values_list('nome', flat=True)
+            
+            # Obtendo dados estruturados
+            banda_larga = dados_estruturados.get('mercado', {}).get('banda_larga_movel', {})
             emprego = dados_estruturados.get('emprego', {})
             
-            total_usuarios = banda_larga.get('total', 0)
-            total_3g = banda_larga.get('3g', {}).get('total', 0)
-            total_4g = banda_larga.get('4g', {}).get('total', 0)
+            ano = list(dados_mercado.values())[0].ano
             
-            total_emprego = emprego.get('total', 0)
-            total_mulheres = emprego.get('mulheres', 0)
+            # Calculando totais usando os campos que existem no modelo
+            total_usuarios = DadosAnuais.get_total_mercado(ano, 'assinantes_banda_larga_movel') or 0
+            total_3g = DadosAnuais.get_total_mercado(ano, 'assinantes_3g') or 0
+            total_4g = DadosAnuais.get_total_mercado(ano, 'assinantes_4g') or 0
             
-            ratio_genero = (total_mulheres / total_emprego) * 100 if total_emprego > 0 else 0
+            # Usando os campos de emprego que realmente existem no modelo
+            total_empregos_diretos = DadosAnuais.get_total_mercado(ano, 'emprego_total') or 0
+            total_emprego_homens = DadosAnuais.get_total_mercado(ano, 'emprego_homens') or 0
+            total_emprego_mulheres = DadosAnuais.get_total_mercado(ano, 'emprego_mulheres') or 0
+            
+            # Calculando proporções de gênero em vez de nacionalidade
+            total_funcionarios = total_emprego_homens + total_emprego_mulheres
+            proporcao_mulheres = (total_emprego_mulheres / total_funcionarios) * 100 if total_funcionarios > 0 else 0
             
             return {
                 'banda_larga': {
@@ -708,14 +877,14 @@ class AnnualReportView(TemplateView):
                 'emprego': {
                     'titulo': 'Análise do Mercado de Trabalho',
                     'conteudo': f"""
-                    O setor emprega um total de {total_emprego:,} profissionais, com 
-                    {ratio_genero:.1f}% de representação feminina. A distribuição entre operadoras
+                    O setor emprega um total de {total_empregos_diretos:,} profissionais diretos, com 
+                    {proporcao_mulheres:.1f}% de participação feminina. A distribuição entre as {len(operadoras)} operadoras
                     mostra oportunidades para políticas de inclusão e diversidade mais efetivas.
                     """,
                     'recomendacoes': [
                         "Implementar programas de capacitação profissional",
-                        "Aumentar a participação feminina em cargos técnicos",
-                        "Desenvolver políticas de retenção de talentos"
+                        "Aumentar a participação de profissionais de grupos diversos",
+                        "Desenvolver políticas de retenção de talentos e equidade de gênero"
                     ]
                 }
             }
@@ -726,6 +895,68 @@ class AnnualReportView(TemplateView):
                 'banda_larga': {'titulo': 'Erro', 'conteudo': '', 'desafios': []},
                 'emprego': {'titulo': 'Erro', 'conteudo': '', 'recomendacoes': []}
             }
+
+    def _add_empty_context(self, context, ano_selecionado=None, anos_disponiveis=None):
+        """
+        Adiciona dados vazios ao contexto para evitar erros no template.
+        
+        Args:
+            context (dict): O contexto a ser atualizado
+            ano_selecionado (int, optional): O ano selecionado ou None
+            anos_disponiveis (list, optional): Lista de anos disponíveis ou None
+        """
+        if anos_disponiveis is None:
+            anos_disponiveis = []
+            
+        if ano_selecionado is None and anos_disponiveis:
+            ano_selecionado = anos_disponiveis[-1]
+        elif ano_selecionado is None:
+            ano_selecionado = datetime.now().year
+            
+        empty_data = self.get_empty_structure_templates()
+        
+        # Adicionar informações adicionais
+        empty_data.update({
+            'historico': [],
+            'anos_disponiveis': anos_disponiveis,
+            'ano_selecionado': ano_selecionado,
+            'ano_atual': ano_selecionado,
+            'resumo_executivo': {
+                'visao_geral': {
+                    'titulo': 'Sem Dados Disponíveis',
+                    'conteudo': 'Não existem dados disponíveis para o período selecionado.'
+                },
+                'tecnologia': {
+                    'titulo': 'Sem Dados Tecnológicos',
+                    'conteudo': 'Não existem dados tecnológicos disponíveis.'
+                },
+                'recomendacoes': {
+                    'titulo': 'Recomendações',
+                    'pontos': ['Inserir dados para o período selecionado']
+                }
+            },
+            'analise_setorial': {
+                'banda_larga': {
+                    'titulo': 'Sem Dados de Banda Larga',
+                    'conteudo': 'Não existem dados de banda larga disponíveis.',
+                    'desafios': []
+                },
+                'emprego': {
+                    'titulo': 'Sem Dados de Emprego',
+                    'conteudo': 'Não existem dados de emprego disponíveis.',
+                    'recomendacoes': []
+                }
+            }
+        })
+        
+        # Atualizar contexto
+        context.update({
+            'appData': json.dumps(self.prepare_data_for_json(empty_data)),
+            'ano_atual': ano_selecionado,
+            'anos_disponiveis': anos_disponiveis,
+            'dados_mercado': empty_data,
+            'historic_data': {'dados_anuais': [], 'market_share': []}
+        })
 
     class Meta:
         verbose_name = "Relatório Anual do Mercado"

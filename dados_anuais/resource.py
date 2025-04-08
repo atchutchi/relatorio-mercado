@@ -1,17 +1,22 @@
 import logging
 from import_export import resources, fields
-from import_export.widgets import IntegerWidget, DecimalWidget
-from .models import DadosAnuais
+from import_export.widgets import IntegerWidget, DecimalWidget, ForeignKeyWidget
+from .models import DadosAnuais, Operadora
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
 class DadosAnuaisResource(resources.ModelResource):
     ano = fields.Field(attribute='ano', column_name='Ano')
-    operadora = fields.Field(attribute='operadora', column_name='Operadora')
+    operadora = fields.Field(
+        column_name='Operadora',
+        attribute='operadora',
+        widget=ForeignKeyWidget(Operadora, 'nome')
+    )
 
     class Meta:
         model = DadosAnuais
-        import_id_fields = ()
+        import_id_fields = ('ano', 'operadora')
         fields = ('ano', 'operadora', 'assinantes_rede_movel', 'assinantes_pos_pago', 'assinantes_pre_pago', 'utilizacao_efetiva',
                   'assinantes_banda_larga_movel', 'assinantes_3g', 'assinantes_3g_box', 'assinantes_3g_usb', 'assinantes_4g',
                   'assinantes_4g_box', 'assinantes_4g_usb', 'assinantes_banda_larga_fixa', 'banda_larga_256kbps', 'banda_larga_256k_2m',
@@ -66,13 +71,13 @@ class DadosAnuaisResource(resources.ModelResource):
             indicador = row.get(dataset.headers[0], '') if dataset.headers else ''
             logger.debug(f"Processando indicador: {indicador}")
             for year in self.year_columns:
-                for operadora in ['ORANGE', 'MTN', 'TOTAL']:
-                    col_index = dataset.headers.index(year) + ['ORANGE', 'MTN', 'TOTAL'].index(operadora)
+                for operadora_nome in ['ORANGE', 'MTN']:  # Removido 'TOTAL'
+                    col_index = dataset.headers.index(year) + ['ORANGE', 'MTN', 'TOTAL'].index(operadora_nome) if 'TOTAL' in ['ORANGE', 'MTN', 'TOTAL'] else dataset.headers.index(year) + ['ORANGE', 'MTN'].index(operadora_nome)
                     valor = row.get(dataset.headers[col_index], '')
                     if valor:
                         new_row = {
                             'Ano': year,
-                            'Operadora': operadora,
+                            'Operadora': operadora_nome,
                             indicador: valor
                         }
                         new_dataset.append(new_row)
@@ -84,6 +89,16 @@ class DadosAnuaisResource(resources.ModelResource):
         logger.debug("Primeiras 5 linhas do novo dataset:")
         for i, row in enumerate(dataset.dict[:5]):
             logger.debug(f"Linha {i}: {row}")
+            
+    def before_save_instance(self, instance, using_transactions=True, dry_run=False, **kwargs):
+        """
+        Verifica se a operadora existe e a cria se necessário.
+        """
+        if not dry_run and instance.operadora_id is None and hasattr(instance, 'operadora') and instance.operadora:
+            operadora_nome = instance.operadora.nome
+            operadora, created = Operadora.objects.get_or_create(nome=operadora_nome)
+            instance.operadora = operadora
+            logger.info(f"{'Criada' if created else 'Encontrada'} operadora: {operadora.nome}")
 
     def import_row(self, row, instance_loader, **kwargs):
         logger.debug(f"Importando linha: {row}")
@@ -92,10 +107,17 @@ class DadosAnuaisResource(resources.ModelResource):
     def get_instance(self, instance_loader, row):
         logger.debug(f"Buscando instância para: ano={row.get('Ano')}, operadora={row.get('Operadora')}")
         try:
+            # Obtém a operadora pelo nome
+            operadora_nome = row['Operadora']
+            operadora = Operadora.objects.get(nome=operadora_nome)
+            
             return self.Meta.model.objects.get(
                 ano=row['Ano'],
-                operadora=row['Operadora']
+                operadora=operadora
             )
+        except Operadora.DoesNotExist:
+            logger.debug(f"Operadora não encontrada: {row['Operadora']}")
+            return None
         except self.Meta.model.DoesNotExist:
             logger.debug("Instância não encontrada, será criada uma nova")
             return None
@@ -107,12 +129,30 @@ class DadosAnuaisResource(resources.ModelResource):
     def import_field(self, field, obj, data, **kwargs):
         logger.debug(f"Importando campo: {field.column_name}, valor: {data.get(field.column_name)}")
         if field.column_name in data:
-            setattr(obj, field.attribute, field.clean(data))
+            value = field.clean(data)
+            if value == '' or value is None:
+                # Para campos com default=0 ou default=Decimal('0.0'),
+                # não precisamos definir explicitamente como None,
+                # o default do modelo será aplicado
+                field_instance = self.Meta.model._meta.get_field(field.attribute)
+                if hasattr(field_instance, 'default') and field_instance.default != NOT_PROVIDED:
+                    # Não definimos o valor, deixamos o default do modelo
+                    pass
+                else:
+                    setattr(obj, field.attribute, value)
+            else:
+                setattr(obj, field.attribute, value)
 
     def save_instance(self, instance, using_transactions=True, dry_run=False):
         logger.debug(f"Salvando instância: {instance}")
         if not dry_run:
             try:
+                # Garantir que a operadora existe
+                if hasattr(instance, 'operadora') and instance.operadora and not instance.operadora_id:
+                    operadora_nome = instance.operadora.nome
+                    operadora, created = Operadora.objects.get_or_create(nome=operadora_nome)
+                    instance.operadora = operadora
+                
                 instance.save()
                 logger.info(f"Instância salva com sucesso: ano={instance.ano}, operadora={instance.operadora}")
             except Exception as e:

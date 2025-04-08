@@ -42,6 +42,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for data in overview_data_list|default:'' %}
+                        <tr>
+                            <td>{{ data.ano }}</td>
+                            <td>{{ data.assinantes_total|format_number }}</td>
+                            <td>{{ data.receita_total|currency }}</td>
+                            <td>{{ data.trafego_dados_total|format_number }}</td>
+                            <td>{{ data.investimentos_total|currency }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Nenhum dado disponível</td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -53,12 +66,12 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    var marketData = JSON.parse('{{ overview_data|safe }}');
-    var anos = JSON.parse('{{ anos|safe }}');
-    var assinantesTotal = JSON.parse('{{ assinantes_total|safe }}');
-    var receitaTotal = JSON.parse('{{ receita_total|safe }}');
-    var trafegoDadosTotal = JSON.parse('{{ trafego_dados_total|safe }}');
-    var investimentosTotal = JSON.parse('{{ investimentos_total|safe }}');
+    var marketData = {{ overview_data|safe }};
+    var anos = {{ anos|safe }};
+    var assinantesTotal = {{ assinantes_total|safe }};
+    var receitaTotal = {{ receita_total|safe }};
+    var trafegoDadosTotal = {{ trafego_dados_total|safe }};
+    var investimentosTotal = {{ investimentos_total|safe }};
 </script>
 <script src="{% static 'js/market_overview.js' %}"></script>
 {% endblock %}

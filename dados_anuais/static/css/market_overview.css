@@ -22,6 +22,22 @@
     background-color: #f8f9fa;
 }
 
+/* Estilos para os indicadores de crescimento */
+.positive-growth {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.negative-growth {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.zero-growth {
+    color: #6c757d;
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 0 15px;

@@ -1,81 +1,203 @@
 {% load static %}
 
 <!doctype html>
-<html lang="en">
- <head>
-   {% block meta %}
-       <meta http-equiv="X-UA-Compatible" content="ie=edge">
-       <meta charset="utf-8">
-       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-   {% endblock %}
+<html lang="pt-BR">
+<head>
+    <!-- Meta tags Requeridas -->
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Observatório do Mercado de Telecomunicações da Guiné-Bissau">
+    <meta name="author" content="ARN - Autoridade Reguladora Nacional">
 
-   {% block extra_meta %}
-   {% endblock %}
+    <!-- Favicon e ícones -->
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    
+    <!-- CSS do Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS Base -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
-   {% block corecss %}
-       <link rel="stylesheet" href="{% static 'css/base.css' %}">
-       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-       <link rel="preconnect" href="https://fonts.googleapis.com">
-       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-       <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-   {% endblock %}
+    {% block extra_css %}
+    {% endblock %}
 
-   {% block extra_css %}
-   {% endblock %}
+    <title>Observatório do Mercado de Telecomunicações {% block extra_title %}{% endblock %}</title>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="fixed-top">
+        <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
+            <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-start">
+                <a href="{% url 'home' %}" class="nav-link main-logo-link">
+                    <img src="/media/logo.png" alt="Logo ARN" class="logo-img">
+                    <span class="logo-text">Observatório do Mercado</span>
+                </a>
+            </div>
+            <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
+                <form method="GET" action="{% url 'home' %}">
+                    <div class="input-group w-100">
+                        <input class="form-control border border-primary" type="text" name="q" placeholder="Pesquisar por dados, operadoras, relatórios...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
+                <ul class="list-inline list-unstyled text-center text-lg-end my-0">
+                    <li class="list-inline-item dropdown">
+                        <a class="text-black nav-link" href="#" id="user-options" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div class="text-center">
+                                <div><i class="fas fa-user fa-lg"></i></div>
+                                <p class="my-0">Minha Conta</p>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu border-0" aria-labelledby="user-options">
+                            {% if request.user.is_authenticated %}
+                                {% if request.user.is_superuser %}
+                                    <a href="{% url 'admin:index' %}" class="dropdown-item">Gestão de Indicadores</a>
+                                {% endif %}
+                                <a href="#" class="dropdown-item">Meu Perfil</a>
+                                <a href="#" class="dropdown-item">Notificações</a>
+                                <a href="{% url 'account_logout' %}" class="dropdown-item">Sair</a>
+                            {% else %}
+                                <a href="{% url 'account_signup' %}" class="dropdown-item">Registrar</a>
+                                <a href="{% url 'account_login' %}" class="dropdown-item">Entrar</a>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <li class="list-inline-item">
+                        <a class="text-black nav-link" href="#">
+                            <div class="text-center">
+                                <div><i class="fas fa-bell fa-lg"></i></div>
+                                <p class="my-0">
+                                    Notificações
+                                    {% if unread_notifications %}
+                                    <span class="badge bg-danger">{{ unread_notifications }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row bg-white">
+            <nav class="navbar navbar-expand-lg navbar-light w-100">
+                <div class="container">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Menu de navegação">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    
+                    <!-- Logo visível apenas em dispositivos móveis -->
+                    <a href="{% url 'home' %}" class="nav-link main-logo-link d-lg-none">
+                        <img src="/media/arn-logo.png" alt="Logo ARN" class="logo-img" style="height: 40px;">
+                    </a>
+                    
+                    <!-- Mobile actions -->
+                    <div class="d-lg-none">
+                        {% include 'includes/mobile-top-header.html' %}
+                    </div>
+                    
+                    <!-- Menu de navegação -->
+                    <div class="collapse navbar-collapse" id="main-nav">
+                        {% include 'includes/main-nav.html' %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-   <title>Indicadores do Mercado das Telecomunicações{% block extra_title %}{% endblock %}</title>
- </head>
- <body class="{% if request.path == '/' %}home-bg{% else %}bg-white{% endif %}">
-   <header class="container-fluid">
-       <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
-           <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-left">
-               <a href="{% url 'home' %}" class="nav-link main-logo-link">
-                   <h2 class="logo-font text-black my-0"><strong class="logo-highlight">Indicadores</strong> Mercado</h2>
-               </a>                    
-           </div>
-           <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
-               <form method="GET" action="">
-                   <div class="input-group w-100">
-                       <input class="form-control border border-black rounded-0" type="text" name="q" placeholder="Search our site">
-                       <div class="input-group-append">
-                           <button class="form-control btn btn-black border border-black rounded-0" type="submit" aria-label="Submit">
-                               <span class="icon">
-                                   <i class="fas fa-search"></i>
-                               </span>
-                           </button>                                
-                       </div>
-                   </div>
-               </form>
-           </div>
-       </div>
-       
-       <div class="row bg-white">
-           <nav class="navbar navbar-expand-lg navbar-light w-100">
-               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
-                   <span class="navbar-toggler-icon"></span>
-               </button>
-               {% include 'includes/mobile-top-header.html' %}
-               {% include 'includes/main-nav.html' %}
-           </nav>
-       </div>
-   </header>
+    {% if messages %}
+    <div class="message-container">
+        {% for message in messages %}
+            {% with message.level as level %}
+                {% if level == 40 %}
+                    {% include 'includes/toasts/toast_error.html' %}
+                {% elif level == 30 %}
+                    {% include 'includes/toasts/toast_warning.html' %}
+                {% elif level == 25 %}
+                    {% include 'includes/toasts/toast_success.html' %}
+                {% else %}
+                    {% include 'includes/toasts/toast_info.html' %}
+                {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-   <main class="content container mt-4">
-        {% block page_header %}{% endblock %}
-        {% block content %}{% endblock %}
+    {% block page_header %}
+    {% endblock %}
+
+    <main class="main-content">
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
 
-   {% block corejs %}
-       <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-       <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
-       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-       <script src="https://kit.fontawesome.com/e9c73d7092.js" crossorigin="anonymous"></script>
-   {% endblock %}
+    <!-- Rodapé -->
+    <footer class="container-fluid footer bg-primary text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-4 mb-4 mb-md-0">
+                    <h4 class="mb-3">Observatório do Mercado</h4>
+                    <p>Promovendo a transparência e a compreensão do mercado de telecomunicações da Guiné-Bissau através de análises e dados atualizados.</p>
+                    <div class="social-icons mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 mb-4 mb-md-0">
+                    <h4 class="mb-3">Links Úteis</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-white">Início</a></li>
+                        <li><a href="{% url 'dados_anuais:annual_report' %}" class="text-white">Relatório Anual</a></li>
+                        <li><a href="{% url 'dados_anuais:market_overview' %}" class="text-white">Análise de Mercado</a></li>
+                        <li><a href="#" class="text-white">Operadoras</a></li>
+                        <li><a href="#" class="text-white">Sobre o Observatório</a></li>
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-12 col-md-4">
+                    <h4 class="mb-3">Contato</h4>
+                    <ul class="list-unstyled contact-info">
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Av. Combatentes da Liberdade da Pátria, Bissau, Guiné-Bissau</li>
+                        <li><i class="fas fa-phone me-2"></i> (+245) 955 804 200</li>
+                        <li><i class="fas fa-envelope me-2"></i> info@arn.gw</li>
+                        <li><i class="fas fa-globe me-2"></i> www.arn.gw</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <hr class="footer-divider">
+                    <p class="text-center mb-0">&copy; {% now "Y" %} ARN - Autoridade Reguladora Nacional. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-   {% block extra_js %}
-   {% endblock %}
-
- </body>
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    
+    <!-- Arquivo JS principal -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
 </html>

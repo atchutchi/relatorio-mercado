@@ -1,31 +1,63 @@
 <div class="collapse navbar-collapse" id="main-nav">
-    <ul class="navbar-nav w-auto mx-auto">
-        <li class="nav-item d-block">
-            <a class="logo-font font-weight-bold nav-link d-lg-none text-black mr-5" href="{% url 'home' %}" id="home-link">
-                Home
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'home' %}">
+                <i class="fas fa-home"></i> <span>Início</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dados_anuais:annual_report' %}">
+                <i class="far fa-file-alt"></i> <span>Relatório Anual</span>
             </a>
         </li>
 
         <li class="nav-item dropdown">
-            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="{% url 'dados_anuais:annual_report' %}" id="clothing-link" aria-haspopup="true" aria-expanded="false">
-                Relatório Anual
+            <a class="nav-link dropdown-toggle" href="#" id="dados-anuais-link" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-chart-line"></i> <span>Análise de Mercado</span>
             </a>
+            <ul class="dropdown-menu" aria-labelledby="dados-anuais-link">
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_overview' %}">
+                    <i class="fas fa-chart-pie"></i> Visão Geral do Mercado
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_evolution' %}">
+                    <i class="fas fa-chart-line"></i> Evolução do Mercado
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:annual_comparison' %}">
+                    <i class="fas fa-sync-alt"></i> Comparação Anual
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_analysis' %}">
+                    <i class="fas fa-search-dollar"></i> Análise de Mercado
+                </a></li>
+            </ul>
         </li>
 
         <li class="nav-item dropdown">
-            <a class="logo-font font-weight-bold nav-link text-black mr-5" href="#" id="dados-anuais-link" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dados Anuais
+            <a class="nav-link dropdown-toggle" href="#" id="operadoras-link" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-building"></i> <span>Operadoras</span>
             </a>
-            <div class="dropdown-menu border-0" aria-labelledby="dados-anuais-link">
-                <a href="{% url 'dados_anuais:market_overview' %}" class="dropdown-item">Visão Geral do Mercado</a>
-                <a href="{% url 'dados_anuais:market_evolution' %}" class="dropdown-item">Evolução do Mercado</a>
-                <a href="{% url 'dados_anuais:annual_comparison' %}" class="dropdown-item">Comparação Anual</a>
-                <a href="{% url 'dados_anuais:market_analysis' %}" class="dropdown-item">Análise de Mercado</a>
-                <a href="{% url 'dados_anuais:operator_evolution' operadora='MTN' %}" class="dropdown-item">Evolução MTN</a>
-                <a href="{% url 'dados_anuais:operator_evolution' operadora='ORANGE' %}" class="dropdown-item">Evolução Orange</a>
-                <a href="{% url 'dados_anuais:growth_report' %}" class="dropdown-item">Relatório de Crescimento</a>
-                <a href="{% url 'dados_anuais:sector_panorama' %}" class="dropdown-item">Panorama do Setor</a>
-            </div>
+            <ul class="dropdown-menu" aria-labelledby="operadoras-link">
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:operator_evolution' operadora='MTN' %}">
+                    <span class="operator-icon mtn">MTN</span> Evolução MTN
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:operator_evolution' operadora='ORANGE' %}">
+                    <span class="operator-icon orange">Orange</span> Evolução Orange
+                </a></li>
+            </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="relatorios-link" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-file-alt"></i> <span>Relatórios</span>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="relatorios-link">
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:growth_report' %}">
+                    <i class="fas fa-arrow-up"></i> Relatório de Crescimento
+                </a></li>
+                <li><a class="dropdown-item" href="{% url 'dados_anuais:sector_panorama' %}">
+                    <i class="fas fa-globe"></i> Panorama do Setor
+                </a></li>
+            </ul>
         </li>
     </ul>
 </div>
