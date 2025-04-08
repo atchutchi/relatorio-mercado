@@ -26,6 +26,7 @@
     
     <!-- CSS Base -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
 
     {% block extra_css %}
     {% endblock %}
@@ -35,7 +36,8 @@
 <body>
     <!-- Cabeçalho -->
     <header class="fixed-top">
-        <div id="topnav" class="row bg-white pt-lg-2 d-none d-lg-flex">
+        <!-- Topo com logo e ícones -->
+        <div id="topnav" class="row bg-white pt-lg-2">
             <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-start">
                 <a href="{% url 'home' %}" class="nav-link main-logo-link">
                     <img src="/media/logo.png" alt="Logo ARN" class="logo-img">
@@ -91,30 +93,79 @@
                 </ul>
             </div>
         </div>
-        <div class="row bg-white">
-            <nav class="navbar navbar-expand-lg navbar-light w-100">
-                <div class="container">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Menu de navegação">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    
-                    <!-- Logo visível apenas em dispositivos móveis -->
-                    <a href="{% url 'home' %}" class="nav-link main-logo-link d-lg-none">
-                        <img src="/media/arn-logo.png" alt="Logo ARN" class="logo-img" style="height: 40px;">
-                    </a>
-                    
-                    <!-- Mobile actions -->
-                    <div class="d-lg-none">
-                        {% include 'includes/mobile-top-header.html' %}
-                    </div>
-                    
-                    <!-- Menu de navegação -->
-                    <div class="collapse navbar-collapse" id="main-nav">
-                        {% include 'includes/main-nav.html' %}
-                    </div>
+        
+        <!-- Navegação principal - formato horizontal -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nav" aria-expanded="false" aria-label="Menu de navegação">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="main-nav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">
+                                <i class="fas fa-home"></i> Início
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dados_anuais:annual_report' %}">
+                                <i class="far fa-file-alt"></i> Relatório Anual
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="dados-anuais-link" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-line"></i> Análise de Mercado
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dados-anuais-link">
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_overview' %}">
+                                    <i class="fas fa-chart-pie"></i> Visão Geral do Mercado
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_evolution' %}">
+                                    <i class="fas fa-chart-line"></i> Evolução do Mercado
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:annual_comparison' %}">
+                                    <i class="fas fa-sync-alt"></i> Comparação Anual
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:market_analysis' %}">
+                                    <i class="fas fa-search-dollar"></i> Análise de Mercado
+                                </a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="operadoras-link" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-building"></i> Operadoras
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="operadoras-link">
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:operator_evolution' operadora='MTN' %}">
+                                    <span class="operator-icon mtn">MTN</span> Evolução MTN
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:operator_evolution' operadora='ORANGE' %}">
+                                    <span class="operator-icon orange">Orange</span> Evolução Orange
+                                </a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="relatorios-link" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-alt"></i> Relatórios
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="relatorios-link">
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:growth_report' %}">
+                                    <i class="fas fa-arrow-up"></i> Relatório de Crescimento
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'dados_anuais:sector_panorama' %}">
+                                    <i class="fas fa-globe"></i> Panorama do Setor
+                                </a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </header>
 
     {% if messages %}
@@ -189,6 +240,46 @@
         </div>
     </footer>
 
+    <!-- Widget de Chat -->
+    <div id="chat-icon" aria-label="Abrir assistente virtual" role="button" tabindex="0">
+        <i class="fas fa-comments"></i>
+    </div>
+    
+    <div id="chat-widget" aria-live="polite" aria-atomic="true">
+        <div class="chat-header">
+            <div class="chat-title">
+                <i class="fas fa-robot"></i>
+                <span>Assistente Virtual</span>
+            </div>
+            <button id="chat-close" aria-label="Fechar chat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="chat-messages" aria-label="Mensagens do chat">
+            <!-- As mensagens serão adicionadas dinamicamente pelo JavaScript -->
+        </div>
+        
+        <div class="chat-footer">
+            <form id="chat-form">
+                <input 
+                    type="text" 
+                    id="chat-input" 
+                    placeholder="Digite sua mensagem..." 
+                    autocomplete="off"
+                    aria-label="Mensagem"
+                />
+                <button type="submit" id="send-button" aria-label="Enviar mensagem">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+            <!-- Sugestões serão inseridas aqui pelo JS -->
+            <div class="chat-controls">
+                <button id="reset-chat" aria-label="Iniciar nova conversa">Iniciar nova conversa</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
@@ -196,6 +287,7 @@
     
     <!-- Arquivo JS principal -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/chatbot.js' %}"></script>
     
     {% block extra_js %}
     {% endblock %}

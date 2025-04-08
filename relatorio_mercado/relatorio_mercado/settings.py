@@ -14,7 +14,11 @@ from pathlib import Path
 import os
 import dj_database_url
 import logging
+from dotenv import load_dotenv
 logging.basicConfig(level=logging.DEBUG)
+
+# Carregar variáveis do arquivo .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -257,3 +261,12 @@ LOGGING = {
         },
     },
 }
+
+# Configuração da API Hugging Face
+if 'HUGGINGFACE_API_TOKEN' in os.environ:
+    # Usar variável de ambiente no Heroku
+    HUGGINGFACE_API_TOKEN = os.environ.get('HUGGINGFACE_API_TOKEN')
+else:
+    # Configuração local para desenvolvimento
+    # IMPORTANTE: Remova ou comente esta linha antes de enviar para o GitHub
+    HUGGINGFACE_API_TOKEN = ""  # Substitua com seu token da Hugging Face
