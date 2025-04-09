@@ -45,14 +45,17 @@
                 </a>
             </div>
             <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
-                <form method="GET" action="{% url 'home' %}">
-                    <div class="input-group w-100">
-                        <input class="form-control border border-primary" type="text" name="q" placeholder="Pesquisar por dados, operadoras, relatórios...">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
+                <!-- Barra de pesquisa visível apenas em telas médias e grandes -->
+                <div class="d-none d-lg-block">
+                    <form method="GET" action="{% url 'home' %}">
+                        <div class="input-group w-100">
+                            <input class="form-control border border-primary" type="text" name="q" placeholder="Pesquisar por dados, operadoras, relatórios...">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
             <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
                 <ul class="list-inline list-unstyled text-center text-lg-end my-0">
